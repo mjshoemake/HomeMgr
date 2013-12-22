@@ -3,7 +3,7 @@ var cookbooks = angular.module('cookbooks', []);
  
 // Controllers
 //cookbooks.controller('CookbookListController', ['cookbookService', function (cookbookService)] {
-cookbooks.controller('CookbookListController', [] {
+cookbooks.controller('CookbookListController', function ($scope) {
   $scope.cookbookList = [
     {'name': '30 Minute Meals For Dummies'}, 
     {'name': 'allrecipes.com'}, 
