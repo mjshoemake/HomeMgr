@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="cookbooks">
+<html ng-app="main">
 	<head>
 		<meta charset=”utf-8”>		 
 	    <title>Shoemake Management & Chronicles</title>
@@ -14,7 +14,8 @@
         <script src="js/angular-route.min.js"></script>		
 -->        
 		<script src="js/application.js"></script>
-		<script src="js/app-controllers.js"></script>
+		<script src="js/app-main.js"></script>
+		<script src="js/app-cookbooks.js"></script>
 		
 <!--		<meta name="viewport" content="width=device-width, initial-scale=1.0">  -->
 	</head>
@@ -27,7 +28,7 @@
 					<ul class="nav nav-tabs">
 						<li><a href="#">Family</a></li>
 						<li><a href="#">House</a></li>
-						<li><a href="/recipesByLetter">Recipes</a></li>
+						<li><a href="#/recipesByLetter">Recipes</a></li>
 						<li><a href="#">Finances</a></li>
 						<li><a href="#">Cars</a></li>
 						<li><a href="#">Spiritual</a></li>
@@ -37,7 +38,7 @@
 						<li><a href="#">Pictures</a></li>
 						<li><a href="#">Technology</a></li>
 						<li><a href="#">Extras</a></li>
-						<li class="active"><a href="/adminCookbooks">Admin</a></li>
+						<li class="active"><a href="#adminCookbooks">Admin</a></li>
 					</ul>
 
 					<!-- Breadcrumbs -->
@@ -56,7 +57,7 @@
 			<div ng-view></div>
 		</div>            		
   		<div id="footer" class="container footer"> 
-  		    This is the footer. This should stay at the bottom.
+  		    {{statusBarText}}
 		</div>            		
 
 		<!-- Bootstrap -->

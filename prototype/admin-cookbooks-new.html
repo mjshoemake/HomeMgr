@@ -1,53 +1,12 @@
-<!DOCTYPE html>
-<html data-ng-app>
-	<head>
-		<meta charset=”utf-8”>		 
-	    <title>Shoemake Management & Chronicles</title>
-		<!-- Bootstrap -->
-		<link href="css/bootstrap.css" rel="stylesheet"/>
-		<link href="css/theme1.css" rel="stylesheet"/> 
-<!--		<meta name="viewport" content="width=device-width, initial-scale=1.0">  -->
-	</head>
-	<body>
-		<div id="header" class="container header">
-			<div class="row-liquid">
-				<!-- Nav Bar -->
-				<div class="container">
-					<ul class="nav nav-tabs">
-						<li><a href="#">Family</a></li>
-						<li><a href="#">House</a></li>
-						<li><a href="recipes-by-letter-a.html">Recipes</a></li>
-						<li><a href="#">Finances</a></li>
-						<li><a href="#">Cars</a></li>
-						<li><a href="#">Spiritual</a></li>
-						<li><a href="#">Fitness</a></li>
-						<li><a href="#">Entertainment</a></li>
-						<li><a href="#">Vacation</a></li>
-						<li><a href="#">Pictures</a></li>
-						<li><a href="#">Technology</a></li>
-						<li><a href="#">Extras</a></li>
-						<li class="active"><a href="#">Admin</a></li>
-					</ul>
-
-					<!-- Breadcrumbs -->
-					<p/>
-					<ol class="breadcrumb">
-						<li><a href="admin-cookbooks.html">Cookbook List</a></li>
-						<li>New Cookbook</li>
-					</ol>
-				</div>
-			</div>
-		</div> 
-		<div id="contentArea" class="container scrollable contentArea">
-			<div class="row-liquid">
+			<div id="cookbooks" class="row-liquid">
 				<div class="row">
 					<div class="col-md-2 scrollable">
 						<p/>
 						<ul class="nav nav-pills nav-stacked">
-						  <li><a href="admin-cookbooks.html">Cookbooks</a></li>
-						  <li><a href="admin-food-categories.html">Food Categories</a></li>
-						  <li><a href="admin-meals.html">Meals</a></li>
-						  <li><a href="admin-users.html">Users</a></li>
+						  <li><a href="#adminCookbooks">Cookbooks</a></li>
+						  <li><a href="#adminFoodCategories">Food Categories</a></li>
+						  <li><a href="#adminMeals">Meals</a></li>
+						  <li><a href="#adminUsers">Users</a></li>
 						</ul>
 					</div>
 					<div class="col-md-10 scrollable">
@@ -69,7 +28,7 @@
 								<tr>
 									<td>&nbsp;</td> 
 									<td>Name:</td> 
-									<td><input name="name" type="textbox" size="60" /></td> 
+									<td><input name="name" type="textbox" size="60" ng-model="cookbookToAdd.name" /></td> 
 								</tr>
 								<tr>
 									<td>&nbsp;</td> 
@@ -79,22 +38,10 @@
 							</table>					
 						</div>					
 						<p/>&nbsp;<p/>
-						<button type="button" class="btn btn-default" onclick="goto('admin-cookbooks.html')">Save</button>
+						<button type="button" class="btn btn-default" ng-click="addItem()">Save</button>
 						&nbsp;&nbsp;
-						<button type="button" class="btn btn-default" onclick="goto('admin-cookbooks.html')">Cancel</button>
+						<button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
 						<p/>	
 					</div>			
 				</div>            			
 			</div>            		
-		</div>            		
-  		<div id="footer" class="container footer"> 
-  		    This is the footer. This should stay at the bottom.
-		</div>            		
-
-		<!-- Bootstrap -->
-		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-		<script src="js/bootstrap.js"></script>
-		<script src="js/application.js"></script>
-		<script src="js/angular.min.js"></script>
-	</body>
-</html>

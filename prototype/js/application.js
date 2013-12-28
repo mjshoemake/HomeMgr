@@ -23,6 +23,8 @@ function confirmDeleteAll() {
 	}
 }
 
+/*
 function goto(target) {
 	window.location="file://localhost/Users/mshoemake/IdeaProjects/HomeMgr/prototype/" + target; 
 }
+*/
