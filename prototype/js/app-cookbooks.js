@@ -18,26 +18,27 @@ cookbooks.config(function($routeProvider) {
 // Services
 cookbooks.service('cookbookService', function() {
 	var nextCookbookPk = 20;
+	var allSelected = false;
 	var cookbookList = [
-		{'cookbooks_pk': '1', 'name': '30 Minute Meals For Dummies'}, 
-		{'cookbooks_pk': '2', 'name': 'allrecipes.com'}, 
-		{'cookbooks_pk': '3', 'name': 'Betty Crocker'}, 
-		{'cookbooks_pk': '4', 'name': 'Chris Carmichael\'s Fitness Cookbook'}, 
-		{'cookbooks_pk': '5', 'name': 'Cooking Light Magazine'}, 
-		{'cookbooks_pk': '6', 'name': 'Gluten Free and Easy'}, 
-		{'cookbooks_pk': '7', 'name': 'Gran'}, 
-		{'cookbooks_pk': '8', 'name': 'Grandma Grace'}, 
-		{'cookbooks_pk': '9', 'name': 'Grandma Hilda'}, 
-		{'cookbooks_pk': '10', 'name': 'Kraft Shredded Cheese Packet'}, 
-		{'cookbooks_pk': '11', 'name': 'Lazy Day Cookin'}, 
-		{'cookbooks_pk': '12', 'name': 'Mamaw Shoemake'}, 
-		{'cookbooks_pk': '13', 'name': 'Mike\'s Test Cookbook'}, 
-		{'cookbooks_pk': '14', 'name': 'Personal Cookbook'}, 
-		{'cookbooks_pk': '15', 'name': 'Pillsbury Annual Recipes 2010'}, 
-		{'cookbooks_pk': '16', 'name': 'The Gluten Free Bible'}, 
-		{'cookbooks_pk': '17', 'name': 'The Great Potato Cookbook'}, 
-		{'cookbooks_pk': '18', 'name': 'www.stephanieodea.com'}, 
-		{'cookbooks_pk': '19', 'name': 'www.tasteofhome.com'} 
+		{'selected': false, 'cookbooks_pk': '1', 'name': '30 Minute Meals For Dummies'}, 
+		{'selected': false, 'cookbooks_pk': '2', 'name': 'allrecipes.com'}, 
+		{'selected': false, 'cookbooks_pk': '3', 'name': 'Betty Crocker'}, 
+		{'selected': false, 'cookbooks_pk': '4', 'name': 'Chris Carmichael\'s Fitness Cookbook'}, 
+		{'selected': false, 'cookbooks_pk': '5', 'name': 'Cooking Light Magazine'}, 
+		{'selected': false, 'cookbooks_pk': '6', 'name': 'Gluten Free and Easy'}, 
+		{'selected': false, 'cookbooks_pk': '7', 'name': 'Gran'}, 
+		{'selected': false, 'cookbooks_pk': '8', 'name': 'Grandma Grace'}, 
+		{'selected': false, 'cookbooks_pk': '9', 'name': 'Grandma Hilda'}, 
+		{'selected': false, 'cookbooks_pk': '10', 'name': 'Kraft Shredded Cheese Packet'}, 
+		{'selected': false, 'cookbooks_pk': '11', 'name': 'Lazy Day Cookin'}, 
+		{'selected': false, 'cookbooks_pk': '12', 'name': 'Mamaw Shoemake'}, 
+		{'selected': false, 'cookbooks_pk': '13', 'name': 'Mike\'s Test Cookbook'}, 
+		{'selected': false, 'cookbooks_pk': '14', 'name': 'Personal Cookbook'}, 
+		{'selected': false, 'cookbooks_pk': '15', 'name': 'Pillsbury Annual Recipes 2010'}, 
+		{'selected': false, 'cookbooks_pk': '16', 'name': 'The Gluten Free Bible'}, 
+		{'selected': false, 'cookbooks_pk': '17', 'name': 'The Great Potato Cookbook'}, 
+		{'selected': false, 'cookbooks_pk': '18', 'name': 'www.stephanieodea.com'}, 
+		{'selected': false, 'cookbooks_pk': '19', 'name': 'www.tasteofhome.com'} 
 	];
 	this.indexForPK = function(pk) {
 		for (var i = 0; i < cookbookList.length; i++) {
@@ -48,17 +49,31 @@ cookbooks.service('cookbookService', function() {
 		}
 		return -1;
 	}
+	this.selectAll = function(value) { 
+		for (var i = 0; i < cookbookList.length; i++) {
+			cookbookList[i].selected = value;
+		}
+	}
+	this.removeSelected = function() { 
+		for (var i = cookbookList.length - 1; i >= 0; i--) {
+			if (cookbookList[i].selected) {
+				cookbookList.splice(i, 1)
+			}
+		}
+	}
 	this.getAll = function() { return cookbookList; }
 	this.getItem = function(pk) { return cookbookList[this.indexForPK(pk)]; }
 	this.addItem = function(item) { item.cookbooks_pk = nextCookbookPk++; cookbookList.push(item); }
 	this.removeItem = function(pk) { cookbookList.splice(this.indexForPK(pk), 1) }
 	this.size = function() { return cookbookList.length; }
+	this.isAllSelected = function() { return cookbookList.allSelected; }
 	this.update = function(item) { }
 });
 
 // Cookbook Controllers
 cookbooks.controller('CookbookListController', function ($scope, $location, cookbookService) {
 	$scope.cookbookList = cookbookService.getAll();
+	$scope.allSelected = cookbookService.isAllSelected();
 	
 	$scope.goto = function (path) {
 		$location.path(path);
@@ -68,6 +83,14 @@ cookbooks.controller('CookbookListController', function ($scope, $location, cook
 		$location.path('/adminEditCookbook/' + id);
 	};
 
+	$scope.selectAll = function () {
+		cookbookService.selectAll($scope.allSelected);
+	};
+		
+	$scope.removeSelected = function () {
+		cookbookService.removeSelected();
+	};
+		
 	$scope.delete = function (id) {
 		cookbookService.removeItem(id);
 		$scope.cookbookList = cookbookService.getAll();

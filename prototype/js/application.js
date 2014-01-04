@@ -23,6 +23,31 @@ function confirmDeleteAll() {
 	}
 }
 
+function getCheckedBoxes(chkboxName) {
+	var checkboxes = document.getElementsByName(chkboxName);
+	var checkboxesChecked = [];
+	// loop over them all
+	for (var i=0; i<checkboxes.length; i++) {
+		// And stick the checked ones onto an array...
+		if (checkboxes[i].checked) {
+			checkboxesChecked.push(checkboxes[i]);
+		}
+	}
+	// Return the array if it is non-empty, or null
+	return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+}
+
+function setAllCheckBoxes(chkbox, chkboxName) {
+	var checkboxes = document.getElementsByName(chkboxName);
+	// loop over them all
+	for (var i=0; i<checkboxes.length; i++) {
+		// And stick the checked ones onto an array...
+		checkboxes[i].checked = chkbox.checked
+	}
+	// Return the array if it is non-empty, or null
+	return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+}
+
 /*
 function goto(target) {
 	window.location="file://localhost/Users/mshoemake/IdeaProjects/HomeMgr/prototype/" + target; 

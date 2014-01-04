@@ -1,5 +1,5 @@
-			<div id="cookbooks" class="row-liquid">
-				<div class="row" ng-controller="CookbookListController">
+			<div id="foodCategories" class="row-liquid">
+				<div class="row" ng-controller="FoodCategoryListController">
 					<div class="col-md-2 scrollable">
 						<p/>
 						<ul class="nav nav-pills nav-stacked">
@@ -12,35 +12,35 @@
 					<div class="col-md-10 scrollable">
 						<p>
 						<!-- Page Title -->
-						<div class="page-header">Cookbooks</div>
+						<div class="page-header">Food Categories</div>
 						<p/>
 			
 						<!-- Jumbotron Example -->
 						<div class="jumbotron">
-							<p class="jumbotron">This page allows you to add, update, and delete cookbooks.  Each recipe has an associated cookbook which is the source for the recipe.</p>
+							<p class="jumbotron">This page allows you to add, update, and delete food categories.  Each recipe has an associated food category used to organize the recipes.</p>
 						</div>
 			
 						<p/>&nbsp;<p/>
-						<button type="button" class="btn btn-default" ng-click="goto('/adminNewCookbook')">New Cookbook</button>
+						<button type="button" class="btn btn-default" ng-click="goto('/adminNewFoodCategory')">New Food Category</button>
 						&nbsp;&nbsp;
 						<button type="button" class="btn btn-default" ng-click="removeSelected()">Delete</button>
 						<p/>	
 						<div class="panel panel-primary">
 							<!-- Default panel contents -->
-							<div class="panel-heading">Cookbook List</div>
+							<div class="panel-heading">Food Category List</div>
 							<table width="100%">
 								<tr>
 									<th width="40px"><input id="selectAll" type="checkbox" ng-model="allSelected" ng-change="selectAll()"/></th> 
-									<th>Cookbook Name</th>
+									<th>Food Category Name</th>
 								</tr>
 								
-								<tr ng-repeat="cookbook in cookbookList|orderBy:'name'" ng-class-even="'highlight'">
-									<td><input id="{{cookbook.cookbooks_pk}}" name="listselect" type="checkbox" ng-model="cookbook.selected"/></td> 
-									<td><a ng-click="edit(cookbook.cookbooks_pk)">{{cookbook.name}}</a></td> 
+								<tr ng-repeat="foodCategory in foodCategoryList|orderBy:'name'" ng-class-even="'highlight'">
+									<td><input id="{{foodCategory.meal_categories_pk}}" name="listselect" type="checkbox" ng-model="foodCategory.selected"/></td> 
+									<td><a ng-click="edit(foodCategory.meal_categories_pk)">{{foodCategory.name}}</a></td> 
 								</tr>
 							</table>					
 						</div>					
 					</div>			
 				</div>
-				<script src="js/app-cookbooks.js"></script>
+				<script src="js/app-food-categories.js"></script>
 			</div>            		
