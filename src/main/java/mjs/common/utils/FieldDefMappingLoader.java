@@ -13,7 +13,7 @@ import mjs.common.xml.CastorObjectConverter;
 /**
  * This takes an XML file and converts it into an object, or converts
  * objects into XML. This allows the actions to return XML data in the
- * result to the controller.
+ * result to the controllers.
  *
  * @author   mshoemake
  */

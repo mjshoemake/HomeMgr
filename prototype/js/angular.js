@@ -765,7 +765,7 @@ function isLeafNode (node) {
  * @example
  <doc:example>
  <doc:source>
- <div ng-controller="Controller">
+ <div ng-controllers="Controller">
  <form novalidate class="simple-form">
  Name: <input type="text" ng-model="user.name" /><br />
  E-mail: <input type="email" ng-model="user.email" /><br />
@@ -1203,11 +1203,11 @@ function encodeUriQuery(val, pctEncodeSpaces) {
  *
  <example module="ngAppDemo">
    <file name="index.html">
-   <div ng-controller="ngAppDemoController">
+   <div ng-controllers="ngAppDemoController">
      I can add: {{a}} + {{b}} =  {{ a+b }}
    </file>
    <file name="script.js">
-   angular.module('ngAppDemo', []).controller('ngAppDemoController', function($scope) {
+   angular.module('ngAppDemo', []).controllers('ngAppDemoController', function($scope) {
      $scope.a = 1;
      $scope.b = 2;
    });
@@ -1665,7 +1665,7 @@ function setupModuleLoader(window) {
 
           /**
            * @ngdoc method
-           * @name angular.Module#controller
+           * @name angular.Module#controllers
            * @methodOf angular.Module
            * @param {string|Object} name Controller name, or an object map of controllers where the
            *    keys are the names and the values are the constructors.
@@ -2029,9 +2029,9 @@ function publishExternalAPI(angular){
  *    element before it is removed.
  *
  * ### Methods
- * - `controller(name)` - retrieves the controller of the current element or its parent. By default
- *   retrieves controller associated with the `ngController` directive. If `name` is provided as
- *   camelCase directive name, then the controller for this directive will be retrieved (e.g.
+ * - `controllers(name)` - retrieves the controllers of the current element or its parent. By default
+ *   retrieves controllers associated with the `ngController` directive. If `name` is provided as
+ *   camelCase directive name, then the controllers for this directive will be retrieved (e.g.
  *   `'ngModel'`).
  * - `injector()` - retrieves the injector of the current element or its parent.
  * - `scope()` - retrieves the {@link api/ng.$rootScope.Scope scope} of the current
@@ -3319,7 +3319,7 @@ function annotate(fn) {
  * </pre>
  * You would then inject and use this service like this:
  * <pre>
- *   someModule.controller('Ctrl', ['ping', function(ping) {
+ *   someModule.controllers('Ctrl', ['ping', function(ping) {
  *     ping();
  *   }]);
  * </pre>
@@ -3357,7 +3357,7 @@ function annotate(fn) {
  * </pre>
  * You would then inject and use this service like this:
  * <pre>
- *   someModule.controller 'Ctrl', ['ping', (ping)->
+ *   someModule.controllers 'Ctrl', ['ping', (ping)->
  *     ping.send()
  *   ]
  * </pre>
@@ -3696,7 +3696,7 @@ function createInjector(modulesToLoad) {
  * @example
    <example>
      <file name="index.html">
-       <div id="scrollArea" ng-controller="ScrollCtrl">
+       <div id="scrollArea" ng-controllers="ScrollCtrl">
          <a ng-click="gotoBottom()">Go to bottom</a>
          <a id="bottom"></a> You're at the bottom!
        </div>
@@ -4680,20 +4680,20 @@ function $TemplateCacheProvider() {
  *       transclude: false,
  *       restrict: 'A',
  *       scope: false,
- *       controller: function($scope, $element, $attrs, $transclude, otherInjectables) { ... },
+ *       controllers: function($scope, $element, $attrs, $transclude, otherInjectables) { ... },
  *       require: 'siblingDirectiveName', // or // ['^parentDirectiveName', '?optionalDirectiveName', '?^optionalParent'],
  *       compile: function compile(tElement, tAttrs, transclude) {
  *         return {
- *           pre: function preLink(scope, iElement, iAttrs, controller) { ... },
- *           post: function postLink(scope, iElement, iAttrs, controller) { ... }
+ *           pre: function preLink(scope, iElement, iAttrs, controllers) { ... },
+ *           post: function postLink(scope, iElement, iAttrs, controllers) { ... }
  *         }
  *         // or
  *         // return function postLink( ... ) { ... }
  *       },
  *       // or
  *       // link: {
- *       //  pre: function preLink(scope, iElement, iAttrs, controller) { ... },
- *       //  post: function postLink(scope, iElement, iAttrs, controller) { ... }
+ *       //  pre: function preLink(scope, iElement, iAttrs, controllers) { ... },
+ *       //  post: function postLink(scope, iElement, iAttrs, controllers) { ... }
  *       // }
  *       // or
  *       // link: function postLink( ... ) { ... }
@@ -4786,11 +4786,11 @@ function $TemplateCacheProvider() {
  *
  *
  *
- * #### `controller`
- * Controller constructor function. The controller is instantiated before the
+ * #### `controllers`
+ * Controller constructor function. The controllers is instantiated before the
  * pre-linking phase and it is shared with other directives (see
  * `require` attribute). This allows the directives to communicate with each other and augment
- * each other's behavior. The controller is injectable (and supports bracket notation) with the following locals:
+ * each other's behavior. The controllers is injectable (and supports bracket notation) with the following locals:
  *
  * * `$scope` - Current scope associated with the element
  * * `$element` - Current element
@@ -4801,20 +4801,20 @@ function $TemplateCacheProvider() {
  *
  *
  * #### `require`
- * Require another directive and inject its controller as the fourth argument to the linking function. The
+ * Require another directive and inject its controllers as the fourth argument to the linking function. The
  * `require` takes a string name (or array of strings) of the directive(s) to pass in. If an array is used, the
  * injected argument will be an array in corresponding order. If no such directive can be
- * found, or if the directive does not have a controller, then an error is raised. The name can be prefixed with:
+ * found, or if the directive does not have a controllers, then an error is raised. The name can be prefixed with:
  *
- * * (no prefix) - Locate the required controller on the current element. Throw an error if not found.
- * * `?` - Attempt to locate the required controller or pass `null` to the `link` fn if not found.
- * * `^` - Locate the required controller by searching the element's parents. Throw an error if not found.
- * * `?^` - Attempt to locate the required controller by searching the element's parents or pass `null` to the
+ * * (no prefix) - Locate the required controllers on the current element. Throw an error if not found.
+ * * `?` - Attempt to locate the required controllers or pass `null` to the `link` fn if not found.
+ * * `^` - Locate the required controllers by searching the element's parents. Throw an error if not found.
+ * * `?^` - Attempt to locate the required controllers by searching the element's parents or pass `null` to the
  *   `link` fn if not found.
  *
  *
  * #### `controllerAs`
- * Controller alias at the directive scope. An alias for the controller so it
+ * Controller alias at the directive scope. An alias for the controllers so it
  * can be referenced at the directive template. The directive needs to define a scope for this
  * configuration to be used. Useful in the case when directive is used as component.
  *
@@ -4919,7 +4919,7 @@ function $TemplateCacheProvider() {
  * This property is used only if the `compile` property is not defined.
  *
  * <pre>
- *   function link(scope, iElement, iAttrs, controller, transcludeFn) { ... }
+ *   function link(scope, iElement, iAttrs, controllers, transcludeFn) { ... }
  * </pre>
  *
  * The link function is responsible for registering DOM listeners as well as updating the DOM. It is
@@ -4936,8 +4936,8 @@ function $TemplateCacheProvider() {
  *   * `iAttrs` - instance attributes - Normalized list of attributes declared on this element shared
  *     between all directive linking functions.
  *
- *   * `controller` - a controller instance - A controller instance if at least one directive on the
- *     element defines a controller. The controller is shared among all the directives, which allows
+ *   * `controllers` - a controllers instance - A controllers instance if at least one directive on the
+ *     element defines a controllers. The controllers is shared among all the directives, which allows
  *     the directives to use the controllers as a communication channel.
  *
  *   * `transcludeFn` - A transclude linking function pre-bound to the correct transclusion scope.
@@ -5035,7 +5035,7 @@ function $TemplateCacheProvider() {
         $scope.html = 'Hello {{name}}';
       }
     </script>
-    <div ng-controller="Ctrl">
+    <div ng-controllers="Ctrl">
       <input ng-model="name"> <br>
       <textarea ng-model="html"></textarea> <br>
       <div compile="html"></div>
@@ -5239,7 +5239,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
   this.$get = [
             '$injector', '$interpolate', '$exceptionHandler', '$http', '$templateCache', '$parse',
-            '$controller', '$rootScope', '$document', '$sce', '$animate', '$$sanitizeUri',
+            '$controllers', '$rootScope', '$document', '$sce', '$animate', '$$sanitizeUri',
     function($injector,   $interpolate,   $exceptionHandler,   $http,   $templateCache,   $parse,
              $controller,   $rootScope,   $document,   $sce,   $animate,   $$sanitizeUri) {
 
@@ -5797,7 +5797,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         if (!directive.templateUrl && directive.controller) {
           directiveValue = directive.controller;
           controllerDirectives = controllerDirectives || {};
-          assertNoDuplicate("'" + directiveName + "' controller",
+          assertNoDuplicate("'" + directiveName + "' controllers",
               controllerDirectives[directiveName], directive, $compileNode);
           controllerDirectives[directiveName] = directive;
         }
@@ -6613,10 +6613,10 @@ function tokenDifference(str1, str2) {
  * @ngdoc object
  * @name ng.$controllerProvider
  * @description
- * The {@link ng.$controller $controller service} is used by Angular to create new
+ * The {@link ng.$controller $controllers service} is used by Angular to create new
  * controllers.
  *
- * This provider allows controller registration via the
+ * This provider allows controllers registration via the
  * {@link ng.$controllerProvider#methods_register register} method.
  */
 function $ControllerProvider() {
@@ -6634,7 +6634,7 @@ function $ControllerProvider() {
    *    annotations in the array notation).
    */
   this.register = function(name, constructor) {
-    assertNotHasOwnProperty(name, 'controller');
+    assertNotHasOwnProperty(name, 'controllers');
     if (isObject(name)) {
       extend(controllers, name);
     } else {
@@ -6647,22 +6647,22 @@ function $ControllerProvider() {
 
     /**
      * @ngdoc function
-     * @name ng.$controller
+     * @name ng.$controllers
      * @requires $injector
      *
      * @param {Function|string} constructor If called with a function then it's considered to be the
-     *    controller constructor function. Otherwise it's considered to be a string which is used
-     *    to retrieve the controller constructor using the following steps:
+     *    controllers constructor function. Otherwise it's considered to be a string which is used
+     *    to retrieve the controllers constructor using the following steps:
      *
-     *    * check if a controller with given name is registered via `$controllerProvider`
+     *    * check if a controllers with given name is registered via `$controllerProvider`
      *    * check if evaluating the string on the current scope returns a constructor
      *    * check `window[constructor]` on the global `window` object
      *
      * @param {Object} locals Injection locals for Controller.
-     * @return {Object} Instance of given controller.
+     * @return {Object} Instance of given controllers.
      *
      * @description
-     * `$controller` service is responsible for instantiating controllers.
+     * `$controllers` service is responsible for instantiating controllers.
      *
      * It's just a simple call to {@link AUTO.$injector $injector}, but extracted into
      * a service, so that one can override this service with {@link https://gist.github.com/1649788
@@ -6686,8 +6686,8 @@ function $ControllerProvider() {
 
       if (identifier) {
         if (!(locals && typeof locals.$scope == 'object')) {
-          throw minErr('$controller')('noscp',
-              "Cannot export controller '{0}' as '{1}'! No $scope object provided via `locals`.",
+          throw minErr('$controllers')('noscp',
+              "Cannot export controllers '{0}' as '{1}'! No $scope object provided via `locals`.",
               constructor || expression.name, identifier);
         }
 
@@ -7340,7 +7340,7 @@ function $HttpProvider() {
      * @example
 <example>
 <file name="index.html">
-  <div ng-controller="FetchCtrl">
+  <div ng-controllers="FetchCtrl">
     <select ng-model="method">
       <option>GET</option>
       <option>JSONP</option>
@@ -7974,11 +7974,11 @@ var $interpolateMinErr = minErr('$interpolate');
   });
 
 
-  customInterpolationApp.controller('DemoController', function DemoController() {
+  customInterpolationApp.controllers('DemoController', function DemoController() {
       this.label = "This binding is brought you by // interpolation symbols.";
   });
 </script>
-<div ng-app="App" ng-controller="DemoController as demo">
+<div ng-app="App" ng-controllers="DemoController as demo">
     //demo.label//
 </div>
 </doc:source>
@@ -9072,7 +9072,7 @@ function $LocationProvider(){
        }
      </file>
      <file name="index.html">
-       <div ng-controller="LogCtrl">
+       <div ng-controllers="LogCtrl">
          <p>Reload this page with open console, enter text and hit the log button...</p>
          Message:
          <input type="text" ng-model="message"/>
@@ -10338,7 +10338,7 @@ function $ParseProvider() {
    * **Deprecation notice**
    *
    * This is a feature that didn't prove to be wildly useful or popular, primarily because of the
-   * dichotomy between data access in templates (accessed as raw values) and controller code
+   * dichotomy between data access in templates (accessed as raw values) and controllers code
    * (accessed as promises).
    *
    * In most code we ended up resolving promises manually in controllers anyway and thus unifying
@@ -12675,7 +12675,7 @@ function $SceDelegateProvider() {
  * @example
 <example module="mySceApp">
 <file name="index.html">
-  <div ng-controller="myAppController as myCtrl">
+  <div ng-controllers="myAppController as myCtrl">
     <i ng-bind-html="myCtrl.explicitlyTrustedHtml" id="explicitlyTrustedHtml"></i><br><br>
     <b>User comments</b><br>
     By default, HTML that isn't explicitly trusted (e.g. Alice's comment) is sanitized when
@@ -12694,7 +12694,7 @@ function $SceDelegateProvider() {
 <file name="script.js">
   var mySceApp = angular.module('mySceApp', ['ngSanitize']);
 
-  mySceApp.controller("myAppController", function myAppController($http, $templateCache, $sce) {
+  mySceApp.controllers("myAppController", function myAppController($http, $templateCache, $sce) {
     var self = this;
     $http.get("test_data.json", {cache: $templateCache}).success(function(userComments) {
       self.userComments = userComments;
@@ -13366,7 +13366,7 @@ function $TimeoutProvider() {
           </script>
 
           <div>
-            <div ng-controller="Ctrl2">
+            <div ng-controllers="Ctrl2">
               Date format: <input ng-model="format"> <hr/>
               Current time is: <span my-current-time="format"></span>
               <hr/>
@@ -13563,7 +13563,7 @@ function urlIsSameOrigin(requestUrl) {
            };
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          <input type="text" ng-model="greeting" />
          <button ng-click="doGreeting(greeting)">ALERT</button>
        </div>
@@ -13944,7 +13944,7 @@ function filterFilter() {
            $scope.amount = 1234.56;
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          <input type="number" ng-model="amount"> <br>
          default currency symbol ($): {{amount | currency}}<br>
          custom currency identifier (USD$): {{amount | currency:"USD$"}}
@@ -13997,7 +13997,7 @@ function currencyFilter($locale) {
            $scope.val = 1234.56789;
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          Enter number: <input ng-model='val'><br>
          Default formatting: {{val | number}}<br>
          No fractions: {{val | number:0}}<br>
@@ -14426,7 +14426,7 @@ var uppercaseFilter = valueFn(uppercase);
            $scope.letterLimit = 3;
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          Limit {{numbers}} to: <input type="integer" ng-model="numLimit">
          <p>Output numbers: {{ numbers | limitTo:numLimit }}</p>
          Limit {{letters}} to: <input type="integer" ng-model="letterLimit">
@@ -14536,7 +14536,7 @@ function limitToFilter(){
            $scope.predicate = '-age';
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          <pre>Sorting predicate = {{predicate}}; reverse = {{reverse}}</pre>
          <hr/>
          [ <a href="" ng-click="predicate=''">unsorted</a> ]
@@ -15096,7 +15096,7 @@ var nullFormCtrl = {
  * of `FormController`.
  *
  */
-//asks for $scope to fool the BC controller module
+//asks for $scope to fool the BC controllers module
 FormController.$inject = ['$element', '$attrs', '$scope'];
 function FormController(element, attrs) {
   var form = this,
@@ -15270,7 +15270,7 @@ function FormController(element, attrs) {
  * does not allow nesting of form elements. It is useful to nest forms, for example if the validity of a
  * sub-group of controls needs to be determined.
  *
- * @param {string=} ngForm|name Name of the form. If specified, the form controller will be published into
+ * @param {string=} ngForm|name Name of the form. If specified, the form controllers will be published into
  *                       related scope, under this name.
  *
  */
@@ -15284,7 +15284,7 @@ function FormController(element, attrs) {
  * Directive that instantiates
  * {@link ng.directive:form.FormController FormController}.
  *
- * If the `name` attribute is specified, the form controller is published onto the current scope under
+ * If the `name` attribute is specified, the form controllers is published onto the current scope under
  * this name.
  *
  * # Alias: {@link ng.directive:ngForm `ngForm`}
@@ -15335,7 +15335,7 @@ function FormController(element, attrs) {
  * hitting enter in any of the input fields will trigger the click handler on the *first* button or
  * input[type=submit] (`ngClick`) *and* a submit handler on the enclosing form (`ngSubmit`)
  *
- * @param {string=} name Name of the form. If specified, the form controller will be published into
+ * @param {string=} name Name of the form. If specified, the form controllers will be published into
  *                       related scope, under this name.
  *
  * @example
@@ -15346,7 +15346,7 @@ function FormController(element, attrs) {
            $scope.userType = 'guest';
          }
        </script>
-       <form name="myForm" ng-controller="Ctrl">
+       <form name="myForm" ng-controllers="Ctrl">
          userType: <input name="input" ng-model="userType" required>
          <span class="error" ng-show="myForm.input.$error.required">Required!</span><br>
          <tt>userType = {{userType}}</tt><br>
@@ -15477,7 +15477,7 @@ var inputType = {
              $scope.word = /^\s*\w*\s*$/;
            }
          </script>
-         <form name="myForm" ng-controller="Ctrl">
+         <form name="myForm" ng-controllers="Ctrl">
            Single word: <input type="text" name="input" ng-model="text"
                                ng-pattern="word" required ng-trim="false">
            <span class="error" ng-show="myForm.input.$error.required">
@@ -15554,7 +15554,7 @@ var inputType = {
              $scope.value = 12;
            }
          </script>
-         <form name="myForm" ng-controller="Ctrl">
+         <form name="myForm" ng-controllers="Ctrl">
            Number: <input type="number" name="input" ng-model="value"
                           min="0" max="99" required>
            <span class="error" ng-show="myForm.input.$error.required">
@@ -15623,7 +15623,7 @@ var inputType = {
              $scope.text = 'http://google.com';
            }
          </script>
-         <form name="myForm" ng-controller="Ctrl">
+         <form name="myForm" ng-controllers="Ctrl">
            URL: <input type="url" name="input" ng-model="text" required>
            <span class="error" ng-show="myForm.input.$error.required">
              Required!</span>
@@ -15691,7 +15691,7 @@ var inputType = {
              $scope.text = 'me@example.com';
            }
          </script>
-           <form name="myForm" ng-controller="Ctrl">
+           <form name="myForm" ng-controllers="Ctrl">
              Email: <input type="email" name="input" ng-model="text" required>
              <span class="error" ng-show="myForm.input.$error.required">
                Required!</span>
@@ -15748,7 +15748,7 @@ var inputType = {
              $scope.color = 'blue';
            }
          </script>
-         <form name="myForm" ng-controller="Ctrl">
+         <form name="myForm" ng-controllers="Ctrl">
            <input type="radio" ng-model="color" value="red">  Red <br/>
            <input type="radio" ng-model="color" value="green"> Green <br/>
            <input type="radio" ng-model="color" value="blue"> Blue <br/>
@@ -15791,7 +15791,7 @@ var inputType = {
              $scope.value2 = 'YES'
            }
          </script>
-         <form name="myForm" ng-controller="Ctrl">
+         <form name="myForm" ng-controllers="Ctrl">
            Value1: <input type="checkbox" ng-model="value1"> <br/>
            Value2: <input type="checkbox" ng-model="value2"
                           ng-true-value="YES" ng-false-value="NO"> <br/>
@@ -16176,7 +16176,7 @@ function checkboxInputType(scope, element, attr, ctrl) {
            $scope.user = {name: 'guest', last: 'visitor'};
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          <form name="myForm">
            User name: <input type="text" name="userName" ng-model="user.name" required>
            <span class="error" ng-show="myForm.userName.$error.required">
@@ -16297,7 +16297,7 @@ var VALID_CLASS = 'ng-valid',
  *
  * @description
  *
- * `NgModelController` provides API for the `ng-model` directive. The controller contains
+ * `NgModelController` provides API for the `ng-model` directive. The controllers contains
  * services for data-binding, validation, CSS updates, and value formatting and parsing. It
  * purposefully does not contain any logic which deals with DOM rendering or listening to
  * DOM events. Such DOM related logic should be provided by other directives which make use of
@@ -16676,7 +16676,7 @@ var ngModelDirective = function() {
  *         };
  *       }
  *     </script>
- *     <div ng-controller="Controller">
+ *     <div ng-controllers="Controller">
  *       <input type="checkbox" ng-model="confirmed" ng-change="change()" id="ng-change-example1" />
  *       <input type="checkbox" ng-model="confirmed" id="ng-change-example2" />
  *       <label for="ng-change-example2">Confirmed</label><br />
@@ -16758,7 +16758,7 @@ var requiredDirective = function() {
            $scope.names = ['igor', 'misko', 'vojta'];
          }
        </script>
-       <form name="myForm" ng-controller="Ctrl">
+       <form name="myForm" ng-controllers="Ctrl">
          List: <input name="namesInput" ng-model="names" ng-list required>
          <span class="error" ng-show="myForm.namesInput.$error.required">
            Required!</span>
@@ -16852,7 +16852,7 @@ var CONSTANT_VALUE_REGEXP = /^(true|false|\d+)$/;
             $scope.my = { favorite: 'unicorns' };
           }
        </script>
-        <form ng-controller="Ctrl">
+        <form ng-controllers="Ctrl">
           <h2>Which is your favorite?</h2>
             <label ng-repeat="name in names" for="{{name}}">
               {{name}}
@@ -16929,7 +16929,7 @@ var ngValueDirective = function() {
            $scope.name = 'Whirled';
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          Enter name: <input type="text" ng-model="name"><br>
          Hello <span ng-bind="name"></span>!
        </div>
@@ -16980,7 +16980,7 @@ var ngBindDirective = ngDirective(function(scope, element, attr) {
            $scope.name = 'World';
          }
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
         Salutation: <input type="text" ng-model="salutation"><br>
         Name: <input type="text" ng-model="name"><br>
         <pre ng-bind-template="{{salutation}} {{name}}!"></pre>
@@ -17038,7 +17038,7 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
  
    <example module="ngBindHtmlExample" deps="angular-sanitize.js">
      <file name="index.html">
-       <div ng-controller="ngBindHtmlCtrl">
+       <div ng-controllers="ngBindHtmlCtrl">
         <p ng-bind-html="myHTML"></p>
        </div>
      </file>
@@ -17046,7 +17046,7 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
      <file name="script.js">
        angular.module('ngBindHtmlExample', ['ngSanitize'])
 
-       .controller('ngBindHtmlCtrl', ['$scope', function ngBindHtmlCtrl($scope) {
+       .controllers('ngBindHtmlCtrl', ['$scope', function ngBindHtmlCtrl($scope) {
          $scope.myHTML =
             'I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>';
        }]);
@@ -17432,7 +17432,7 @@ var ngCloakDirective = ngDirective({
  * @name ng.directive:ngController
  *
  * @description
- * The `ngController` directive attaches a controller class to the view. This is a key aspect of how angular
+ * The `ngController` directive attaches a controllers class to the view. This is a key aspect of how angular
  * supports the principles behind the Model-View-Controller design pattern.
  *
  * MVC components in angular:
@@ -17444,22 +17444,22 @@ var ngCloakDirective = ngDirective({
  *   logic behind the application to decorate the scope with functions and values
  *
  * Note that you can also attach controllers to the DOM by declaring it in a route definition
- * via the {@link ngRoute.$route $route} service. A common mistake is to declare the controller
- * again using `ng-controller` in the template itself.  This will cause the controller to be attached
+ * via the {@link ngRoute.$route $route} service. A common mistake is to declare the controllers
+ * again using `ng-controllers` in the template itself.  This will cause the controllers to be attached
  * and executed twice.
  *
  * @element ANY
  * @scope
  * @param {expression} ngController Name of a globally accessible constructor function or an
  *     {@link guide/expression expression} that on the current scope evaluates to a
- *     constructor function. The controller instance can be published into a scope property
+ *     constructor function. The controllers instance can be published into a scope property
  *     by specifying `as propertyName`.
  *
  * @example
  * Here is a simple form for editing user contact information. Adding, removing, clearing, and
- * greeting are methods declared on the controller (see source tab). These methods can
+ * greeting are methods declared on the controllers (see source tab). These methods can
  * easily be called from the angular markup. Notice that the scope becomes the `this` for the
- * controller's instance. This allows for easy access to the view data from the controller. Also
+ * controllers's instance. This allows for easy access to the view data from the controllers. Also
  * notice that any changes to the data are automatically reflected in the View without the need
  * for a manual update. The example is shown in two different declaration styles you may use
  * according to preference.
@@ -17491,7 +17491,7 @@ var ngCloakDirective = ngDirective({
           contact.value = '';
         };
       </script>
-      <div id="ctrl-as-exmpl" ng-controller="SettingsController1 as settings">
+      <div id="ctrl-as-exmpl" ng-controllers="SettingsController1 as settings">
         Name: <input type="text" ng-model="settings.name"/>
         [ <a href="" ng-click="settings.greet()">greet</a> ]<br/>
         Contact:
@@ -17510,7 +17510,7 @@ var ngCloakDirective = ngDirective({
       </div>
      </doc:source>
      <doc:scenario>
-       it('should check controller as', function() {
+       it('should check controllers as', function() {
          expect(element('#ctrl-as-exmpl>:input').val()).toBe('John Smith');
          expect(element('#ctrl-as-exmpl li:nth-child(1) input').val())
            .toBe('408 555 1212');
@@ -17554,7 +17554,7 @@ var ngCloakDirective = ngDirective({
           };
         }
       </script>
-      <div id="ctrl-exmpl" ng-controller="SettingsController2">
+      <div id="ctrl-exmpl" ng-controllers="SettingsController2">
         Name: <input type="text" ng-model="name"/>
         [ <a href="" ng-click="greet()">greet</a> ]<br/>
         Contact:
@@ -17573,7 +17573,7 @@ var ngCloakDirective = ngDirective({
       </div>
      </doc:source>
      <doc:scenario>
-       it('should check controller', function() {
+       it('should check controllers', function() {
          expect(element('#ctrl-exmpl>:input').val()).toBe('John Smith');
          expect(element('#ctrl-exmpl li:nth-child(1) input').val())
            .toBe('408 555 1212');
@@ -17886,7 +17886,7 @@ forEach(
           };
         }
       </script>
-      <form ng-submit="submit()" ng-controller="Ctrl">
+      <form ng-submit="submit()" ng-controllers="Ctrl">
         Enter text and hit enter:
         <input type="text" ng-model="text" name="text" />
         <input type="submit" id="submit" value="Submit" />
@@ -18151,7 +18151,7 @@ var ngIfDirective = ['$animate', function($animate) {
  * @example
   <example animations="true">
     <file name="index.html">
-     <div ng-controller="Ctrl">
+     <div ng-controllers="Ctrl">
        <select ng-model="template" ng-options="t.name for t in templates">
         <option value="">(blank)</option>
        </select>
@@ -18336,7 +18336,7 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
  * <div class="alert alert-error">
  * The only appropriate use of `ngInit` for aliasing special properties of
  * {@link api/ng.directive:ngRepeat `ngRepeat`}, as seen in the demo below. Besides this case, you
- * should use {@link guide/controller controllers} rather than `ngInit`
+ * should use {@link guide/controllers controllers} rather than `ngInit`
  * to initialize values on a scope.
  * </div>
  *
@@ -18353,7 +18353,7 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
        $scope.list = [['a', 'b'], ['c', 'd']];
      }
    </script>
-   <div ng-controller="Ctrl">
+   <div ng-controllers="Ctrl">
      <div ng-repeat="innerList in list" ng-init="outerIndex = $index">
        <div ng-repeat="value in innerList" ng-init="innerIndex = $index">
           <span class="example-init">list[ {{outerIndex}} ][ {{innerIndex}} ] = {{value}};</span>
@@ -18517,7 +18517,7 @@ var ngNonBindableDirective = ngDirective({ terminal: true, priority: 1000 });
             $scope.personCount = 1;
           }
         </script>
-        <div ng-controller="Ctrl">
+        <div ng-controllers="Ctrl">
           Person 1:<input type="text" ng-model="person1" value="Igor" /><br/>
           Person 2:<input type="text" ng-model="person2" value="Misko" /><br/>
           Number of People:<input type="text" ng-model="personCount" value="1" /><br/>
@@ -19411,7 +19411,7 @@ var ngStyleDirective = ngDirective(function(scope, element, attr) {
  * @example
   <example animations="true">
     <file name="index.html">
-      <div ng-controller="Ctrl">
+      <div ng-controllers="Ctrl">
         <select ng-model="selection" ng-options="item for item in items">
         </select>
         <tt>selection={{selection}}</tt>
@@ -19483,7 +19483,7 @@ var ngSwitchDirective = ['$animate', function($animate) {
     restrict: 'EA',
     require: 'ngSwitch',
 
-    // asks for $scope to fool the BC controller module
+    // asks for $scope to fool the BC controllers module
     controller: ['$scope', function ngSwitchController() {
      this.cases = {};
     }],
@@ -19576,7 +19576,7 @@ var ngSwitchDefaultDirective = ngDirective({
              };
          });
        </script>
-       <div ng-controller="Ctrl">
+       <div ng-controllers="Ctrl">
          <input ng-model="title"><br>
          <textarea ng-model="text"></textarea> <br/>
          <pane title="{{title}}">{{text}}</pane>
@@ -19741,7 +19741,7 @@ var ngOptionsMinErr = minErr('ngOptions');
           $scope.color = $scope.colors[2]; // red
         }
         </script>
-        <div ng-controller="MyCntrl">
+        <div ng-controllers="MyCntrl">
           <ul>
             <li ng-repeat="color in colors">
               Name: <input ng-model="color.name">

@@ -21,8 +21,31 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
-	<context:component-scan base-package="mjs.home.controller" />
-	
-	
-	
+	<context:component-scan base-package="mjs.home.controllers" />
+    <context:component-scan base-package="mjs.home.services" />
+
+    <beans:bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <beans:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <beans:property name="url" value="jdbc:mysql://localhost/mshoemake"/>
+        <beans:property name="username" value="root"/>
+        <beans:property name="password" value=""/>
+    </beans:bean>
+
+    <beans:bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <beans:property name="dataSource" ref="myDataSource"/>
+        <beans:property name="mappingResources">
+            <beans:list>
+                <beans:value>mjs/users/User.hbm.xml</beans:value>
+            </beans:list>
+        </beans:property>
+        <beans:property name="hibernateProperties">
+            <beans:value>
+                hibernate.dialect=org.hibernate.dialect.HSQLDialect
+            </beans:value>
+        </beans:property>
+    </beans:bean>
+
+
+
+
 </beans:beans>

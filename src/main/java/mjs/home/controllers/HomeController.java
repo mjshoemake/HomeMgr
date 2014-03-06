@@ -1,4 +1,4 @@
-package mjs.home.controller;
+package mjs.home.controllers;
 
 import java.text.DateFormat;
 import java.util.Date;

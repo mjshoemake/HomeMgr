@@ -87,7 +87,7 @@ public abstract class AbstractTag extends TagSupport {
         try {
             log.debug("");
             log.debug("TAG: " + this.getClass().getName());
-            // Initialize the controller, imgpath, output writer, request and response
+            // Initialize the controllers, imgpath, output writer, request and response
             // from the pageContext.
             init(pageContext);
             result = output(this);
@@ -143,7 +143,7 @@ public abstract class AbstractTag extends TagSupport {
     }
 
     /**
-     * If the imgpath and controller are not assigned by tag parameters, they are set from the page context (project config file).
+     * If the imgpath and controllers are not assigned by tag parameters, they are set from the page context (project config file).
      * The response, request and output writer are also assigned from the page context for convenient reference.
      * 
      * @param page Description of Parameter
