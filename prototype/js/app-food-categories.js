@@ -13,7 +13,7 @@ foodCategories.config(function($routeProvider) {
 
 // Services
 foodCategories.service('foodCategoryService', function() {
-	var nextPk = 20;
+	var nextPk = 15;
 	var allSelected = false;
 	var list = [
 		{'selected': false, 'meal_categories_pk': '1', 'name': 'Beans'}, 

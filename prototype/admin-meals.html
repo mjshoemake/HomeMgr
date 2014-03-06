@@ -1,5 +1,5 @@
-			<div class="row-liquid">
-				<div class="row">
+			<div id="meals" class="row-liquid">
+				<div class="row" ng-controller="MealListController">
 					<div class="col-md-2 scrollable">
 						<p/>
 						<ul class="nav nav-pills nav-stacked">
@@ -17,51 +17,30 @@
 			
 						<!-- Jumbotron Example -->
 						<div class="jumbotron">
-							<p class="jumbotron">This page allows you to add, update, and delete meals.  Each recipe has an associated meal.</p>
-<!--							<a href="#" class="btn btn-large btn-success">Don't Show This Anymore</a> -->
+							<p class="jumbotron">This page allows you to add, update, and delete meals.  Each recipe has an associated meal used to organize the recipes.</p>
 						</div>
 			
 						<p/>&nbsp;<p/>
-						<button type="button" class="btn btn-default" onclick="goto('admin-meals-new.html')">New Meal</button>
+						<button type="button" class="btn btn-default" ng-click="goto('/adminNewMeal')">New Meal</button>
 						&nbsp;&nbsp;
-						<button type="button" class="btn btn-default" onclick="confirmDelete('cookbook', 'admin-meals.html')">Delete</button>
+						<button type="button" class="btn btn-default" ng-click="removeSelected()">Delete</button>
 						<p/>	
 						<div class="panel panel-primary">
 							<!-- Default panel contents -->
 							<div class="panel-heading">Meal List</div>
-
 							<table width="100%">
 								<tr>
-									<th width="40px"><input type="checkbox"/></th> 
+									<th width="40px"><input id="selectAll" type="checkbox" ng-model="allSelected" ng-change="selectAll()"/></th> 
 									<th>Meal Name</th>
 								</tr>
-								<tr>
-									<td><input type="checkbox"/></td> 
-									<td><a href="admin-meals-edit.html">Breakfast</a></td> 
+								
+								<tr ng-repeat="meal in mealList|orderBy:'name'" ng-class-even="'highlight'">
+									<td><input id="{{meal.meals_pk}}" name="listselect" type="checkbox" ng-model="meal.selected"/></td> 
+									<td><a ng-click="edit(meal.meals_pk)">{{meal.name}}</a></td> 
 								</tr>
-								<tr class="highlight">
-									<td><input type="checkbox"/></td> 
-									<td><a href="admin-meals-edit.html">Dessert</a></td> 
-								</tr>
-								<tr>
-									<td><input type="checkbox"/></td> 
-									<td><a href="admin-meals-edit.html">Dinner</a></td> 
-								</tr>
-								<tr class="highlight">
-									<td><input type="checkbox"/></td> 
-									<td><a href="admin-meals-edit.html">Lunch</a></td> 
-								</tr>
-								<tr>
-									<td><input type="checkbox"/></td> 
-									<td><a href="admin-meals-edit.html">Side Dish</a></td> 
-								</tr>
-								<tr class="highlight">
-									<td><input type="checkbox"/></td> 
-									<td><a href="admin-meals-edit.html">Snack</a></td> 
-								</tr>
-
 							</table>					
 						</div>					
 					</div>			
-				</div>            			
+				</div>
+				<script src="js/app-meals.js"></script>
 			</div>            		
