@@ -275,8 +275,10 @@ div.jumbotron {
 /* MJS Validated  */
 .nav-tabs > li > a:hover,
 .nav-tabs > li > a:focus {
-  color: #490582;
-  background-color: #dfc9eb;
+  color: #eeeeee;
+  /*	background-color: @tab-hover-bg-color; */
+
+  background-color: #490582;
   border-color: #490582;
   border: 1px solid #490582;
 }
