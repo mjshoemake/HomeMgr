@@ -6,7 +6,7 @@
 						  <li><a href="#adminCookbooks">Cookbooks</a></li>
 						  <li><a href="#adminFoodCategories">Food Categories</a></li>
 						  <li><a href="#adminMeals">Meals</a></li>
-						  <li><a href="#adminUsers">Users</a></li>
+						  <li class="active"><a href="#adminUsers">Users</a></li>
 						</ul>
 					</div>
 					<div class="col-md-10 scrollable">
@@ -35,7 +35,11 @@
 								</tr>
 								
 								<tr ng-repeat="user in userList|orderBy:'username'" ng-class-even="'highlight'">
+<<<<<<< HEAD
 									<td><input id="{{meal.user_pk}}" name="listselect" type="checkbox" ng-model="user.selected"/></td> 
+=======
+									<td><input id="{{user.user_pk}}" name="listselect" type="checkbox" ng-model="user.selected"/></td> 
+>>>>>>> RecipesByLetter page.
 									<td><a ng-click="edit(user.user_pk)">{{user.username}}</a></td> 
 								</tr>
 							</table>					

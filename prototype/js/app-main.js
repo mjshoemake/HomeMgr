@@ -1,4 +1,4 @@
-var main = angular.module('main', ['cookbooks', 'foodCategories', 'meals', 'recipes', 'ngRoute', 'ngSanitize']);
+var main = angular.module('main', ['cookbooks', 'foodCategories', 'meals', 'recipes', 'users', 'ngRoute', 'ngSanitize']);
  
 // Services
 main.service('mainService', function() {

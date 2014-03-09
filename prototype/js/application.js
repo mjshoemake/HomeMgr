@@ -1,4 +1,14 @@
 
+function setLinkToActive(current, sClass) {
+    var elements = document.getElementsByClassName(sClass);
+	for (var i=0; i < elements.length; i++) {
+		if (elements[i].parentNode.className == "active") {
+			elements[i].parentNode.className = "";
+		}  
+	}
+	current.parentNode.className = "active";
+}
+
 function setCheckboxes() {
 	var form = document.forms[0];
 	var val = form.selectAll.checked;

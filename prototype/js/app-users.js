@@ -120,5 +120,5 @@ meals.controller('UserAddController', function ($scope, $routeParams, $location,
 });
 
 angular.element(document).ready(function() { 
-	angular.bootstrap(document.getElementById('meals'), ['meals']);
+	angular.bootstrap(document.getElementById('users'), ['users']);
 });
