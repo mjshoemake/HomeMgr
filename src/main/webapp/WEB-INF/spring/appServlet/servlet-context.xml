@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans xmlns="http://www.springframework.org/schema/mvc"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:beans="http://www.springframework.org/schema/beans"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+             		    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <beans:bean id="transactionManager"
+          class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <beans:property name="sessionFactory" ref="sessionFactory"/>
+    </beans:bean>
 
-	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
-	
-	<!-- Enables the Spring MVC @Controller programming model -->
-	<annotation-driven />
-
-	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
-	<resources mapping="/resources/**" location="/resources/" />
-
-	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<beans:property name="prefix" value="/WEB-INF/views/" />
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
-	<context:component-scan base-package="mjs.home.controllers" />
-    <context:component-scan base-package="mjs.home.services" />
-
     <beans:bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <beans:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <beans:property name="url" value="jdbc:mysql://localhost/mshoemake"/>
@@ -41,11 +36,19 @@
         <beans:property name="hibernateProperties">
             <beans:value>
                 hibernate.dialect=org.hibernate.dialect.HSQLDialect
+                hibernate.show_sql=true
             </beans:value>
         </beans:property>
     </beans:bean>
 
+    <!-- Enable Hibernate transactions -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
 
+    <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+    <resources mapping="/resources/**" location="/resources/" />
 
+    <!-- Enables the Spring MVC @Controller programming model -->
+    <mvc:annotation-driven />
+    <context:component-scan base-package="mjs.home.controllers, mjs.home.services" />
 
 </beans:beans>
