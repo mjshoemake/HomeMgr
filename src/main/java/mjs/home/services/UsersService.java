@@ -44,7 +44,7 @@ public class UsersService extends BaseService {
         }
     }
 
-    public User getUser(String userName) throws ModelException {
+    public User getUserByUsername(String userName) throws ModelException {
         try {
             List<User> users = findByCriteria(Restrictions.like("username", userName, MatchMode.START));
             if (users.size() == 1) {
@@ -61,6 +61,26 @@ public class UsersService extends BaseService {
         } catch (Exception e) {
             log.error("Unable to retrieve this user (" + userName + ").", e);
             throw new ModelException("Unable to retrieve this user (" + userName + "). " + e.getMessage());
+        }
+    }
+
+    public User getUserByPK(int id) throws ModelException {
+        try {
+            List<User> users = findByCriteria(Restrictions.eq("user_pk", new Integer(id)));
+            if (users.size() == 1) {
+                return users.get(0);
+            } else if (users.size() > 1) {
+                throw new Exception("More than one user returned matching this username but only one is expected.");
+            } else if (users.size() == 0) {
+                throw new Exception("No users found that match the specified username.");
+            } else {
+                throw new Exception("Unexpected error. Number of users returned: " + users.size());
+            }
+        } catch (ModelException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Unable to retrieve this user (" + id + ").", e);
+            throw new ModelException("Unable to retrieve this user (" + id + "). " + e.getMessage());
         }
     }
 

@@ -24,6 +24,11 @@ class User extends ModelLoggable {
    int user_pk = -1
 
    /**
+    * The user's name.
+    */
+   String name = ""
+
+     /**
     * The user's first name.
     */
    String fname = ""

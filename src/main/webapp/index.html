@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html ng-app="main">
+	<head>
+		<meta charset=”utf-8”>		 
+	    <title>Shoemake Management & Chronicles</title>
+		<!-- Bootstrap -->
+		<link href="css/bootstrap.css" rel="stylesheet"/>
+		<link href="css/theme1.css" rel="stylesheet"/>
+		<script src="http://code.angularjs.org/1.2.6/angular.min.js"></script>
+		<script src="http://code.angularjs.org/1.2.6/angular-route.min.js"></script>
+		<script src="http://code.angularjs.org/1.2.6/angular-sanitize.min.js"></script>
+        <script src="http://code.angularjs.org/1.2.6/angular-resource.min.js"></script>
+<!--
+		<script src="js/angular.min.js"></script>
+        <script src="js/angular-route.min.js"></script>		
+-->        
+		<script src="js/application.js"></script>
+		<script src="js/app-recipes.js"></script>
+		<script src="js/app-main.js"></script>
+		<script src="js/app-cookbooks.js"></script>
+		<script src="js/app-food-categories.js"></script>
+		<script src="js/app-meals.js"></script>
+		<script src="js/app-users.js"></script>
+		<script src="js/app-editors.js"></script>
+		
+<!--		<meta name="viewport" content="width=device-width, initial-scale=1.0">  -->
+	</head>
+<!--	<body ng-controllers="CookbookListController"> -->
+	<body ng-controller="AppController">
+		<div id="header" class="container header">
+			<div class="row-liquid">
+				<!-- Nav Bar -->
+				<div class="container">
+					<ul class="nav nav-tabs">
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Family</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">House</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#recipesByLetter">Recipes</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Finances</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Cars</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Spiritual</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Fitness</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Entertainment</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Vacation</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Pictures</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Technology</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#">Extras</a></li>
+						<li><a class="mainTabs" onclick="setLinkToActive(this, 'mainTabs');" href="#adminCookbooks">Admin</a></li>
+					</ul>
+
+					<!-- Breadcrumbs -->
+					<p/>
+					<ol class="breadcrumb">
+						<li>Cookbook List</li>
+					</ol>
+				</div>
+			</div>
+		</div> 
+		<!-- MAIN CONTENT AND INJECTED VIEWS -->
+		<div id="contentArea" class="container scrollable contentArea">
+			<!-- angular templating -->
+			<!-- this is where content will be injected -->
+			{{$route.current.template}}
+			<div ng-view></div>
+		</div>            		
+  		<div id="footer" class="container footer"> 
+  		    {{statusBarText}}
+		</div>            		
+
+		<!-- Bootstrap -->
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="js/bootstrap.js"></script>
+	</body>
+</html>

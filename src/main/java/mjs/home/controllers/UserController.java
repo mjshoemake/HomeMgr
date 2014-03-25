@@ -32,35 +32,46 @@ public class UserController {
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     @ResponseBody Object getUserList(Model model) {
         try {
+            log.debug("REST Call: getAllUsers()");
             return usersService.getAllUsers();
         } catch (ModelException e) {
+            log.error(e.getMessage(), e);
             return new ServiceResponse(500, "Error", e.getMessage());
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return new ServiceResponse(500, "Error", "An error occurred retrieving the list of users. " + e.getMessage());
         }
     }
 
-    @RequestMapping(value = "/users/{userName}", method = RequestMethod.GET)
-    @ResponseBody Object getUser(Model model, @PathVariable String userName) {
+    @RequestMapping(value = "/users/{userPk}", method = RequestMethod.GET)
+    @ResponseBody Object getUser(Model model, @PathVariable int userPk) {
         try {
-            return usersService.getUser(userName);
+            log.debug("REST Call: getUser(pk=" + userPk + ")");
+            return usersService.getUserByPK(userPk);
         } catch (ModelException e) {
+            log.error(e.getMessage(), e);
             return new ServiceResponse(500, "Error", e.getMessage());
         } catch (Exception e) {
-            return new ServiceResponse(500, "Error", "An error occurred retrieving user " + userName + ". " + e.getMessage());
+            log.error(e.getMessage(), e);
+            return new ServiceResponse(500, "Error", "An error occurred retrieving user " + userPk + ". " + e.getMessage());
         }
     }
 
-    @RequestMapping(value = "/users/{userName}", method = RequestMethod.DELETE)
-    @ResponseBody public Object deleteUser(Model model, @PathVariable String userName) {
+    @RequestMapping(value = "/users/{userPk}", method = RequestMethod.DELETE)
+    @ResponseBody public Object deleteUser(Model model, @PathVariable int userPk) {
         try {
-            User user = usersService.getUser(userName);
+            log.debug("REST Call: deleteUser(pk=" + userPk + ")");
+            User user = usersService.getUserByPK(userPk);
+            log.debug("   Deleting user " + user.getUsername() + "...");
             usersService.deleteUser(user);
-            return new ServiceResponse(200, "Success", "Successfully deleted user " + userName + ".");
+            log.debug("   Deleting user " + user.getUsername() + "... Done.");
+            return new ServiceResponse(200, "Success", "Successfully deleted user " + user.getUsername() + ".");
         } catch (ModelException e) {
+            log.error(e.getMessage(), e);
             return new ServiceResponse(500, "Error", e.getMessage());
         } catch (Exception e) {
-            return new ServiceResponse(500, "Error", "An error occurred deleting user " + userName + ". " + e.getMessage());
+            log.error(e.getMessage(), e);
+            return new ServiceResponse(500, "Error", "An error occurred deleting user " + userPk + ". " + e.getMessage());
         }
     }
 
@@ -69,6 +80,7 @@ public class UserController {
         try {
             return usersService.save(user);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return new ServiceResponse(500, "Error", "An error occurred deleting user " + user.getUsername() + ". " + e.getMessage());
         }
     }
@@ -76,9 +88,15 @@ public class UserController {
     @RequestMapping(value = "/users", method = RequestMethod.PUT)
     @ResponseBody public Object updateUser(Model model, @RequestBody User user) {
         try {
-            usersService.update(user);
-            return new ServiceResponse(200, "Success", "Successfully updated user " + user.getUsername() + ".");
+            if (user.getUser_pk() == 0) {
+                usersService.saveUser(user);
+                return usersService.getUserByUsername(user.getUsername()).getUser_pk();
+            } else {
+                usersService.update(user);
+                return new ServiceResponse(200, "Success", "Successfully updated user " + user.getUsername() + ".");
+            }
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return new ServiceResponse(500, "Error", "An error occurred updating user " + user.getUsername() + ". " + e.getMessage());
         }
     }
