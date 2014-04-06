@@ -23,7 +23,7 @@ public class UsersService extends BaseService {
     protected static final Logger log = Logger.getLogger("Service");
 
     public UsersService() {
-        super(User.class                                                                                                                                                                                                                                                                                                         );
+        super(User.class);
     }
 
     public String saveUser(User user) throws ModelException {
