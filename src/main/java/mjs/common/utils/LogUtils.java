@@ -8,16 +8,13 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import mjs.common.exceptions.CoreException;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.LogManager;
+import org.apache.log4j.PropertyConfigurator;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -36,6 +33,11 @@ public class LogUtils {
      */
     private static final Logger log = Logger.getLogger("Core");
     private static final Logger userLog = Logger.getLogger("UI_UserEdits");
+
+    /**
+     * Log4j.properties path.
+     */
+    private static String LOG4J_PROP_FILE_LOCATION = "/config/log4j.properties";
 
     /**
      * Log the exception. If the exception is of type ITInterfaceException, 
@@ -358,50 +360,55 @@ public class LogUtils {
 
                                 // Add indentation to simulate object hierarchy.
                                 line = new StringBuffer();
+                                System.out.println("Writing: " + fieldName);
                                 line.append(indent(level));
                                 line.append(fieldName);
                                 line.append(" = ");
-
-                                if (value instanceof Map) {
-                                    if (showTypes) 
-                                        line.append(value.getClass().getName());
-                                    else
-                                        line.append("Map");
-
-                                    lines.add(line.toString());
-                                    //log.debug(indent(level) + "    Property is a map.  Calling processBean()...");
-                                    processBean(value, level + 1, lines, showTypes);
-                                }
-                                else if (value instanceof Collection) {
-                                    // Process the collection.
-                                    if (showTypes) 
-                                        line.append(value.getClass().getName());
-                                    else
-                                        line.append("List");
-
-                                    lines.add(line.toString());
-                                    //log.debug(indent(level) + "    Property is a collection.  Calling processBean()...");
-                                    processBean(value, level + 1, lines, showTypes);
-                                } else if (value instanceof Integer 
-                                        || value instanceof Long
-                                        || value instanceof Double
-                                        || value instanceof Boolean
-                                        || value instanceof BigDecimal
-                                        || value instanceof BigInteger
-                                        || value instanceof java.util.Date
-                                        || value instanceof Float
-                                        || value instanceof String) {
-                                    // Append the actual property value converted to a String.
-                                    line.append(value.toString());
-                                    lines.add(line.toString());
+                                if (fieldName.endsWith("Class") || fieldName.endsWith("class")) {
+                                    line.append("SKIPPING");
                                 } else {
-                                    // Append the actual property value converted to a String.
-                                    line.append(value.getClass().getName());
-                                    lines.add(line.toString());
-                                    
-                                    // Process the next bean.
-                                    processBean(value, level + 1, lines, showTypes);
+                                    if (value instanceof Map) {
+                                        if (showTypes)
+                                            line.append(value.getClass().getName());
+                                        else
+                                            line.append("Map");
+
+                                        lines.add(line.toString());
+                                        //log.debug(indent(level) + "    Property is a map.  Calling processBean()...");
+                                        processBean(value, level + 1, lines, showTypes);
+                                    }
+                                    else if (value instanceof Collection) {
+                                        // Process the collection.
+                                        if (showTypes)
+                                            line.append(value.getClass().getName());
+                                        else
+                                            line.append("List");
+
+                                        lines.add(line.toString());
+                                        //log.debug(indent(level) + "    Property is a collection.  Calling processBean()...");
+                                        processBean(value, level + 1, lines, showTypes);
+                                    } else if (value instanceof Integer
+                                            || value instanceof Long
+                                            || value instanceof Double
+                                            || value instanceof Boolean
+                                            || value instanceof BigDecimal
+                                            || value instanceof BigInteger
+                                            || value instanceof java.util.Date
+                                            || value instanceof Float
+                                            || value instanceof String) {
+                                        // Append the actual property value converted to a String.
+                                        line.append(value.toString());
+                                        lines.add(line.toString());
+                                    } else {
+                                        // Append the actual property value converted to a String.
+                                        line.append(value.getClass().getName());
+                                        lines.add(line.toString());
+
+                                        // Process the next bean.
+                                        processBean(value, level + 1, lines, showTypes);
+                                    }
                                 }
+
                             } else {
                                 line = new StringBuffer();
                                 line.append("   ");
@@ -532,9 +539,9 @@ public class LogUtils {
     
     /**
      * To write the user actions to the useredits.log in a standardised format
-     * @param Username
-     * @param Action
-     * @param Status
+     * @param username
+     * @param action
+     * @param status
      * @throws CoreException
      */
     public static void userEditsLog(String username,String action,String status ) throws Exception { 
@@ -554,7 +561,7 @@ public class LogUtils {
 	 * be loaded before log4j is configured.  Use of this method prevents
 	 * notifications to the console saying that log4j is not configured.
 	 */
-	public static boolean isLog4jConfigured() {
+	public static boolean isLoggingConfigured() {
 		Enumeration appenders = Logger.getRoot().getAllAppenders();
 		if (appenders.hasMoreElements()) {
 			return true;
@@ -568,4 +575,15 @@ public class LogUtils {
 		}
 		return false;
 	}
+
+    public static void initializeLogging() {
+        try {
+            // Lookup the file name for log4j configuration
+            String fileName = LOG4J_PROP_FILE_LOCATION;
+            Properties props = FileUtils.getContents(fileName, true);
+            PropertyConfigurator.configure(props);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

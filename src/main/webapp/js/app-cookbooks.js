@@ -1,10 +1,25 @@
 
-var cookbooks = angular.module('cookbooks', ['ngRoute', 'ngSanitize']);
+var cookbooks = angular.module('cookbooks', ['ngRoute', 'ngSanitize', 'ngResource']);
  
 var urlPrefix = '';
 
-// Routes
+cookbooks.factory('CookbooksFactory', function($resource) {
+    return $resource('http://localhost:8080/homeMgr/cookbooks', {}, {
+        query: { method: 'GET', isArray: true },
+        create: { method: 'POST', params: {type: 'create'} }
+    })
+});
 
+cookbooks.factory('CookbooksFactory', function($resource) {
+    return $resource('http://localhost:8080/homeMgr/cookbooks/:id', {}, {
+        show: { method: 'GET' , params: {id: '@id'} },
+        update: { method: 'PUT' , params: {id: '@id'} },
+        delete: { method: 'DELETE' , params: {id: '@id'} }
+    })
+});
+
+
+// Routes
 cookbooks.config(function($routeProvider) {
 	$routeProvider.when('/adminCookbooks', {templateUrl: urlPrefix + 'admin-cookbooks.html', controller: 'CookbookListController'});
 	$routeProvider.when('/adminNewCookbook', {templateUrl: urlPrefix + 'admin-cookbooks-new.html', controller: 'CookbookAddController'});
@@ -16,30 +31,11 @@ cookbooks.config(function($routeProvider) {
 });
 
 // Services
-cookbooks.service('cookbookService', function() {
+cookbooks.service('cookbookService', function(CookbooksFactory) {
 	var nextCookbookPk = 20;
 	var allSelected = false;
-	var cookbookList = [
-		{'selected': false, 'cookbooks_pk': '1', 'name': '30 Minute Meals For Dummies'}, 
-		{'selected': false, 'cookbooks_pk': '2', 'name': 'allrecipes.com'}, 
-		{'selected': false, 'cookbooks_pk': '3', 'name': 'Betty Crocker'}, 
-		{'selected': false, 'cookbooks_pk': '4', 'name': 'Chris Carmichael\'s Fitness Cookbook'}, 
-		{'selected': false, 'cookbooks_pk': '5', 'name': 'Cooking Light Magazine'}, 
-		{'selected': false, 'cookbooks_pk': '6', 'name': 'Gluten Free and Easy'}, 
-		{'selected': false, 'cookbooks_pk': '7', 'name': 'Gran'}, 
-		{'selected': false, 'cookbooks_pk': '8', 'name': 'Grandma Grace'}, 
-		{'selected': false, 'cookbooks_pk': '9', 'name': 'Grandma Hilda'}, 
-		{'selected': false, 'cookbooks_pk': '10', 'name': 'Kraft Shredded Cheese Packet'}, 
-		{'selected': false, 'cookbooks_pk': '11', 'name': 'Lazy Day Cookin'}, 
-		{'selected': false, 'cookbooks_pk': '12', 'name': 'Mamaw Shoemake'}, 
-		{'selected': false, 'cookbooks_pk': '13', 'name': 'Mike\'s Test Cookbook'}, 
-		{'selected': false, 'cookbooks_pk': '14', 'name': 'Personal Cookbook'}, 
-		{'selected': false, 'cookbooks_pk': '15', 'name': 'Pillsbury Annual Recipes 2010'}, 
-		{'selected': false, 'cookbooks_pk': '16', 'name': 'The Gluten Free Bible'}, 
-		{'selected': false, 'cookbooks_pk': '17', 'name': 'The Great Potato Cookbook'}, 
-		{'selected': false, 'cookbooks_pk': '18', 'name': 'www.stephanieodea.com'}, 
-		{'selected': false, 'cookbooks_pk': '19', 'name': 'www.tasteofhome.com'} 
-	];
+	var cookbookList = [];
+
 	this.indexForPK = function(pk) {
 		for (var i = 0; i < cookbookList.length; i++) {
 			var next = cookbookList[i];
@@ -57,17 +53,35 @@ cookbooks.service('cookbookService', function() {
 	this.removeSelected = function() { 
 		for (var i = cookbookList.length - 1; i >= 0; i--) {
 			if (cookbookList[i].selected) {
+                CookbooksFactory.delete({ id: list[i].cookbooks_pk });
 				cookbookList.splice(i, 1)
 			}
 		}
 	}
-	this.getAll = function() { return cookbookList; }
-	this.getItem = function(pk) { return cookbookList[this.indexForPK(pk)]; }
-	this.addItem = function(item) { item.cookbooks_pk = nextCookbookPk++; cookbookList.push(item); }
-	this.removeItem = function(pk) { cookbookList.splice(this.indexForPK(pk), 1) }
-	this.size = function() { return cookbookList.length; }
-	this.isAllSelected = function() { return cookbookList.allSelected; }
-	this.update = function(item) { }
+    this.getAll = function() {
+        list = CookbooksFactory.query();
+        return list;
+    }
+    this.getItem = function(pk) {
+        return CookbooksFactory.show({ id: pk });
+    }
+    this.addItem = function(item) {
+        CookbooksFactory.update(item);
+        //UsersFactory.create(item);
+        list = CookbooksFactory.query();
+        //item.user_pk = nextPk++; list.push(item);
+    }
+    this.removeItem = function(pk) {
+        CookbooksFactory.delete({ id: pk });
+        //list = UsersFactory.query();
+        list.splice(this.indexForPK(pk), 1)
+    }
+    this.size = function() { return cookbookList.length; }
+    this.isAllSelected = function() { return cookbookList.allSelected; }
+    this.update = function(item) {
+        CookbooksFactory.update(item);
+        list = CookbooksFactory.query();
+    }
 });
 
 // Cookbook Controllers

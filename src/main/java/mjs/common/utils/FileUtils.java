@@ -1372,8 +1372,6 @@ public class FileUtils {
     /**
      * Copy a file from one location to another.
      * 
-     * @param sourcePath String
-     * @param destinationPath String
      * @return boolean - successful
      */
     public static boolean copyFile(File sourceFile, File destinationFile) throws Exception {
@@ -1512,9 +1510,6 @@ public class FileUtils {
      * the classloader. If not, it will look in the file system.
      * 
      * @param fileName The path + fileName to read the contents from.
-     * @param enableEnvironmentVariableReplacement Replace ${name} with
-     *        environment variable value.  Ex. ${RMS_CONF}/dcc.properties  
-     * 
      * @return A Properties initialized with the contents of the fileName.
      *         Properties.isEmpty() = true if the fileName could not be found or
      *         it is empty.
@@ -1585,7 +1580,7 @@ public class FileUtils {
                         stream.close();
                     }
                 } catch (IOException ioe) {
-                	if (LogUtils.isLog4jConfigured()) {
+                	if (LogUtils.isLoggingConfigured()) {
                         log.info(logPrefix + "Exception caught while closing "
                             + "FileInputStream: " + ioe.getMessage());
                 	} else {
@@ -1644,7 +1639,7 @@ public class FileUtils {
                         stream.close();
                     }
                 } catch (IOException ioe) {
-                	if (LogUtils.isLog4jConfigured()) {
+                	if (LogUtils.isLoggingConfigured()) {
                         log.info("Exception caught while closing file.  FileInputStream: " + ioe.getMessage());
                 	} else {
                         System.out.println("Exception caught while closing file.  FileInputStream: " + ioe.getMessage());
@@ -1758,7 +1753,6 @@ public class FileUtils {
     
     /**
      * 
-     * @param filename
      * @return
      */
     public static String forceAbsoluteFilePath(String filePath) throws Exception {
@@ -1996,8 +1990,6 @@ public class FileUtils {
 
     /**
      * Returns the actual classname without the package information.
-     *
-     * @param filename String
      * @return String - The new filename.
      */
     public static String stripClassPath(String fullClassName) {

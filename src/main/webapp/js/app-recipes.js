@@ -1,7 +1,22 @@
 
-var recipes = angular.module('recipes', ['ngRoute', 'ngSanitize']);
+var recipes = angular.module('recipes', ['ngRoute', 'ngSanitize', 'ngResource']);
  
 var urlPrefix = '';
+
+recipes.factory('RecipesFactory', function($resource) {
+    return $resource('http://localhost:8080/homeMgr/recipes', {}, {
+        query: { method: 'GET', isArray: true },
+        create: { method: 'POST', params: {type: 'create'} }
+    })
+});
+
+recipes.factory('RecipesFactory', function($resource) {
+    return $resource('http://localhost:8080/homeMgr/recipes/:id', {}, {
+        show: { method: 'GET' , params: {id: '@id'} },
+        update: { method: 'PUT' , params: {id: '@id'} },
+        delete: { method: 'DELETE' , params: {id: '@id'} }
+    })
+});
 
 // Routes
 recipes.config(function($routeProvider) {
@@ -10,14 +25,11 @@ recipes.config(function($routeProvider) {
 });
 
 // Services
-recipes.service('recipeService', function() {
+recipes.service('recipeService', function(RecipesFactory) {
 	var nextRecipePk = 20;
 	var allSelected = false;
-	var recipeList = [
-		{'selected': false, 'recipes_pk': '1', 'name': 'Test Recipe 1'}, 
-		{'selected': false, 'recipes_pk': '2', 'name': 'Test Recipe 2'}, 
-		{'selected': false, 'recipes_pk': '3', 'name': 'Test Recipe 3'}
-	];
+	var recipeList = [];
+
 	this.indexForPK = function(pk) {
 		for (var i = 0; i < recipeList.length; i++) {
 			var next = recipeList[i];
@@ -35,12 +47,18 @@ recipes.service('recipeService', function() {
 	this.removeSelected = function() { 
 		for (var i = recipeList.length - 1; i >= 0; i--) {
 			if (recipeList[i].selected) {
+                RecipesFactory.delete({ id: list[i].recipes_pk });
 				recipeList.splice(i, 1)
 			}
 		}
 	}
-	this.getAll = function() { return recipeList; }
-	this.getItem = function(pk) { return recipeList[this.indexForPK(pk)]; }
+    this.getAll = function() {
+        list = RecipesFactory.query();
+        return list;
+    }
+    this.getItem = function(pk) {
+        return RecipesFactory.show({ id: pk });
+    }
 	this.addItem = function(item) { item.recipes_pk = nextRecipePk++; recipeList.push(item); }
 	this.removeItem = function(pk) { recipeList.splice(this.indexForPK(pk), 1) }
 	this.size = function() { return recipeList.length; }
@@ -49,7 +67,7 @@ recipes.service('recipeService', function() {
 });
 
 // Cookbook Controllers
-cookbooks.controller('RecipesController', function ($scope, $location, recipeService) {
+recipes.controller('RecipesController', function ($scope, $location, recipeService) {
 	$scope.recipeList = recipeService.getAll();
 	$scope.allSelected = recipeService.isAllSelected();
 	
@@ -124,5 +142,5 @@ cookbooks.controller('CookbookAddController', function ($scope, $routeParams, $l
 */
 
 angular.element(document).ready(function() { 
-	angular.bootstrap(document.getElementById('cookbooks'), ['cookbooks']);
+	angular.bootstrap(document.getElementById('recipes'), ['recipes']);
 });

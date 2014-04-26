@@ -1,10 +1,24 @@
 
-var meals = angular.module('meals', ['ngRoute', 'ngSanitize']);
+var meals = angular.module('meals', ['ngRoute', 'ngSanitize', 'ngResource']);
  
 var urlPrefix = '';
 
-// Routes
+meals.factory('MealsFactory', function($resource) {
+    return $resource('http://localhost:8080/homeMgr/meals', {}, {
+        query: { method: 'GET', isArray: true },
+        create: { method: 'POST', params: {type: 'create'} }
+    })
+});
 
+meals.factory('MealsFactory', function($resource) {
+    return $resource('http://localhost:8080/homeMgr/meals/:id', {}, {
+        show: { method: 'GET' , params: {id: '@id'} },
+        update: { method: 'PUT' , params: {id: '@id'} },
+        delete: { method: 'DELETE' , params: {id: '@id'} }
+    })
+});
+
+// Routes
 meals.config(function($routeProvider) {
 	$routeProvider.when('/adminMeals', {templateUrl: urlPrefix + 'admin-meals.html', controller: 'MealListController'});
 	$routeProvider.when('/adminNewMeal', {templateUrl: urlPrefix + 'admin-meals-new.html', controller: 'MealAddController'});
@@ -12,17 +26,11 @@ meals.config(function($routeProvider) {
 });
 
 // Services
-meals.service('mealService', function() {
+meals.service('mealService', function(MealsFactory) {
 	var nextPk = 7;
 	var allSelected = false;
-	var list = [
-		{'selected': false, 'meals_pk': '1', 'name': 'Breakfast'}, 
-		{'selected': false, 'meals_pk': '2', 'name': 'Lunch'}, 
-		{'selected': false, 'meals_pk': '3', 'name': 'Dinner'}, 
-		{'selected': false, 'meals_pk': '4', 'name': 'Dessert'}, 
-		{'selected': false, 'meals_pk': '5', 'name': 'Test'}, 
-		{'selected': false, 'meals_pk': '6', 'name': 'Side Dish'} 
-	];
+	var list = [];
+
 	this.indexForPK = function(pk) {
 		for (var i = 0; i < list.length; i++) {
 			var next = list[i];
@@ -40,17 +48,35 @@ meals.service('mealService', function() {
 	this.removeSelected = function() { 
 		for (var i = list.length - 1; i >= 0; i--) {
 			if (list[i].selected) {
+                MealsFactory.delete({ id: list[i].meals_pk });
 				list.splice(i, 1)
 			}
 		}
 	}
-	this.getAll = function() { return list; }
-	this.getItem = function(pk) { return list[this.indexForPK(pk)]; }
-	this.addItem = function(item) { item.meals_pk = nextPk++; list.push(item); }
-	this.removeItem = function(pk) { list.splice(this.indexForPK(pk), 1) }
-	this.size = function() { return list.length; }
-	this.isAllSelected = function() { return list.allSelected; }
-	this.update = function(item) { }
+    this.getAll = function() {
+        list = MealsFactory.query();
+        return list;
+    }
+    this.getItem = function(pk) {
+        return MealsFactory.show({ id: pk });
+    }
+    this.addItem = function(item) {
+        MealsFactory.update(item);
+        //UsersFactory.create(item);
+        list = MealsFactory.query();
+        //item.user_pk = nextPk++; list.push(item);
+    }
+    this.removeItem = function(pk) {
+        MealsFactory.delete({ id: pk });
+        //list = UsersFactory.query();
+        list.splice(this.indexForPK(pk), 1)
+    }
+    this.size = function() { return list.length; }
+    this.isAllSelected = function() { return list.allSelected; }
+    this.update = function(item) {
+        MealsFactory.update(item);
+        list = MealsFactory.query();
+    }
 });
 
 // Cookbook Controllers

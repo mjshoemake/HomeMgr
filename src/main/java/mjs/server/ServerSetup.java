@@ -1,22 +1,12 @@
 package mjs.server;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-
-import mjs.common.database.DatabaseConfig;
 import mjs.common.exceptions.ServerException;
 import mjs.common.setup.Log4jProperties;
 import mjs.common.setup.MainProperties;
 import mjs.common.utils.FileUtils;
-import mjs.common.utils.SingletonInstanceManager;
 
 /**
  * The ServerSetup object used to load config files, make 
@@ -52,9 +42,7 @@ public final class ServerSetup {
         
         System.out.println("Shoemake Home SetupServlet:init() Setting up DB.");
         // Database Initialization
-        setupDB();
-        setupMybatis();
-        
+
         auditLog.info("**********  Server initialized.  **********");
 
         System.out.println("Shoemake ServerSetup:init() END.");
@@ -62,7 +50,6 @@ public final class ServerSetup {
 
 	/**
 	 * Load the logging (Log4J) configuration information.
-	 * @param sc ServletConfig - The servlet configuration object.
 	 */
 	private void loadLoggingConfiguration() throws ServerException {
 
@@ -89,7 +76,6 @@ public final class ServerSetup {
 
     /**
      * Load the main configuration information.
-     * @param sc ServletConfig - The servlet configuration object.
      */
     private void loadMainConfiguration() throws ServerException {
 
@@ -112,65 +98,6 @@ public final class ServerSetup {
         }
     }
     
-    /**
-     * Load the main configuration information.
-     * @param sc ServletConfig - The servlet configuration object.
-     */
-    private void setupDB() throws ServerException {
-
-	    Logger auditLog = Logger.getLogger("Audit"); 
-        try {
-        	DatabaseConfig.initialize("/config/database.xml");
-        	auditLog.info("Configured MySQL database.");
-        } catch (Exception e) {
-        	auditLog.error("Error configuring MySQL database.", e);
-        	throw new ServerException("Failed to setup the database access.", e);
-        }
-    }
-    
-    /**
-     * Load the main configuration information.
-     * @param sc ServletConfig - The servlet configuration object.
-     */
-    private void setupMybatis() throws ServerException {
-
-	    Logger auditLog = Logger.getLogger("Audit"); 
-        try {
-
-    	    // Lookup the file name for log4j configuration
-        	String resource = "/config/mybatis-config.xml";
-            InputStream inputStream = FileUtils.getFileAsStream(resource, true);
-            InputStreamReader reader = new InputStreamReader(inputStream);
-            BufferedReader buff = new BufferedReader(reader);
-            
-            auditLog.debug("Reading file " + resource + ":");
-        	String line = buff.readLine();
-        	while (line != null) {
-        	    auditLog.debug("   " + line);
-        	    line = buff.readLine();
-        	}
-        	
-        	inputStream = FileUtils.getFileAsStream(resource, true);
-        	reader = new InputStreamReader(inputStream);
-        	SqlSessionFactory sqlSessionFactory = null;
-        	try {
-        	    sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
-        	    SqlSession session = sqlSessionFactory.openSession();
-        	    session.close();
-        	} catch (Throwable t) {
-        		auditLog.error("Error creating SqlSessionFactory!!! " + t.getMessage(), t);
-        	}
-            SingletonInstanceManager mgr = SingletonInstanceManager.getInstance();
-            mgr.putInstanceForKey(SqlSessionFactory.class.getName(), sqlSessionFactory);
-        	auditLog.info("Configured Mybatis database access... DONE.");
-        	
-        } catch (Exception e) {
-           	auditLog.error("Error configuring Mybatis database access.", e);
-        	throw new ServerException("Failed to initialize Mybatis database access.", e);
-        }
-    }
-    
-
     /**
      * Destroy this server and shutdown the connections.
      */

@@ -10,12 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import mjs.common.aggregation.OrderedMap;
 import mjs.common.exceptions.CoreException;
 
 /**
@@ -37,53 +34,13 @@ public class BeanUtils {
     * 
     * @param type The class.
     * @return The value of the PropertyDescriptors property.
-    * @throws ModelException
+    * @throws CoreException
     */
    public static PropertyDescriptor[] getPropertyDescriptors(Class type) throws CoreException {
       try {
          BeanInfo beanInfo = Introspector.getBeanInfo(type, type.getSuperclass());
 
          return beanInfo.getPropertyDescriptors();
-      }
-      catch (Exception e) {
-         throw new CoreException("Unable to get PropertyDescriptor list for type " + type.getName() + ".", e);
-      }
-   }
-
-   /**
-    * Uses introspection to get the list of properties for a particular class.
-    * This method returns only those properties that are also present in the
-    * mapping Hashtable.
-    * 
-    * @param type The class.
-    * @param mapping Description of Parameter
-    * @return The value of the PropertyDescriptors property.
-    * @throws ModelException
-    */
-   @SuppressWarnings("unchecked")
-   public static PropertyDescriptor[] getPropertyDescriptors(Class type, OrderedMap mapping) throws CoreException {
-      try {
-         BeanInfo beanInfo = Introspector.getBeanInfo(type, type.getSuperclass());
-         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-
-         // Create a Vector with only the properties that have both
-         // a read and write method.
-         Vector newList = new Vector();
-
-         for (int C = 0; C <= pds.length - 1; C++) {
-            if (mapping.containsKey(pds[C].getName().toLowerCase()))
-               newList.add(pds[C]);
-            else
-               log.debug(pds[C].getName() + " NOT FOUND in mapping file.");
-         }
-
-         // Create a new array with the contents of the Vector.
-         pds = new PropertyDescriptor[newList.size()];
-         for (int D = 0; D <= newList.size() - 1; D++) {
-            pds[D] = (PropertyDescriptor) newList.get(D);
-         }
-
-         return pds;
       }
       catch (Exception e) {
          throw new CoreException("Unable to get PropertyDescriptor list for type " + type.getName() + ".", e);

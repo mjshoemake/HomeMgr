@@ -30,7 +30,10 @@
         <beans:property name="dataSource" ref="myDataSource"/>
         <beans:property name="mappingResources">
             <beans:list>
-                <beans:value>mjs/users/User.hbm.xml</beans:value>
+                <beans:value>mjs/hibernate/Cookbook.hbm.xml</beans:value>
+                <beans:value>mjs/hibernate/FoodCategory.hbm.xml</beans:value>
+                <beans:value>mjs/hibernate/Meal.hbm.xml</beans:value>
+                <beans:value>mjs/hibernate/User.hbm.xml</beans:value>
             </beans:list>
         </beans:property>
         <beans:property name="hibernateProperties">

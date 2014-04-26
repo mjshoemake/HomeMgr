@@ -1,7 +1,10 @@
 package mjs.home.controllers;
 
+import mjs.common.core.BaseController;
 import mjs.common.exceptions.ModelException;
+import mjs.home.services.MealsService;
 import mjs.home.services.RecipesService;
+import mjs.model.Meal;
 import mjs.model.PrimaryKey;
 import mjs.model.ServiceResponse;
 import mjs.model.Recipe;
@@ -11,91 +14,39 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST service used to retrieve, update, and delete recipe data
- * from the database.
- */
 @Controller
-public class RecipeController {
-
-    /**
-     * The log4j logger to use when writing log messages.
-     */
-    protected static final Logger log = Logger.getLogger("Controller");
+public class RecipeController extends BaseController {
 
     @Autowired
-    RecipesService recipesService;
+    RecipesService service;
+
+    public RecipeController() {
+        super("mjs.model.Recipe", "recipe", "name", "recipes_pk", "Recipe");
+    }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.GET)
-    @ResponseBody Object getRecipeList(Model model) {
-        try {
-            log.debug("REST Call: getAllRecipes()");
-            return recipesService.getAllRecipes();
-        } catch (ModelException e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", e.getMessage());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred retrieving the list of recipess. " + e.getMessage());
-        }
+    @ResponseBody public Object getList(Model model) {
+        return super.getList(model, service);
     }
 
-    @RequestMapping(value = "/recipes/{recipePk}", method = RequestMethod.GET)
-    @ResponseBody Object getRecipe(Model model, @PathVariable int recipePk) {
-        try {
-            log.debug("REST Call: getRecipe(pk=" + recipePk + ")");
-            return recipesService.getRecipeByPK(recipePk);
-        } catch (ModelException e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", e.getMessage());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred retrieving recipe " + recipePk + ". " + e.getMessage());
-        }
+    @RequestMapping(value = "/recipes/{pk}", method = RequestMethod.GET)
+    @ResponseBody public Object getByPK(Model model, @PathVariable int pk) {
+        return super.getByPK(model, pk, service);
     }
 
-    @RequestMapping(value = "/recipes/{recipePk}", method = RequestMethod.DELETE)
-    @ResponseBody public Object deleteRecipe(Model model, @PathVariable int recipePk) {
-        try {
-            log.debug("REST Call: deleteRecipe(pk=" + recipePk + ")");
-            Recipe recipe = recipesService.getRecipeByPK(recipePk);
-            log.debug("   Deleting recipe " + recipe.getName() + "...");
-            recipesService.deleteRecipe(recipe);
-            log.debug("   Deleting recipe " + recipe.getName() + "... Done.");
-            return new ServiceResponse(200, "Success", "Successfully deleted recipe " + recipe.getName() + ".");
-        } catch (ModelException e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", e.getMessage());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred deleting recipe " + recipePk + ". " + e.getMessage());
-        }
+    @RequestMapping(value = "/recipes/{pk}", method = RequestMethod.DELETE)
+    @ResponseBody public Object delete(Model model, @PathVariable int pk) {
+        return super.delete(model, pk, service);
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.POST)
-    @ResponseBody public Object saveRecipe(Model model, @RequestBody Recipe recipe) {
-        try {
-            return recipesService.save(recipe);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred deleting recipe " + recipe.getName() + ". " + e.getMessage());
-        }
+    @ResponseBody public Object save(Model model, @RequestBody Meal entity) {
+        return super.update(model, entity, service);
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.PUT)
-    @ResponseBody public Object updateRecipe(Model model, @RequestBody Recipe recipe) {
-        try {
-            if (recipe.getMeals_pk() == 0) {
-                String newPk = recipesService.saveRecipe(recipe);
-                return new PrimaryKey(newPk);
-            } else {
-                recipesService.update(recipe);
-                return new ServiceResponse(200, "Success", "Successfully updated meal " + recipe.getName() + ".");
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred updating recipe " + recipe.getName() + ". " + e.getMessage());
-        }
+    @ResponseBody public Object update(Model model, @RequestBody Meal entity) {
+        return super.update(model, entity, service);
     }
 
 }

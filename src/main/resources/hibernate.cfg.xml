@@ -18,6 +18,9 @@
     <property name="show_sql">true</property>
     
     <!-- List all the mapping documents we're using -->
-    <mapping resource="mjs/users/User.hbm.xml"/>
+    <mapping resource="mjs/hibernate/Cookbook.hbm.xml"/>
+    <mapping resource="mjs/hibernate/FoodCategory.hbm.xml"/>
+    <mapping resource="mjs/hibernate/Meal.hbm.xml"/>
+    <mapping resource="mjs/hibernate/User.hbm.xml"/>
   </session-factory>
 </hibernate-configuration>
