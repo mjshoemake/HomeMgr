@@ -23,7 +23,7 @@ public class EncryptionManager {
      *         implement the encryptor interface
      */
     public static synchronized Encryptor getInstance() {
-        return new ScicareEncryptorImpl();
+        return new EncryptorImpl();
     }
 
     /**
@@ -53,7 +53,7 @@ public class EncryptionManager {
                 encrypter = new JCEStringEncrypter(JCEStringEncrypter.DESEDE_ENCRYPTION_SCHEME);
                 break;
             default:
-                encrypter = new ScicareEncryptorImpl();
+                encrypter = new EncryptorImpl();
         }
         return encrypter;
         

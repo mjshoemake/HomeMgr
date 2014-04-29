@@ -23,11 +23,6 @@ class User extends ModelLoggable {
    @GeneratedValue
    int user_pk = -1
 
-   /**
-    * The user's name.
-    */
-   String name = ""
-
      /**
     * The user's first name.
     */
@@ -53,7 +48,19 @@ class User extends ModelLoggable {
     */
    def login_enabled = "Y"
 
-
    def selected = false
+
+   public getName() {
+       if (fname != null && ! fname.equals("") && lname != null && lname.equals("")) {
+           return fname + " " + lname;
+       } else if (fname != null && ! fname.equals("")) {
+           return fname;
+       } else if (lname != null && lname.equals("")) {
+           return lname;
+       } else {
+           return "";
+       }
+   }
+
 
 }

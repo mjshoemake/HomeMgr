@@ -1,7 +1,7 @@
 package mjs.home.controllers;
 
 import mjs.common.core.BaseController;
-import mjs.common.exceptions.ModelException;
+import mjs.common.exceptions.LoginException;
 import mjs.home.services.MealsService;
 import mjs.home.services.UsersService;
 import mjs.model.Meal;
@@ -10,6 +10,8 @@ import mjs.model.ServiceResponse;
 import mjs.model.User;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,28 +31,45 @@ public class UserController extends BaseController {
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    @ResponseBody public Object getList(Model model) {
+    @ResponseBody public ResponseEntity getList(Model model) {
         return super.getList(model, service);
     }
 
     @RequestMapping(value = "/users/{pk}", method = RequestMethod.GET)
-    @ResponseBody public Object getByPK(Model model, @PathVariable int pk) {
+    @ResponseBody public ResponseEntity getByPK(Model model, @PathVariable int pk) {
         return super.getByPK(model, pk, service);
     }
 
     @RequestMapping(value = "/users/{pk}", method = RequestMethod.DELETE)
-    @ResponseBody public Object delete(Model model, @PathVariable int pk) {
+    @ResponseBody public ResponseEntity delete(Model model, @PathVariable int pk) {
         return super.delete(model, pk, service);
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.POST)
-    @ResponseBody public Object save(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity save(Model model, @RequestBody User entity) {
         return super.update(model, entity, service);
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.PUT)
-    @ResponseBody public Object update(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity update(Model model, @RequestBody User entity) {
         return super.update(model, entity, service);
+    }
+
+    @RequestMapping(value = "/users/login/{username}/{password}", method = RequestMethod.POST)
+    @ResponseBody public ResponseEntity login(Model model, @RequestBody String username, String password) {
+        try {
+            log.debug("REST Call: login (username=" + username + ")");
+            log.debug("   Logging in user " + username + "...");
+            User loggedInUser = service.login(username, password);
+            log.debug("   Logging in user " + username + "... Done.   Name: " + loggedInUser.getName());
+            return new ResponseEntity(loggedInUser, HttpStatus.OK);
+        } catch (LoginException e) {
+            log.error(e.getMessage(), e);
+            return new ResponseEntity(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new ResponseEntity("Login failed for user " + username +". " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
     }
 
 }

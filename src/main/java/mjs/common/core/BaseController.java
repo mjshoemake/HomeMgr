@@ -4,6 +4,8 @@ import mjs.common.exceptions.ModelException;
 import mjs.model.PrimaryKey;
 import mjs.model.ServiceResponse;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
@@ -38,33 +40,33 @@ public class BaseController extends SeerObject {
     }
 
 
-    public Object getList(Model model, BaseService service) {
+    public ResponseEntity getList(Model model, BaseService service) {
         try {
             log.debug("REST Call: get" + tableName + "List()");
-            return service.getAll();
+            return createResponse(service.getAll(), HttpStatus.OK);
         } catch (ModelException e) {
             log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", e.getMessage());
+            return createResponseMsg(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred retrieving the " + entityType + " list. " + e.getMessage());
+            return createResponseMsg("An error occurred retrieving the " + entityType + " list. " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public Object getByPK(Model model, int pk, BaseService service) {
+    public ResponseEntity getByPK(Model model, int pk, BaseService service) {
         try {
             log.debug("REST Call: get" + tableName + "ByPK(pk=" + pk + ")");
-            return service.getByPK(pk);
+            return createResponse(service.getByPK(pk), HttpStatus.OK);
         } catch (ModelException e) {
             log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", e.getMessage());
+            return createResponseMsg(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred retrieving " + entityType + " " + pk + ". " + e.getMessage());
+            return createResponseMsg("An error occurred retrieving " + entityType + " " + pk + ". " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public Object delete(Model model, int pk, BaseService service) {
+    public ResponseEntity delete(Model model, int pk, BaseService service) {
         try {
             log.debug("REST Call: delete" + tableName + "Cookbook(pk=" + pk + ")");
             Object entityToDelete = service.getByPK(pk);
@@ -72,31 +74,39 @@ public class BaseController extends SeerObject {
             log.debug("   Deleting " + entityType + " " + entityName + "...");
             service.delete(entityToDelete);
             log.debug("   Deleting " + entityType + " " + entityName + "... Done.");
-            return new ServiceResponse(200, "Success", "Successfully deleted " + entityType + " " + entityName + ".");
+            return createResponseMsg("Successfully deleted " + entityType + " " + entityName + ".", HttpStatus.OK);
         } catch (ModelException e) {
             log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", e.getMessage());
+            return createResponseMsg(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred deleting " + entityType + " " + pk + ". " + e.getMessage());
+            return createResponseMsg("An error occurred deleting " + entityType + " " + pk + ". " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public Object update(Model model, Object entity, BaseService service) {
+    public ResponseEntity update(Model model, Object entity, BaseService service) {
         String name = null;
         try {
             name = getPropertyValue(entity, entityNameProperty);
             if (getPropertyValue(entity, entityPkProperty).equals("0")) {
                 String newPk = service.save(entity);
-                return new PrimaryKey(newPk);
+                return createResponse(new PrimaryKey(newPk), HttpStatus.OK);
             } else {
                 service.update(entity);
-                return new ServiceResponse(200, "Success", "Successfully updated " + entityType + " " + name + ".");
+                return createResponseMsg("Successfully updated " + entityType + " " + name + ".", HttpStatus.OK);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new ServiceResponse(500, "Error", "An error occurred updating " + entityType + " " + name + ". " + e.getMessage());
+            return createResponseMsg("An error occurred updating " + entityType + " " + name + ". " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    protected ResponseEntity createResponse(Object obj, HttpStatus status) {
+        return new ResponseEntity(obj, status);
+    }
+
+    protected ResponseEntity createResponseMsg(String msg, HttpStatus status) {
+        return new ResponseEntity(msg, status);
     }
 
 }

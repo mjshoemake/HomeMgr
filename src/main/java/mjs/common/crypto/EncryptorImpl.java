@@ -6,13 +6,13 @@ package mjs.common.crypto;
  * @author T. McCauley
  * @version 1.0
  */
-public class ScicareEncryptorImpl implements Encryptor {
+public class EncryptorImpl implements Encryptor {
 
 	/**
      * Encode a string of unicode characters, breaking up the bytes in
      * the character and shifting them to get a predefined value.
      *
-     * @param toEncode Object (which in this implementation must be a String)
+     * @param objToEncrypt Object (which in this implementation must be a String)
      *                 which will be encoded.
      *
      * @return String containing the encode values.
@@ -49,8 +49,8 @@ public class ScicareEncryptorImpl implements Encryptor {
     /**
      * Decode the string previously encoded with encode method.
      *
-     * @param toDecode Object (which in this implementation must be a String)
-     *                 to decode
+     * @param encryptedObj Object (which in this implementation must be a String)
+     *                     to decode
      *
      * @return String which has been decoded.
      */

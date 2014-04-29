@@ -10,6 +10,7 @@ import mjs.model.ServiceResponse;
 import mjs.model.Recipe;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,27 +26,27 @@ public class RecipeController extends BaseController {
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.GET)
-    @ResponseBody public Object getList(Model model) {
+    @ResponseBody public ResponseEntity getList(Model model) {
         return super.getList(model, service);
     }
 
     @RequestMapping(value = "/recipes/{pk}", method = RequestMethod.GET)
-    @ResponseBody public Object getByPK(Model model, @PathVariable int pk) {
+    @ResponseBody public ResponseEntity getByPK(Model model, @PathVariable int pk) {
         return super.getByPK(model, pk, service);
     }
 
     @RequestMapping(value = "/recipes/{pk}", method = RequestMethod.DELETE)
-    @ResponseBody public Object delete(Model model, @PathVariable int pk) {
+    @ResponseBody public ResponseEntity delete(Model model, @PathVariable int pk) {
         return super.delete(model, pk, service);
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.POST)
-    @ResponseBody public Object save(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity save(Model model, @RequestBody Meal entity) {
         return super.update(model, entity, service);
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.PUT)
-    @ResponseBody public Object update(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity update(Model model, @RequestBody Meal entity) {
         return super.update(model, entity, service);
     }
 

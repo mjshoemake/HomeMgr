@@ -1,4 +1,4 @@
-package unit.framework;
+package mjs.common.utils;
 
 import org.junit.Before;
 import org.junit.Test;
