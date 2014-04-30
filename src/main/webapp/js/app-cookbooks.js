@@ -18,8 +18,8 @@ cookbooks.factory('CookbooksFactory', function($resource) {
     })
 });
 
-
 // Routes
+/*
 cookbooks.config(function($routeProvider) {
 	$routeProvider.when('/adminCookbooks', {templateUrl: urlPrefix + 'admin-cookbooks.html', controller: 'CookbookListController'});
 	$routeProvider.when('/adminNewCookbook', {templateUrl: urlPrefix + 'admin-cookbooks-new.html', controller: 'CookbookAddController'});
@@ -29,6 +29,7 @@ cookbooks.config(function($routeProvider) {
 	$routeProvider.when('/adminFoodCategories', {templateUrl: urlPrefix + 'admin-food-categories.html', controller: 'FoodCategoryListController'});
 	$routeProvider.otherwise({redirectTo: '/adminCookbooks'});
 });
+*/
 
 // Services
 cookbooks.service('cookbookService', function(CookbooksFactory) {

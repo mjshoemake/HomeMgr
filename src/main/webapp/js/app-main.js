@@ -1,4 +1,4 @@
-var main = angular.module('main', ['cookbooks', 'foodCategories', 'meals', 'recipes', 'users', 'ngRoute', 'ngSanitize']);
+var main = angular.module('main', ['cookbooks', 'foodCategories', 'meals', 'login', 'recipes', 'users', 'ngRoute', 'ngSanitize']);
  
 // Main Service
 main.service('mainService', function() {
@@ -12,8 +12,20 @@ main.service('mainService', function() {
 	}
 });
 
+// Routes
+main.config(function($routeProvider) {
+    $routeProvider.when('/login', {templateUrl: urlPrefix + 'login.html', controller: 'LoginController'});
+    $routeProvider.when('/adminCookbooks', {templateUrl: urlPrefix + 'admin-cookbooks.html', controller: 'CookbookListController'});
+    $routeProvider.when('/adminNewCookbook', {templateUrl: urlPrefix + 'admin-cookbooks-new.html', controller: 'CookbookAddController'});
+    $routeProvider.when('/adminEditCookbook/:id', {templateUrl: urlPrefix + 'admin-cookbooks-edit.html', controller: 'CookbookEditController'});
+    $routeProvider.when('/adminMeals', {templateUrl: urlPrefix + 'admin-meals.html', controller: 'MealListController'});
+    $routeProvider.when('/adminUsers', {templateUrl: urlPrefix + 'admin-users.html', controller: 'UserListController'});
+    $routeProvider.when('/adminFoodCategories', {templateUrl: urlPrefix + 'admin-food-categories.html', controller: 'FoodCategoryListController'});
+    $routeProvider.otherwise({redirectTo: '/login'});
+});
+
 // Login Service
-main.service('loginService', function() {
+main.service('loginService2', function() {
     var username = '';
     var loginTime = 0;
     var timeoutDuration = 1000 * 60 * 20; // 20 minutes
@@ -56,7 +68,7 @@ main.service('loginService', function() {
 
 
 // Main App Controllers
-main.controller('AppController', function ($scope, $route, $location, mainService, loginService) {
+main.controller('AppController', function ($scope, $route, $location, mainService, loginService2) {
 	$scope.$route = $route;
 	$scope.statusBarText = mainService.getStatusBarText();
     $scope.loginDisplay = "background-image: url(images/background.jpg); height: 100%; display: blocked;";
@@ -67,14 +79,14 @@ main.controller('AppController', function ($scope, $route, $location, mainServic
 	};
 
     $scope.logout = function () {
-        loginService.logout();
+        loginService2.logout();
         $scope.loginDisplay = "background-image: url(images/background.jpg); height: 100%; display: blocked;";
         $scope.appDisplay = "display: none;";
         mainService.setStatusBarText("You have been successfully logged out.");
     };
 
     $scope.login = function () {
-        var success = loginService.login($scope.username, $scope.password);
+        var success = loginService2.login($scope.username, $scope.password);
         if (success) {
             $scope.loginDisplay = "background-image: url(images/background.jpg); height: 100%; display: none;";
             $scope.appDisplay = "display: blocked;";
