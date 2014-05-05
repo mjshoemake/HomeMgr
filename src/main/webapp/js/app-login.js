@@ -10,23 +10,33 @@ login.factory('LoginFactory', function($resource) {
 });
 
 // Routes
-login.config(function($routeProvider) {
+main.config(function($routeProvider) {
+    $routeProvider.when('/adminCookbooks', {templateUrl: urlPrefix + 'admin-cookbooks.html', controller: 'CookbookListController'});
+    $routeProvider.when('/login', {templateUrl: urlPrefix + 'login.html', controller: 'LoginController'});
+    $routeProvider.otherwise({redirectTo: '/adminCookbooks'});
 });
 
 // Login Service
-login.service('loginService', function() {
+login.service('loginService', function(mainService) {
     var username = '';
     var loginTime = 0;
-    var timeoutDuration = 1000 * 60 * 20; // 20 minutes
+    //var timeoutDuration = 1000 * 60 * 20; // 20 minutes
+    var timeoutDuration = 1000 * 60; // 1 minute
+
+    this.bootstrapAlert = function (type, message) {
+        $('#alertHome').html('<div class="alert alert-' + type + ' alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + message + '</div>')
+    }
 
     this.sessionExpired = function() {
         if (loginTime == 0) {
             username = '';
+            mainService.setStatusBarText("Your session has timed out.");
             return true;
         } else {
             var now = new Date().getTime();
             var elapsedTime = now - loginTime;
             if (elapsedTime > timeoutDuration) {
+                mainService.setStatusBarText("Your session has timed out.");
                 username = '';
                 return true;
             } else {
@@ -41,6 +51,7 @@ login.service('loginService', function() {
             // Valid login.
             username = pUsername;
             loginTime = new Date().getTime();
+            mainService.hideAlert();
             return true;
         } else {
             username = '';
@@ -55,38 +66,33 @@ login.service('loginService', function() {
     }
 });
 
-// Main App Controllers
-login.controller('AppController', function ($scope, $route, $location, mainService, loginService) {
+// Login Controller
+login.controller('LoginController', function ($scope, $rootScope, $route, $location, mainService, loginService) {
     $scope.$route = $route;
-    $scope.statusBarText = mainService.getStatusBarText();
-    //$scope.loginDisplay = "background-image: url(images/background.jpg); height: 100%; display: blocked;";
-    //$scope.appDisplay = "display: none;";
-
-    $scope.goto = function (path) {
-        $location.path(path);
-    };
+    $scope.username = '';
+    $scope.password = '';
+    $rootScope.headerDisplay = "display: none;";
 
     $scope.show = function() {
+        $rootScope.headerDisplay = "display: none;";
+        $rootScope.bodyBackground = "images/background.jpg";
+        $scope.password = '';
         $location.path('/login.html');
     }
 
-    $scope.logout = function () {
-        loginService.logout();
-        $scope.loginDisplay = "background-image: url(images/background.jpg); height: 100%; display: blocked;";
-        $scope.appDisplay = "display: none;";
-        mainService.setStatusBarText("You have been successfully logged out.");
-    };
-
     $scope.login = function () {
+        mainService.setStatusBarText("Validating credentials...");
         var success = loginService.login($scope.username, $scope.password);
         if (success) {
-            $scope.loginDisplay = "background-image: url(images/background.jpg); height: 100%; display: none;";
-            $scope.appDisplay = "display: blocked;";
+            $rootScope.headerDisplay = "display: blocked;";
+            $rootScope.bodyBackground = "";
+            //$rootScope.gotoLast();
             mainService.setStatusBarText("You have logged in successfully.  Welcome!");
+            $rootScope.gotoLast();
         } else {
-            $scope.loginDisplay = "background-image: url(images/background.jpg); height: 100%; display: blocked;";
-            $scope.appDisplay = "display: none;";
+            //show();
             mainService.setStatusBarText("Your login credentials do not match our records.  Please try again.");
+            $location.path('/login');
         }
     };
 

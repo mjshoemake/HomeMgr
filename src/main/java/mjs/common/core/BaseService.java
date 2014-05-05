@@ -12,7 +12,7 @@ import mjs.common.exceptions.ModelException;
 import mjs.common.utils.BeanUtils;
 import mjs.common.utils.LogUtils;
 import org.apache.log4j.Logger;
-//import org.hibernate.CacheMode;
+import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.Session;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
  * The base class for services which interact with the database through
  * Hibernate.
  */
- @Transactional
+@Transactional
 public class BaseService extends SeerObject {
 
     /**
@@ -60,7 +60,7 @@ public class BaseService extends SeerObject {
 
     public Session openSession() {
         Session session = sessionFactory.openSession();
-        //session.setCacheMode(CacheMode.IGNORE);
+        session.setCacheMode(CacheMode.IGNORE);
         return session;
     }
 
@@ -85,10 +85,9 @@ public class BaseService extends SeerObject {
     }
 
     public List getAll() throws ModelException {
+        Session session = openSession();
         try {
-            Session session = openSession();
             List result = session.createQuery("from " + tableName).list();
-            session.close();
             log.debug("Service: getAll()  Type=" + tableName + "  Result: " + result.size());
             logResultSet.debug("Result Set:");
             LogUtils.debug(logResultSet, result, "   ", true);
@@ -96,45 +95,70 @@ public class BaseService extends SeerObject {
         } catch (Exception e) {
             log.error("Unable to retrieve the " + entityType + " list.", e);
             throw new ModelException("Unable to retrieve the " + entityType + " list. " + e.getMessage());
+        } finally {
+            session.close();
         }
     }
 
     public List findByCriteria(Criterion criterion) {
         Session session = openSession();
-        Criteria criteria = session.createCriteria(entityClass);
-        criteria.add(criterion);
-        List result = criteria.list();
-        session.close();
-        return result;
+        try {
+            Criteria criteria = session.createCriteria(entityClass);
+            criteria.add(criterion);
+            List result = criteria.list();
+            return result;
+        } finally {
+            session.close();
+        }
     }
 
     public Object findById(String id) {
         Session session = openSession();
-        Object result = session.get(entityClass, id);
-        session.close();
-        return result;
+        try {
+            Object result = session.get(entityClass, id);
+            return result;
+        } finally {
+            session.close();
+        }
     }
 
     public void saveOrUpdate(Object entity) {
         Session session = openSession();
-        Transaction tx = session.beginTransaction();
-        session.saveOrUpdate(entity);
-        tx.commit();
-        session.close();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.saveOrUpdate(entity);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+        } finally {
+            session.close();
+        }
     }
 
     public String save(Object entity) throws ModelException {
         try {
             if (entity != null) {
-                Object name = getPropertyValue(entity, entityNameProperty);
-                log.debug("Saving " + entityType + " " + name + "...");
                 Session session = openSession();
-                Transaction tx = session.beginTransaction();
-                String result = session.save(entity).toString();
-                tx.commit();
-                session.close();
-                log.debug("   Saved.  Returning pk: " + result);
-                return result;
+                Transaction tx = null;
+                try {
+                    Object name = getPropertyValue(entity, entityNameProperty);
+                    log.debug("Saving " + entityType + " " + name + "...");
+                    tx = session.beginTransaction();
+                    String result = session.save(entity).toString();
+                    tx.commit();
+                    log.debug("   Saved.  Returning pk: " + result);
+                    return result;
+                } catch (Exception e) {
+                    if (tx != null) {
+                        tx.rollback();
+                    }
+                    throw e;
+                } finally {
+                    session.close();
+                }
             } else {
                 throw new ModelException("Expected a valid " + entityType + " but received null.");
             }
@@ -153,14 +177,23 @@ public class BaseService extends SeerObject {
     public void update(Object entity) throws ModelException {
         try {
             if (entity != null) {
-                Object name = getPropertyValue(entity, entityNameProperty);
-                log.debug("Updating " + entityType + " " + name + "...");
                 Session session = openSession();
-                Transaction tx = session.beginTransaction();
-                session.update(entity);
-                tx.commit();
-                session.close();
-                log.debug("   Update successful.");
+                Transaction tx = null;
+                try {
+                    Object name = getPropertyValue(entity, entityNameProperty);
+                    log.debug("Updating " + entityType + " " + name + "...");
+                    tx = session.beginTransaction();
+                    session.update(entity);
+                    tx.commit();
+                    log.debug("   Update successful.");
+                } catch (Exception e) {
+                    if (tx != null) {
+                        tx.rollback();
+                    }
+                    throw e;
+                } finally {
+                    session.close();
+                }
             } else {
                 throw new ModelException("Expected a valid " + entityType + " but received null.");
             }
@@ -174,10 +207,19 @@ public class BaseService extends SeerObject {
         try {
             if (entity != null) {
                 Session session = openSession();
-                Transaction tx = session.beginTransaction();
-                session.delete(entity);
-                tx.commit();
-                session.close();
+                Transaction tx = null;
+                try {
+                    tx = session.beginTransaction();
+                    session.delete(entity);
+                    tx.commit();
+                } catch (Exception e) {
+                    if (tx != null) {
+                        tx.rollback();
+                    }
+                    throw e;
+                } finally {
+                    session.close();
+                }
             } else {
                 throw new Exception("Expected a valid " + entityType + " but received null.");
             }

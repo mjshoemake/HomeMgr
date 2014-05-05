@@ -80,16 +80,15 @@ users.service('userService', function(UsersFactory) {
 });
 
 // Cookbook Controllers
-users.controller('UserListController', function ($scope, $location, userService) {
+users.controller('UserListController', function ($scope, $rootScope, userService, loginService) {
+    $rootScope.headerDisplay = "display: block;";
+    $rootScope.bodyBackground = "";
+    $rootScope.lastPage = '/adminUsers';
     $scope.userList = userService.getAll();
     $scope.allSelected = userService.isAllSelected();
 
-    $scope.goto = function (path) {
-        $location.path(path);
-    };
-
     $scope.edit = function (id) {
-        $location.path('/adminEditUser/' + id);
+        $rootScope.goto('/adminEditUser/' + id);
     };
 
     $scope.selectAll = function () {
@@ -106,46 +105,39 @@ users.controller('UserListController', function ($scope, $location, userService)
     };
 });
 
-users.controller('UserEditController', function ($scope, $routeParams, $location, mainService, userService) {
+users.controller('UserEditController', function ($scope, $rootScope, $routeParams, mainService, userService) {
     $scope.userToEdit = userService.getItem($routeParams.id);
     $scope.backup = angular.copy($scope.userToEdit);
 
     $scope.update = function () {
         userService.update($scope.userToEdit);
         mainService.setStatusBarText('Successfully updated user "' + $scope.userToEdit.username + '".');
-        $location.path('/adminUsers');
+        $rootScope.goto('/adminUsers');
     };
 
     $scope.cancel = function () {
         $scope.userToEdit.username = $scope.backup.username;
-        $location.path('/adminUsers');
+        $rootScope.goto('/adminUsers');
     };
 
     $scope.delete = function () {
         userService.removeItem($scope.userToEdit.user_pk);
         mainService.setStatusBarText('Successfully deleted user "' + $scope.userToEdit.username + '".');
-        $location.path('/adminUsers');
+        $rootScope.goto('/adminUsers');
     };
 
-    $scope.goto = function (path) {
-        $location.path(path);
-    };
 });
 
-users.controller('UserAddController', function ($scope, $routeParams, $location, userService) {
+users.controller('UserAddController', function ($scope, $rootScope, $routeParams, userService) {
     $scope.userToAdd = {'user_pk': '', 'name': ''};
 
     $scope.addItem = function () {
         userService.addItem($scope.userToAdd);
-        $location.path('/adminUsers');
+        $rootScope.goto('/adminUsers');
     };
 
     $scope.cancel = function () {
-        $location.path('/adminUsers');
-    };
-
-    $scope.goto = function (path) {
-        $location.path(path);
+        $rootScope.goto('/adminUsers');
     };
 });
 
