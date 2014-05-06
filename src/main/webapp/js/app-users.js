@@ -133,7 +133,7 @@ users.controller('UserEditController', function ($scope, $routeParams, $location
 });
 
 users.controller('UserAddController', function ($scope, $routeParams, $location, userService) {
-    $scope.userToAdd = {'user_pk': '', 'name': ''};
+    $scope.userToAdd = {user_pk: '', username: '', fname: '', lname: '', password: '', login_enabled: ''};
 
     $scope.addItem = function () {
         userService.addItem($scope.userToAdd);

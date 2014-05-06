@@ -5,7 +5,9 @@ import mjs.common.model.ModelLoggable
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.Table
+import javax.persistence.Transient;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * This is the data object or suitcase for a User. This data object
@@ -14,6 +16,7 @@ import javax.persistence.Table;
  */
  @Entity
  @Table(name="users")
+ @JsonIgnoreProperties(ignoreUnknown = true)
 class User extends ModelLoggable {
    /**
     * The user ID for this user. This is how users should be
@@ -46,10 +49,9 @@ class User extends ModelLoggable {
    /**
     * Is the login enabled for this user?
     */
-   def login_enabled = "Y"
+   String login_enabled = "Y"
 
-   def selected = false
-
+   @Transient
    public getName() {
        if (fname != null && ! fname.equals("") && lname != null && lname.equals("")) {
            return fname + " " + lname;
