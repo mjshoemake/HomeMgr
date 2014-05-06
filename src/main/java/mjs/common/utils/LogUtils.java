@@ -360,7 +360,6 @@ public class LogUtils {
 
                                 // Add indentation to simulate object hierarchy.
                                 line = new StringBuffer();
-                                System.out.println("Writing: " + fieldName);
                                 line.append(indent(level));
                                 line.append(fieldName);
                                 line.append(" = ");

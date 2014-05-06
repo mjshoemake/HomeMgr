@@ -42,12 +42,12 @@ public class FoodCategoryController extends BaseController {
     }
 
     @RequestMapping(value = "/foodCategories", method = RequestMethod.POST)
-    @ResponseBody public ResponseEntity save(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity save(Model model, @RequestBody FoodCategory entity) {
         return super.update(model, entity, service);
     }
 
     @RequestMapping(value = "/foodCategories", method = RequestMethod.PUT)
-    @ResponseBody public ResponseEntity update(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity update(Model model, @RequestBody FoodCategory entity) {
         return super.update(model, entity, service);
     }
 

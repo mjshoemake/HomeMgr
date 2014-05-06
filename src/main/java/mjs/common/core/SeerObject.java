@@ -69,9 +69,11 @@ public class SeerObject {
         StringBuilder builder = new StringBuilder();
         if (tokens.length > 0) {
             int i = 0;
+            log.debug("Processing bean properties:");
             for (String next : tokens) {
                 Object[] args = new Object[0];
-                PropertyDescriptor pd = propertyMap.get(propertyName);
+                log.debug("   " + next);
+                PropertyDescriptor pd = propertyMap.get(next);
                 Method method = pd.getReadMethod();
                 if (method != null) {
                     try {

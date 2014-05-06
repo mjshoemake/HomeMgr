@@ -1,15 +1,8 @@
 package mjs.common.core;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import mjs.common.core.SeerObject;
-import mjs.common.exceptions.CoreException;
 import mjs.common.exceptions.ModelException;
-import mjs.common.utils.BeanUtils;
 import mjs.common.utils.LogUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;

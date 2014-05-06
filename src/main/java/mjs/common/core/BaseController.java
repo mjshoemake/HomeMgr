@@ -2,7 +2,6 @@ package mjs.common.core;
 
 import mjs.common.exceptions.ModelException;
 import mjs.model.PrimaryKey;
-import mjs.model.ServiceResponse;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

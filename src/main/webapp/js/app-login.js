@@ -40,6 +40,7 @@ login.service('loginService', function(mainService) {
                 username = '';
                 return true;
             } else {
+                loginTime = new Date().getTime();
                 return false;
             }
         }

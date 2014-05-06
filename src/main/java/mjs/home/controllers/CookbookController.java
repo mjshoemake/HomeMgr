@@ -41,12 +41,12 @@ public class CookbookController extends BaseController {
     }
 
     @RequestMapping(value = "/cookbooks", method = RequestMethod.POST)
-    @ResponseBody public ResponseEntity save(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity save(Model model, @RequestBody Cookbook entity) {
         return super.update(model, entity, service);
     }
 
     @RequestMapping(value = "/cookbooks", method = RequestMethod.PUT)
-    @ResponseBody public ResponseEntity update(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity update(Model model, @RequestBody Cookbook entity) {
         return super.update(model, entity, service);
     }
 
