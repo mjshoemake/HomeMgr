@@ -63,7 +63,7 @@ meals.service('mealService', function(MealsFactory) {
     this.addItem = function(item) {
         MealsFactory.update(item);
         //UsersFactory.create(item);
-        list = MealsFactory.query();
+        //list = MealsFactory.query();
         //item.user_pk = nextPk++; list.push(item);
     }
     this.removeItem = function(pk) {
@@ -80,16 +80,15 @@ meals.service('mealService', function(MealsFactory) {
 });
 
 // Cookbook Controllers
-meals.controller('MealListController', function ($scope, $location, mealService) {
-	$scope.mealList = mealService.getAll();
+meals.controller('MealListController', function ($scope, $rootScope, mealService, loginService) {
+    $rootScope.headerDisplay = "display: block;";
+    $rootScope.bodyBackground = "";
+    $rootScope.lastPage = '/adminMeals';
+	//$scope.mealList = mealService.getAll();
 	$scope.allSelected = mealService.isAllSelected();
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};
-	
+
 	$scope.edit = function (id) {
-		$location.path('/adminEditMeal/' + id);
+		$rootScope.goto('/adminEditMeal/' + id);
 	};
 
 	$scope.selectAll = function () {
@@ -102,52 +101,44 @@ meals.controller('MealListController', function ($scope, $location, mealService)
 		
 	$scope.delete = function (id) {
 		mealService.removeItem(id);
-		$scope.mealList = mealService.getAll();
+		//$scope.mealList = mealService.getAll();
 	};
 		
 });
 
-meals.controller('MealEditController', function ($scope, $routeParams, $location, mainService, mealService) {
+meals.controller('MealEditController', function ($scope, $rootScope, $routeParams, mainService, mealService) {
 	$scope.mealToEdit = mealService.getItem($routeParams.id);
 	$scope.backup = angular.copy($scope.mealToEdit);
 
 	$scope.update = function () {
 		mealService.update($scope.mealToEdit);
 		mainService.setStatusBarText('Successfully updated meal "' + $scope.mealToEdit.name + '".');
-		$location.path('/adminMeals');
+		$rootScope.goto('/adminMeals');
 	};
 	
 	$scope.cancel = function () {
 		$scope.mealToEdit.name = $scope.backup.name;
-		$location.path('/adminMeals');
+		$rootScope.goto('/adminMeals');
 	};
 	
 	$scope.delete = function () {
 		mealService.removeItem($scope.mealToEdit.meals_pk);
 		mainService.setStatusBarText('Successfully deleted meal "' + $scope.mealToEdit.name + '".');
-		$location.path('/adminMeals');
+		$rootScope.goto('/adminMeals');
 	};
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};	
 });
 
-meals.controller('MealAddController', function ($scope, $routeParams, $location, mealService) {
+meals.controller('MealAddController', function ($scope, $rootScope, $routeParams, mealService) {
 	$scope.mealToAdd = {'meals_pk': '', 'name': ''};
 
 	$scope.addItem = function () {
 		mealService.addItem($scope.mealToAdd);
-		$location.path('/adminMeals');
+		$rootScope.goto('/adminMeals');
 	};
 	
 	$scope.cancel = function () {
-		$location.path('/adminMeals');
+		$rootScope.goto('/adminMeals');
 	};
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};	
 });
 
 angular.element(document).ready(function() { 

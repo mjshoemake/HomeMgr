@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
  * The base class for services which interact with the database through
  * Hibernate.
  */
- @Transactional
+@Transactional
 public class BaseService extends SeerObject {
 
     /**

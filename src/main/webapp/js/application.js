@@ -57,9 +57,22 @@ function setAllCheckBoxes(chkbox, chkboxName) {
 	// Return the array if it is non-empty, or null
 	return checkboxesChecked.length > 0 ? checkboxesChecked : null;
 }
-
 /*
 function goto(target) {
 	window.location="file://localhost/Users/mshoemake/IdeaProjects/HomeMgr/prototype/" + target; 
 }
 */
+
+// Example: bootstrapAlert('#page_errors', '<message>', 5000)
+function bootstrapAlert(type, message) {
+    $('#alertHome').html('<div class="alert alert-' + type + ' alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + msg + '</div>')
+}
+
+function bootstrapAlert(type, message, timeout) {
+    $('#alertHome').html('<div class="alert alert-' + type + '">' + msg + '</div>')
+    if (timeout || timeout === 0) {
+        setTimeout(function() {
+            $('#alertHome').alert('close');
+        }, timeout);
+    }
+}

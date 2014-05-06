@@ -101,16 +101,15 @@ foodCategories.service('foodCategoryService', function($q, FoodCategoriesFactory
 });
 
 // Cookbook Controllers
-foodCategories.controller('FoodCategoryListController', function ($scope, $location, foodCategoryService, mainService) {
+foodCategories.controller('FoodCategoryListController', function ($scope, $rootScope, foodCategoryService, mainService, loginService) {
+    $rootScope.headerDisplay = "display: block;";
+    $rootScope.bodyBackground = "";
+    $rootScope.lastPage = '/adminFoodCategories';
 	$scope.foodCategoryList = foodCategoryService.getAll();
 	$scope.allSelected = foodCategoryService.isAllSelected();
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};
-	
+
 	$scope.edit = function (id) {
-		$location.path('/adminEditFoodCategory/' + id);
+		$rootScope.goto('/adminEditFoodCategory/' + id);
 	};
 
 	$scope.selectAll = function () {
@@ -136,7 +135,7 @@ foodCategories.controller('FoodCategoryListController', function ($scope, $locat
 	};
 });
 
-foodCategories.controller('FoodCategoryEditController', function ($scope, $routeParams, $location, mainService, foodCategoryService) {
+foodCategories.controller('FoodCategoryEditController', function ($scope, $rootScope, $routeParams, mainService, foodCategoryService) {
 	$scope.foodCategoryToEdit = foodCategoryService.getItem($routeParams.id);
 	$scope.backup = angular.copy($scope.foodCategoryToEdit);
 
@@ -144,57 +143,50 @@ foodCategories.controller('FoodCategoryEditController', function ($scope, $route
         $scope.foodCategoryList = foodCategoryService.update($scope.foodCategoryToEdit).then(function(data) {
             mainService.setStatusBarText('Successfully updated food category "' + $scope.foodCategoryToEdit.name + '".');
             $scope.foodCategoryList = foodCategoryService.getAll();
-            $location.path('/adminFoodCategories');
+            $rootScope.goto('/adminFoodCategories');
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to update food category "' + $scope.foodCategoryToEdit.name + '".');
             $scope.foodCategoryList = foodCategoryService.getAll();
-            $location.path('/adminFoodCategories');
+            $rootScope.goto('/adminFoodCategories');
         });
 	};
 	
 	$scope.cancel = function () {
 		$scope.foodCategoryToEdit.name = $scope.backup.name;
-		$location.path('/adminFoodCategories');
+        $rootScope.goto('/adminFoodCategories');
 	};
 	
     $scope.delete = function () {
         foodCategoryService.removeItem($scope.foodCategoryToEdit.meal_categories_pk).then(function(data) {
             mainService.setStatusBarText('Successfully deleted food category "' + $scope.foodCategoryToEdit.name + '".');
             $scope.foodCategoryList = foodCategoryService.getAll();
-            $location.path('/adminFoodCategories');
+            $rootScope.goto('/adminFoodCategories');
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to delete food category "' + $scope.foodCategoryToEdit.name + '".');
             $scope.foodCategoryList = foodCategoryService.getAll();
-            $location.path('/adminFoodCategories');
+            $rootScope.goto('/adminFoodCategories');
         });
     };
-	$scope.goto = function (path) {
-		$location.path(path);
-	};	
 });
 
-foodCategories.controller('FoodCategoryAddController', function ($scope, $routeParams, $location, mainService, foodCategoryService) {
+foodCategories.controller('FoodCategoryAddController', function ($scope, $rootScope, $routeParams, mainService, foodCategoryService) {
 	$scope.foodCategoryToAdd = {'meal_categories_pk': '', 'name': ''};
 
 	$scope.addItem = function () {
         foodCategoryService.addItem($scope.foodCategoryToAdd).then(function(data) {
             mainService.setStatusBarText('Successfully added food category "' + $scope.foodCategoryToAdd.name + '".');
             $scope.foodCategoryList = foodCategoryService.getAll();
-            $location.path('/adminFoodCategories');
+            $rootScope.goto('/adminFoodCategories');
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to add food category "' + $scope.foodCategoryToAdd.name + '".');
             $scope.foodCategoryList = foodCategoryService.getAll();
-            $location.path('/adminFoodCategories');
+            $rootScope.goto('/adminFoodCategories');
         });
 	};
 	
 	$scope.cancel = function () {
-		$location.path('/adminFoodCategories');
+        $rootScope.goto('/adminFoodCategories');
 	};
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};	
 });
 
 angular.element(document).ready(function() { 

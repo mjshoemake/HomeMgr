@@ -18,7 +18,6 @@ cookbooks.factory('CookbooksFactory', function($resource) {
     })
 });
 
-
 // Routes
 cookbooks.config(function($routeProvider) {
 	$routeProvider.when('/adminCookbooks', {templateUrl: urlPrefix + 'admin-cookbooks.html', controller: 'CookbookListController'});
@@ -85,16 +84,15 @@ cookbooks.service('cookbookService', function(CookbooksFactory) {
 });
 
 // Cookbook Controllers
-cookbooks.controller('CookbookListController', function ($scope, $location, cookbookService) {
+cookbooks.controller('CookbookListController', function ($scope, $rootScope, cookbookService, loginService) {
+    $rootScope.headerDisplay = "display: block;";
+    $rootScope.bodyBackground = "";
+    $rootScope.lastPage = '/adminCookbooks';
 	$scope.cookbookList = cookbookService.getAll();
 	$scope.allSelected = cookbookService.isAllSelected();
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};
-	
+
 	$scope.edit = function (id) {
-		$location.path('/adminEditCookbook/' + id);
+		$rootScope.goto('/adminEditCookbook/' + id);
 	};
 
 	$scope.selectAll = function () {
@@ -112,47 +110,39 @@ cookbooks.controller('CookbookListController', function ($scope, $location, cook
 		
 });
 
-cookbooks.controller('CookbookEditController', function ($scope, $routeParams, $location, mainService, cookbookService) {
+cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $routeParams, mainService, cookbookService) {
 	$scope.cookbookToEdit = cookbookService.getItem($routeParams.id);
 	$scope.backup = angular.copy($scope.cookbookToEdit);
 
 	$scope.update = function () {
 		cookbookService.update($scope.cookbookToEdit);
 		mainService.setStatusBarText('Successfully updated cookbook "' + $scope.cookbookToEdit.name + '".');
-		$location.path('/adminCookbooks');
+		$rootScope.goto('/adminCookbooks');
 	};
 	
 	$scope.cancel = function () {
 		$scope.cookbookToEdit.name = $scope.backup.name;
-		$location.path('/adminCookbooks');
+		$rootScope.goto('/adminCookbooks');
 	};
 	
 	$scope.delete = function () {
 		cookbookService.removeItem($scope.cookbookToEdit.cookbooks_pk);
 		mainService.setStatusBarText('Successfully deleted cookbook "' + $scope.cookbookToEdit.name + '".');
-		$location.path('/adminCookbooks');
+		$rootScope.goto('/adminCookbooks');
 	};
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};	
 });
 
-cookbooks.controller('CookbookAddController', function ($scope, $routeParams, $location, cookbookService) {
+cookbooks.controller('CookbookAddController', function ($scope, $rootScope, $routeParams, cookbookService) {
 	$scope.cookbookToAdd = {'cookbooks_pk': '', 'name': ''};
 
 	$scope.addItem = function () {
 		cookbookService.addItem($scope.cookbookToAdd);
-		$location.path('/adminCookbooks');
+		$rootScope.goto('/adminCookbooks');
 	};
 	
 	$scope.cancel = function () {
-		$location.path('/adminCookbooks');
+		$rootScope.goto('/adminCookbooks');
 	};
-	
-	$scope.goto = function (path) {
-		$location.path(path);
-	};	
 });
 
 angular.element(document).ready(function() { 
