@@ -30,7 +30,7 @@ cookbooks.config(function($routeProvider) {
 });
 
 // Services
-cookbooks.service('cookbookService', function(CookbooksFactory) {
+cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
 	var nextCookbookPk = 20;
 	var allSelected = false;
 	var cookbookList = [];
@@ -49,13 +49,22 @@ cookbooks.service('cookbookService', function(CookbooksFactory) {
 			cookbookList[i].selected = value;
 		}
 	}
-	this.removeSelected = function() { 
-		for (var i = cookbookList.length - 1; i >= 0; i--) {
-			if (cookbookList[i].selected) {
-                CookbooksFactory.delete({ id: list[i].cookbooks_pk });
-				cookbookList.splice(i, 1)
-			}
-		}
+	this.removeSelected = function() {
+        numSelected = 0
+        var itemsToDelete = ""
+        for (var i = list.length - 1; i >= 0; i--) {
+            if (list[i].selected) {
+                if (numSelected > 0) {
+                    itemsToDelete = itemsToDelete + ","
+                }
+                itemsToDelete = itemsToDelete + list[i].cookbooks_pk
+                numSelected = numSelected + 1
+            }
+        }
+        var deferred = $q.defer();
+        CookbooksFactory.delete({ id: itemsToDelete });
+        deferred.resolve();
+        return deferred.promise;
 	}
     this.getAll = function() {
         list = CookbooksFactory.query();
@@ -65,21 +74,24 @@ cookbooks.service('cookbookService', function(CookbooksFactory) {
         return CookbooksFactory.show({ id: pk });
     }
     this.addItem = function(item) {
+        var deferred = $q.defer();
         CookbooksFactory.update(item);
-        //UsersFactory.create(item);
-        list = CookbooksFactory.query();
-        //item.user_pk = nextPk++; list.push(item);
+        deferred.resolve("done");
+        return deferred.promise;
     }
     this.removeItem = function(pk) {
+        var deferred = $q.defer();
         CookbooksFactory.delete({ id: pk });
-        //list = UsersFactory.query();
-        list.splice(this.indexForPK(pk), 1)
+        deferred.resolve("done");
+        return deferred.promise;
     }
     this.size = function() { return cookbookList.length; }
     this.isAllSelected = function() { return cookbookList.allSelected; }
     this.update = function(item) {
+        var deferred = $q.defer();
         CookbooksFactory.update(item);
-        list = CookbooksFactory.query();
+        deferred.resolve("done");
+        return deferred.promise;
     }
 });
 
@@ -100,14 +112,17 @@ cookbooks.controller('CookbookListController', function ($scope, $rootScope, coo
 	};
 		
 	$scope.removeSelected = function () {
-		cookbookService.removeSelected();
+		cookbookService.removeSelected().then(
+            function(result) {
+                $scope.cookbookList = cookbookService.getAll();
+                mainService.setStatusBarText('Successfully deleted the selected cookbooks.');
+                $rootScope.goto('/adminCookbooks');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to delete the selected cookbooks. "' + reason + '".');
+                $scope.cookbookList = cookbookService.getAll();
+            }
+        );
 	};
-		
-	$scope.delete = function (id) {
-		cookbookService.removeItem(id);
-		$scope.cookbookList = cookbookService.getAll();
-	};
-		
 });
 
 cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $routeParams, mainService, cookbookService) {
@@ -115,9 +130,15 @@ cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $ro
 	$scope.backup = angular.copy($scope.cookbookToEdit);
 
 	$scope.update = function () {
-		cookbookService.update($scope.cookbookToEdit);
-		mainService.setStatusBarText('Successfully updated cookbook "' + $scope.cookbookToEdit.name + '".');
-		$rootScope.goto('/adminCookbooks');
+		cookbookService.update($scope.cookbookToEdit).then(
+            function(result) {
+                $scope.cookbookList = cookbookService.getAll();
+                mainService.setStatusBarText('Successfully updated cookbook "' + $scope.cookbookToEdit.name + '".');
+                $rootScope.goto('/adminCookbooks');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to update cookbook. "' + reason + '".');
+            }
+        );
 	};
 	
 	$scope.cancel = function () {
@@ -126,9 +147,15 @@ cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $ro
 	};
 	
 	$scope.delete = function () {
-		cookbookService.removeItem($scope.cookbookToEdit.cookbooks_pk);
-		mainService.setStatusBarText('Successfully deleted cookbook "' + $scope.cookbookToEdit.name + '".');
-		$rootScope.goto('/adminCookbooks');
+		cookbookService.removeItem($scope.cookbookToEdit.cookbooks_pk).then(
+            function(result) {
+                $scope.cookbookList = cookbookService.getAll();
+                mainService.setStatusBarText('Successfully deleted cookbook "' + $scope.cookbookToEdit.name + '".');
+                $rootScope.goto('/adminCookbooks');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to delete cookbook. "' + reason + '".');
+            }
+        );
 	};
 });
 
@@ -136,8 +163,15 @@ cookbooks.controller('CookbookAddController', function ($scope, $rootScope, $rou
 	$scope.cookbookToAdd = {'cookbooks_pk': '', 'name': ''};
 
 	$scope.addItem = function () {
-		cookbookService.addItem($scope.cookbookToAdd);
-		$rootScope.goto('/adminCookbooks');
+		cookbookService.addItem($scope.cookbookToAdd).then(
+            function(result) {
+                $scope.cookbookList = cookbookService.getAll();
+                mainService.setStatusBarText('Successfully added cookbook "' + $scope.cookbookToAdd.name + '".');
+                $rootScope.goto('/adminCookbooks');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to add cookbook. "' + reason + '".');
+            }
+        );
 	};
 	
 	$scope.cancel = function () {

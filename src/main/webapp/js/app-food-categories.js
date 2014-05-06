@@ -26,7 +26,7 @@ foodCategories.config(function($routeProvider) {
 });
 
 // Services
-foodCategories.service('foodCategoryService', function($q, FoodCategoriesFactory) {
+foodCategories.service('foodCategoryService', function(FoodCategoriesFactory, $q) {
 	var nextPk = 15;
 	var allSelected = false;
 	var list = [];
@@ -48,20 +48,12 @@ foodCategories.service('foodCategoryService', function($q, FoodCategoriesFactory
 	this.removeSelected = function() {
         numSelected = 0
         var itemsToDelete = ""
-        var namesToDelete = ""
-        var allNames = ""
 		for (var i = list.length - 1; i >= 0; i--) {
-            if (i < list.length - 1) {
-                allNames = allNames + ", "
-            }
-            allNames = allNames + "[" + i + "]" + list[i].name
 			if (list[i].selected) {
                 if (numSelected > 0) {
                     itemsToDelete = itemsToDelete + ","
-                    namesToDelete = namesToDelete + ", "
                 }
                 itemsToDelete = itemsToDelete + list[i].meal_categories_pk
-                namesToDelete = namesToDelete + "[" + i + "]" + list[i].name
                 numSelected = numSelected + 1
                 list.splice(i, 1)
 			}
@@ -123,14 +115,6 @@ foodCategories.controller('FoodCategoryListController', function ($scope, $rootS
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to delete the selected food categories.');
             //$scope.foodCategoryList = foodCategoryService.getAll();
-        });
-	};
-		
-	$scope.delete = function (id) {
-		foodCategoryService.removeItem(id).then(function(data) {
-            $scope.foodCategoryList = foodCategoryService.getAll();
-        }, function(error) {
-            $scope.foodCategoryList = foodCategoryService.getAll();
         });
 	};
 });

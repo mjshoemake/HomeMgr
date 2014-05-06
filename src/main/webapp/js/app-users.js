@@ -26,7 +26,7 @@ users.config(function($routeProvider) {
 });
 
 // Services
-users.service('userService', function(UsersFactory) {
+users.service('userService', function(UsersFactory, $q) {
     var nextPk = 7;
     var allSelected = false;
     var list = [];
@@ -46,12 +46,21 @@ users.service('userService', function(UsersFactory) {
         }
     }
     this.removeSelected = function() {
+        numSelected = 0
+        var itemsToDelete = ""
         for (var i = list.length - 1; i >= 0; i--) {
             if (list[i].selected) {
-                UsersFactory.delete({ id: list[i].user_pk });
-                list.splice(i, 1)
+                if (numSelected > 0) {
+                    itemsToDelete = itemsToDelete + ","
+                }
+                itemsToDelete = itemsToDelete + list[i].user_pk
+                numSelected = numSelected + 1
             }
         }
+        var deferred = $q.defer();
+        UsersFactory.delete({ id: itemsToDelete });
+        deferred.resolve();
+        return deferred.promise;
     }
     this.getAll = function() {
         list = UsersFactory.query();
@@ -61,21 +70,24 @@ users.service('userService', function(UsersFactory) {
         return UsersFactory.show({ id: pk });
     }
     this.addItem = function(item) {
+        var deferred = $q.defer();
         UsersFactory.update(item);
-        //UsersFactory.create(item);
-        list = UsersFactory.query();
-        //item.user_pk = nextPk++; list.push(item);
+        deferred.resolve("done");
+        return deferred.promise;
     }
     this.removeItem = function(pk) {
+        var deferred = $q.defer();
         UsersFactory.delete({ id: pk });
-        //list = UsersFactory.query();
-        list.splice(this.indexForPK(pk), 1)
+        deferred.resolve("done");
+        return deferred.promise;
     }
     this.size = function() { return list.length; }
     this.isAllSelected = function() { return list.allSelected; }
     this.update = function(item) {
+        var deferred = $q.defer();
         UsersFactory.update(item);
-        list = UsersFactory.query();
+        deferred.resolve("done");
+        return deferred.promise;
     }
 });
 
@@ -96,12 +108,16 @@ users.controller('UserListController', function ($scope, $rootScope, userService
     };
 
     $scope.removeSelected = function () {
-        userService.removeSelected();
-    };
-
-    $scope.delete = function (id) {
-        ususerToEditerService.removeItem(id);
-        $scope.userList = userService.getAll();
+        userService.removeSelected().then(
+            function(result) {
+                $scope.userList = userService.getAll();
+                mainService.setStatusBarText('Successfully deleted the selected users.');
+                $rootScope.goto('/adminUsers');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to delete the selected users. "' + reason + '".');
+                $scope.userList = userService.getAll();
+            }
+        );
     };
 });
 
@@ -110,9 +126,15 @@ users.controller('UserEditController', function ($scope, $rootScope, $routeParam
     $scope.backup = angular.copy($scope.userToEdit);
 
     $scope.update = function () {
-        userService.update($scope.userToEdit);
-        mainService.setStatusBarText('Successfully updated user "' + $scope.userToEdit.username + '".');
-        $rootScope.goto('/adminUsers');
+        userService.update($scope.userToEdit).then(
+            function(result) {
+                $scope.userList = userService.getAll();
+                mainService.setStatusBarText('Successfully updated user "' + $scope.userToEdit.username + '".');
+                $rootScope.goto('/adminUsers');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to update user. "' + reason + '".');
+            }
+        );
     };
 
     $scope.cancel = function () {
@@ -121,9 +143,15 @@ users.controller('UserEditController', function ($scope, $rootScope, $routeParam
     };
 
     $scope.delete = function () {
-        userService.removeItem($scope.userToEdit.user_pk);
-        mainService.setStatusBarText('Successfully deleted user "' + $scope.userToEdit.username + '".');
-        $rootScope.goto('/adminUsers');
+        userService.removeItem($scope.userToEdit.user_pk).then(
+            function(result) {
+                $scope.userList = userService.getAll();
+                mainService.setStatusBarText('Successfully deleted user "' + $scope.userToEdit.username + '".');
+                $rootScope.goto('/adminUsers');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to delete user. "' + reason + '".');
+            }
+        );
     };
 
 });
@@ -132,8 +160,15 @@ users.controller('UserAddController', function ($scope, $rootScope, $routeParams
     $scope.userToAdd = {user_pk: '', username: '', fname: '', lname: '', password: '', login_enabled: ''};
 
     $scope.addItem = function () {
-        userService.addItem($scope.userToAdd);
-        $rootScope.goto('/adminUsers');
+        userService.addItem($scope.userToAdd).then(
+            function(result) {
+                $scope.userList = userService.getAll();
+                mainService.setStatusBarText('Successfully added user "' + $scope.userToAdd.username + '".');
+                $rootScope.goto('/adminUsers');
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to add user. "' + reason + '".');
+            }
+        );
     };
 
     $scope.cancel = function () {
