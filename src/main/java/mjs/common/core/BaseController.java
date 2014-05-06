@@ -65,21 +65,24 @@ public class BaseController extends SeerObject {
         }
     }
 
-    public ResponseEntity delete(Model model, int pk, BaseService service) {
+    public ResponseEntity delete(Model model, String pkList, BaseService service) {
         try {
-            log.debug("REST Call: delete" + tableName + "Cookbook(pk=" + pk + ")");
-            Object entityToDelete = service.getByPK(pk);
-            String entityName = getPropertyValue(entityToDelete, entityNameProperty) + "";
-            log.debug("   Deleting " + entityType + " " + entityName + "...");
-            service.delete(entityToDelete);
-            log.debug("   Deleting " + entityType + " " + entityName + "... Done.");
-            return createResponseMsg("Successfully deleted " + entityType + " " + entityName + ".", HttpStatus.OK);
+            log.debug("REST Call: delete" + tableName + "Cookbook(pk=" + pkList + ")");
+            String[] pks = pkList.split(",");
+            for (String pk : pks) {
+                Object entityToDelete = service.getByPK(Integer.parseInt(pk));
+                String entityName = getPropertyValue(entityToDelete, entityNameProperty) + "";
+                log.debug("   Deleting " + entityType + " " + entityName + "...");
+                service.delete(entityToDelete);
+                log.debug("   Deleting " + entityType + " " + entityName + "... Done.");
+            }
+            return createResponseMsg("Successfully deleted the specified entities.", HttpStatus.OK);
         } catch (ModelException e) {
             log.error(e.getMessage(), e);
             return createResponseMsg(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return createResponseMsg("An error occurred deleting " + entityType + " " + pk + ". " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return createResponseMsg("An error occurred deleting " + entityType + " " + pkList + ". " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

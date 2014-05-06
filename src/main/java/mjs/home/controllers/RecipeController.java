@@ -35,9 +35,9 @@ public class RecipeController extends BaseController {
         return super.getByPK(model, pk, service);
     }
 
-    @RequestMapping(value = "/recipes/{pk}", method = RequestMethod.DELETE)
-    @ResponseBody public ResponseEntity delete(Model model, @PathVariable int pk) {
-        return super.delete(model, pk, service);
+    @RequestMapping(value = "/recipes/{pkList}", method = RequestMethod.DELETE)
+    @ResponseBody public ResponseEntity delete(Model model, @PathVariable String pkList) {
+        return super.delete(model, pkList, service);
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.POST)

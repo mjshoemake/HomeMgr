@@ -36,6 +36,8 @@ login.service('loginService', function(mainService) {
             var elapsedTime = now - loginTime;
             if (elapsedTime > timeoutDuration) {
                 mainService.setStatusBarText("Your session has timed out.");
+                mainService.hideAlert();
+                mainService.mainAlert("info", "Your session has timed out. Login again to continue working.");
                 username = '';
                 return true;
             } else {
@@ -63,6 +65,9 @@ login.service('loginService', function(mainService) {
     this.logout = function() {
         username = '';
         loginTime = 0;
+        mainService.setStatusBarText("You were logged out successfully.");
+        mainService.hideAlert();
+        mainService.mainAlert("success", "You were logged out successfully.  Login again to continue working.");
     }
 });
 

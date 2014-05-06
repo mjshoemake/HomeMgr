@@ -92,7 +92,7 @@ meals.service('mealService', function(MealsFactory, $q) {
 });
 
 // Cookbook Controllers
-meals.controller('MealListController', function ($scope, $rootScope, mealService, loginService) {
+meals.controller('MealListController', function ($scope, $rootScope, mainService, mealService, loginService) {
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminMeals';

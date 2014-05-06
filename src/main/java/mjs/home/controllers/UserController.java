@@ -40,9 +40,9 @@ public class UserController extends BaseController {
         return super.getByPK(model, pk, service);
     }
 
-    @RequestMapping(value = "/users/{pk}", method = RequestMethod.DELETE)
-    @ResponseBody public ResponseEntity delete(Model model, @PathVariable int pk) {
-        return super.delete(model, pk, service);
+    @RequestMapping(value = "/users/{pkList}", method = RequestMethod.DELETE)
+    @ResponseBody public ResponseEntity delete(Model model, @PathVariable String pkList) {
+        return super.delete(model, pkList, service);
     }
 
     @RequestMapping(value = "/users", method = RequestMethod.POST)

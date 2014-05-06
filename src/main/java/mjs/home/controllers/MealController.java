@@ -29,9 +29,9 @@ public class MealController extends BaseController {
         return super.getByPK(model, pk, service);
     }
 
-    @RequestMapping(value = "/meals/{pk}", method = RequestMethod.DELETE)
-    @ResponseBody public ResponseEntity delete(Model model, @PathVariable int pk) {
-        return super.delete(model, pk, service);
+    @RequestMapping(value = "/meals/{pkList}", method = RequestMethod.DELETE)
+    @ResponseBody public ResponseEntity delete(Model model, @PathVariable String pkList) {
+        return super.delete(model, pkList, service);
     }
 
     @RequestMapping(value = "/meals", method = RequestMethod.POST)

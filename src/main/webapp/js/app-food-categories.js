@@ -55,7 +55,6 @@ foodCategories.service('foodCategoryService', function(FoodCategoriesFactory, $q
                 }
                 itemsToDelete = itemsToDelete + list[i].meal_categories_pk
                 numSelected = numSelected + 1
-                list.splice(i, 1)
 			}
 		}
         var deferred = $q.defer();
@@ -111,10 +110,10 @@ foodCategories.controller('FoodCategoryListController', function ($scope, $rootS
 	$scope.removeSelected = function () {
 		foodCategoryService.removeSelected().then(function(data) {
             mainService.setStatusBarText('Successfully deleted the selected food categories.');
-            //$scope.foodCategoryList = foodCategoryService.getAll();
+            $scope.foodCategoryList = foodCategoryService.getAll();
         }, function(error) {
-            mainService.setStatusBarText('An error occurred trying to delete the selected food categories.');
-            //$scope.foodCategoryList = foodCategoryService.getAll();
+            mainService.setStatusBarText('An error occurred trying to delete the selected food categories. ' + error);
+            $scope.foodCategoryList = foodCategoryService.getAll();
         });
 	};
 });

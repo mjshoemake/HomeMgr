@@ -96,7 +96,7 @@ cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
 });
 
 // Cookbook Controllers
-cookbooks.controller('CookbookListController', function ($scope, $rootScope, cookbookService, loginService) {
+cookbooks.controller('CookbookListController', function ($scope, $rootScope, mainService, cookbookService, loginService) {
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminCookbooks';
@@ -116,7 +116,6 @@ cookbooks.controller('CookbookListController', function ($scope, $rootScope, coo
             function(result) {
                 $scope.cookbookList = cookbookService.getAll();
                 mainService.setStatusBarText('Successfully deleted the selected cookbooks.');
-                $rootScope.goto('/adminCookbooks');
             }, function(reason) {
                 mainService.setStatusBarText('Failed to delete the selected cookbooks. "' + reason + '".');
                 $scope.cookbookList = cookbookService.getAll();

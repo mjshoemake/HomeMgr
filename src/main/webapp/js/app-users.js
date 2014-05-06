@@ -92,7 +92,7 @@ users.service('userService', function(UsersFactory, $q) {
 });
 
 // Cookbook Controllers
-users.controller('UserListController', function ($scope, $rootScope, userService, loginService) {
+users.controller('UserListController', function ($scope, $rootScope, mainService, userService, loginService) {
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminUsers';
@@ -156,7 +156,7 @@ users.controller('UserEditController', function ($scope, $rootScope, $routeParam
 
 });
 
-users.controller('UserAddController', function ($scope, $rootScope, $routeParams, userService) {
+users.controller('UserAddController', function ($scope, $rootScope, $routeParams, mainService, userService) {
     $scope.userToAdd = {user_pk: '', username: '', fname: '', lname: '', password: '', login_enabled: ''};
 
     $scope.addItem = function () {
