@@ -20,8 +20,7 @@ main.config(function($routeProvider) {
 login.service('loginService', function(mainService) {
     var username = '';
     var loginTime = 0;
-    //var timeoutDuration = 1000 * 60 * 20; // 20 minutes
-    var timeoutDuration = 1000 * 60; // 1 minute
+    var timeoutDuration = 1000 * 60 * 20; // 20 minutes
 
     this.bootstrapAlert = function (type, message) {
         $('#alertHome').html('<div class="alert alert-' + type + ' alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + message + '</div>')
