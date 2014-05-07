@@ -30,9 +30,9 @@ public class RecipeController extends BaseController {
         return super.getList(model, service);
     }
 
-    @RequestMapping(value = "/recipes/{pk}", method = RequestMethod.GET)
-    @ResponseBody public ResponseEntity getByPK(Model model, @PathVariable int pk) {
-        return super.getByPK(model, pk, service);
+    @RequestMapping(value = "/recipes/{filter}", method = RequestMethod.GET)
+    @ResponseBody public ResponseEntity filterList(Model model, @PathVariable String filter) {
+        return super.filterList(model, filter, service);
     }
 
     @RequestMapping(value = "/recipes/{pkList}", method = RequestMethod.DELETE)

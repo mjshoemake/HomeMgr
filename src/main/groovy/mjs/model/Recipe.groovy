@@ -18,7 +18,7 @@
 class Recipe extends ModelLoggable {
      @Id
      @GeneratedValue
-     int recipe_pk = -1
+     int recipes_pk = -1
      String name = ""
      String servings = ""
      int cookbook_pk = -1
@@ -28,7 +28,7 @@ class Recipe extends ModelLoggable {
      String picture_filename = ""
      String notes = ""
      int created_by = -1
-     int calories_per_serving = 0
+     Integer calories_per_serving = 0
      String ingredients = ""
      String directions = ""
      String serving_size = ""

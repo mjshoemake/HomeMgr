@@ -65,9 +65,6 @@ login.service('loginService', function(mainService) {
     this.logout = function() {
         username = '';
         loginTime = 0;
-        mainService.setStatusBarText("You were logged out successfully.");
-        mainService.hideAlert();
-        mainService.mainAlert("success", "You were logged out successfully.  Login again to continue working.");
     }
 });
 

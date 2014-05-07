@@ -12,6 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CookbooksService extends BaseService {
 
     public CookbooksService() {
-        super("mjs.model.Cookbook", "cookbook", "name", "cookbooks_pk", "Cookbook");
+        super("mjs.model.Cookbook", "cookbook", "name", "cookbooks_pk", "mjs.model.Cookbook");
     }
 }

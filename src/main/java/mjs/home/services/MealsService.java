@@ -12,6 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class MealsService extends BaseService {
 
     public MealsService() {
-        super("mjs.model.Meal", "meal", "name", "meals_pk", "Meal");
+        super("mjs.model.Meal", "meal", "name", "meals_pk", "mjs.model.Meal");
     }
 }

@@ -59,7 +59,14 @@ main.controller('AppController', function ($scope, $rootScope, $route, $location
     $scope.logout = function () {
         loginService.logout();
         $scope.showLogin();
-        mainService.setStatusBarText("You have been successfully logged out.");
+        mainService.setStatusBarText("You were logged out successfully.");
+        mainService.hideAlert();
+        mainService.mainAlert("success", "You were logged out successfully.  Login again to continue working.");
+    };
+
+    $scope.setup = function () {
+        loginService.logout();
+        $scope.showLogin();
     };
 
     $rootScope.goto = function (path) {
@@ -82,6 +89,6 @@ main.controller('AppController', function ($scope, $rootScope, $route, $location
         $location.path($rootScope.lastPage);
     };
 
-    $scope.logout();
+    $scope.setup();
 
 });

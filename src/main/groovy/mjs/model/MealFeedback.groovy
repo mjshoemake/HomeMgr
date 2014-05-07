@@ -20,7 +20,6 @@ class MealFeedback extends ModelLoggable {
      @GeneratedValue
      int meal_feedback_pk = -1
      int user_pk = -1
-     int meal_pk = -1
      int fork_rating = -1
      String comments = ""
  }

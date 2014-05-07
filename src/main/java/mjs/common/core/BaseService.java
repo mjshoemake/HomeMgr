@@ -1,6 +1,9 @@
 package mjs.common.core;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import mjs.common.exceptions.ModelException;
 import mjs.common.utils.LogUtils;
@@ -30,10 +33,10 @@ public class BaseService extends SeerObject {
 
     @Autowired
     private SessionFactory sessionFactory;
-    private String entityNameProperty;
-    private String entityPkProperty;
-    private String entityType;
-    private String tableName;
+    protected final String entityNameProperty;
+    protected final String entityPkProperty;
+    protected final String entityType;
+    protected final String tableName;
 
     public BaseService(String entityClass,
                        String entityType,
@@ -55,6 +58,44 @@ public class BaseService extends SeerObject {
         Session session = sessionFactory.openSession();
         session.setCacheMode(CacheMode.IGNORE);
         return session;
+    }
+
+    public List filter(String filter) throws ModelException {
+        // This method uses a filter string with the specified format:
+        //    key=value;key=value;key=value
+        Session session = openSession();
+        try {
+            Map<String, String> filterMap = filterToMap(filter);
+            Iterator<String> keys = filterMap.keySet().iterator();
+            Criteria criteria = session.createCriteria(entityClass);
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = filterMap.get(key).replace('*', '%');
+                if (value.contains("%")) {
+                    criteria.add(Restrictions.like(key, value));
+                } else {
+                    criteria.add(Restrictions.eq(key, value));
+                }
+            }
+            List result = criteria.list();
+            log.debug("Service: filter()  Type=" + tableName + "  filter: " + filter + "  Result: " + result.size());
+            logResultSet.debug("Result Set:");
+            LogUtils.debug(logResultSet, result, "   ", true);
+            return result;
+        } catch (Exception e) {
+            log.error("Unable to filter the " + entityType + " data (" + filter + ").", e);
+            throw new ModelException("Unable to filter the " + entityType + " (" + filter + "). " + e.getMessage());
+         }
+    }
+
+    public Map<String, String> filterToMap(String filter) {
+        Map<String, String> result = new HashMap<String, String>();
+        String[] pairs = filter.split(";");
+        for (String next : pairs) {
+            String[] item = next.split("=");
+            result.put(item[0], item[1]);
+        }
+        return result;
     }
 
     public Object getByPK(int id) throws ModelException {
@@ -88,6 +129,24 @@ public class BaseService extends SeerObject {
         } catch (Exception e) {
             log.error("Unable to retrieve the " + entityType + " list.", e);
             throw new ModelException("Unable to retrieve the " + entityType + " list. " + e.getMessage());
+        } finally {
+            session.close();
+        }
+    }
+
+    public int getRowCount() throws ModelException {
+        Session session = openSession();
+        try {
+            Long uniqueResult = (Long)session.createQuery("select count(*) from " + tableName).uniqueResult();
+            int count = -1;
+            if (uniqueResult != null) {
+                count = uniqueResult.intValue();
+            }
+            log.debug("Service: getRowCount()  Type=" + tableName + "  Result: " + count);
+            return count;
+        } catch (Exception e) {
+            log.error("Unable to retrieve a count of the " + entityType + " list.", e);
+            throw new ModelException("Unable to retrieve a count of the " + entityType + " list. " + e.getMessage());
         } finally {
             session.close();
         }
@@ -221,5 +280,4 @@ public class BaseService extends SeerObject {
             throw new ModelException("Unable to delete this " + entityType + ". " + e.getMessage());
         }
     }
-
 }

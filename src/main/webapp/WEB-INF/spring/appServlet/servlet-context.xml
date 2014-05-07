@@ -34,6 +34,9 @@
                 <beans:value>mjs/hibernate/FoodCategory.hbm.xml</beans:value>
                 <beans:value>mjs/hibernate/Meal.hbm.xml</beans:value>
                 <beans:value>mjs/hibernate/User.hbm.xml</beans:value>
+                <beans:value>mjs/hibernate/Recipe.hbm.xml</beans:value>
+                <beans:value>mjs/hibernate/MealFeedback.hbm.xml</beans:value>
+                <beans:value>mjs/hibernate/FamilyMembers.hbm.xml</beans:value>
             </beans:list>
         </beans:property>
         <beans:property name="hibernateProperties">

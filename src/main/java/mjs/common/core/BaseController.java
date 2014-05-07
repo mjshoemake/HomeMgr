@@ -65,6 +65,19 @@ public class BaseController extends SeerObject {
         }
     }
 
+    public ResponseEntity filterList(Model model, String filter, BaseService service) {
+        try {
+            log.debug("REST Call: filter" + tableName + "(filter=" + filter + ")");
+            return createResponse(service.filter(filter), HttpStatus.OK);
+        } catch (ModelException e) {
+            log.error(e.getMessage(), e);
+            return createResponseMsg(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return createResponseMsg("An error occurred filtering the " + entityType + " data. " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public ResponseEntity delete(Model model, String pkList, BaseService service) {
         try {
             log.debug("REST Call: delete" + tableName + "Cookbook(pk=" + pkList + ")");

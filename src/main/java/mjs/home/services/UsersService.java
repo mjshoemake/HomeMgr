@@ -16,7 +16,7 @@ import java.util.List;
 public class UsersService extends BaseService {
 
     public UsersService() {
-        super("mjs.model.User", "users", "fname+lname", "user_pk", "User");
+        super("mjs.model.User", "users", "fname+lname", "user_pk", "mjs.model.User");
     }
 
     public User login(String username, String password) throws LoginException {

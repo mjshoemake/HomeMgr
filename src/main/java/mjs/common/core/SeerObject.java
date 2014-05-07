@@ -37,7 +37,7 @@ public class SeerObject {
         try {
             this.entityClass = Class.forName(entityClass);
         } catch (ClassNotFoundException e) {
-            log.error("Failed to initialize service. Unable to find the specified class (" + entityClass + ").");
+            log.error("Failed to initialize service. Unable to find the specified class (" + entityClass + ").", e);
         }
 
         try {

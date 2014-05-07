@@ -20,12 +20,13 @@ recipes.factory('RecipesFactory', function($resource) {
 
 // Routes
 recipes.config(function($routeProvider) {
-	$routeProvider.when('/recipesByLetter', {templateUrl: urlPrefix + 'recipes-by-letter.html', controller: 'RecipesController'});
-	$routeProvider.otherwise({redirectTo: '/recipesByLetter'});
+	$routeProvider.when('/recipesByLetter/:filter', {templateUrl: urlPrefix + 'recipes-by-letter.html', controller: 'RecipeByLetterController'});
+    $routeProvider.when('/recipesEdit/:id', {templateUrl: urlPrefix + 'recipes-edit.html', controller: 'RecipeEditController'});
+    $routeProvider.when('/recipesNew', {templateUrl: urlPrefix + 'recipes-new.html', controller: 'RecipeAddController'});
 });
 
 // Services
-recipes.service('recipeService', function(RecipesFactory) {
+recipes.service('recipeService', function(RecipesFactory, $http) {
 	var nextRecipePk = 20;
 	var allSelected = false;
 	var recipeList = [];
@@ -56,6 +57,19 @@ recipes.service('recipeService', function(RecipesFactory) {
         list = RecipesFactory.query();
         return list;
     }
+
+    this.filter = function(filterText) {
+//        list = RecipesFactory.show(filterText);
+        $http({
+            method: 'GET',
+            url: 'http://localhost:8080/homeMgr/recipes/' + filterText
+        }).success(function(result) {
+            return result;
+        }).error(function(reason) {
+            mainService.setStatusBarText('Failed to get the filtered list of recipes. "' + reason + '".');
+        });
+//        return list;
+    }
     this.getItem = function(pk) {
         return RecipesFactory.show({ id: pk });
     }
@@ -66,6 +80,20 @@ recipes.service('recipeService', function(RecipesFactory) {
 	this.update = function(item) { }
 });
 
+meals.controller('RecipeByLetterController', function ($scope, $rootScope, $routeParams, mainService, recipeService) {
+    $rootScope.headerDisplay = "display: block;";
+    $rootScope.bodyBackground = "";
+    $rootScope.lastPage = '/recipesByLetter';
+    $scope.recipeList = recipeService.filter("name=" + $routeParams.filter + "*");
+    $scope.allSelected = recipeService.isAllSelected();
+
+    $scope.edit = function (id) {
+        $rootScope.goto('/recipesEdit/' + id);
+    };
+});
+
+
+
 // Cookbook Controllers
 recipes.controller('RecipesController', function ($scope, $rootScope, recipeService, loginService) {
     $rootScope.headerDisplay = "display: block;";
@@ -74,13 +102,11 @@ recipes.controller('RecipesController', function ($scope, $rootScope, recipeServ
 	$scope.recipeList = recipeService.getAll();
 	$scope.allSelected = recipeService.isAllSelected();
 
-/*
-	$scope.edit = function (id) {
-		$rootScope.goto('/adminEditCookbook/' + id);
-	};
-*/	
+    $scope.edit = function (id) {
+        $rootScope.goto('/adminEditRecipe/' + id);
+    };
 
-	$scope.selectAll = function () {
+    $scope.selectAll = function () {
 		recipeService.selectAll($scope.allSelected);
 	};
 		

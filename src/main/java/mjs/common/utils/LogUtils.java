@@ -58,6 +58,20 @@ public class LogUtils {
     }
 
     /**
+     * Writes the details of the specified object to System.out.
+     * @param obj Object
+     * @param prefix String
+     * @param showTypes boolean
+     * @throws CoreException
+     */
+    public static void println(Object obj, String prefix, boolean showTypes) throws CoreException {
+        String[] lines = dataToStrings(obj, showTypes);
+        for (int i=0; i <= lines.length-1; i++) {
+            System.out.println(prefix + lines[i]);
+        }
+    }
+
+    /**
      * Write the details of the specified object using info level.
      * @param logger Logger
      * @param obj Object
