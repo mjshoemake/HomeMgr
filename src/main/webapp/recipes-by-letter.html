@@ -33,34 +33,40 @@
                             <a ng-click="goto('/recipesByLetter/H')">H</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <a ng-click="goto('/recipesByLetter/I')">I</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <a ng-click="goto('/recipesByLetter/J')">J</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">K</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">L</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">M</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">N</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">O</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">P</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">Q</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">R</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">S</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">T</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">U</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">V</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">W</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">X</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">Y</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#">Z</a>
+                            <a ng-click="goto('/recipesByLetter/K')">K</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/L')">L</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/M')">M</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/N')">N</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/O')">O</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/P')">P</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/Q')">Q</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/R')">R</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/S')">S</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/T')">T</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/U')">U</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/V')">V</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/W')">W</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/X')">X</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/Y')">Y</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a ng-click="goto('/recipesByLetter/Z')">Z</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						</div>
 						<p/>&nbsp;<p/>
-						<div class="letterheader">A</div>						
+						<div class="letterheader">{{letter}}</div>
 						<p/>&nbsp;<p/>
 						<div class="col-md-4">
-							<li><a href="#">Asparagus-Potato Brunch Bake</a></li>
+                            <li ng-repeat="recipe in col1|orderBy:'name'">
+                                <a href="#">{{recipe.name}}</a>
+                            </li>
 						</div>
 						<div class="col-md-4">
-						    &nbsp;
+                            <li ng-repeat="recipe in col2|orderBy:'name'">
+                                <a href="#">{{recipe.name}}</a>
+                            </li>
 						</div>
 						<div class="col-md-4">
-						    &nbsp;
+                            <li ng-repeat="recipe in col3|orderBy:'name'">
+                                <a href="#">{{recipe.name}}</a>
+                            </li>
 						</div>
 					</div>
 				</div>            			

@@ -85,7 +85,9 @@ public class BaseService extends SeerObject {
         } catch (Exception e) {
             log.error("Unable to filter the " + entityType + " data (" + filter + ").", e);
             throw new ModelException("Unable to filter the " + entityType + " (" + filter + "). " + e.getMessage());
-         }
+        } finally {
+            session.close();
+        }
     }
 
     public Map<String, String> filterToMap(String filter) {
