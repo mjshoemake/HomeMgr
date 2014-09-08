@@ -35,6 +35,14 @@ public class RecipeController extends BaseController {
         return super.filterList(model, filter, service);
     }
 
+    @RequestMapping(value = "/recipes/{filter}/sort/{sortFields}/dir/{sortDir}", method = RequestMethod.GET)
+    @ResponseBody public ResponseEntity filterList(Model model,
+                                                   @PathVariable String filter,
+                                                   @PathVariable String sortFields,
+                                                   @PathVariable String sortDir) {
+        return super.filterList(model, filter, sortFields, sortDir, service);
+    }
+
     @RequestMapping(value = "/recipes/{pkList}", method = RequestMethod.DELETE)
     @ResponseBody public ResponseEntity delete(Model model, @PathVariable String pkList) {
         return super.delete(model, pkList, service);

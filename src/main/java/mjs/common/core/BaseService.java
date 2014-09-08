@@ -14,6 +14,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,8 +62,16 @@ public class BaseService extends SeerObject {
     }
 
     public List filter(String filter) throws ModelException {
+        return filter(filter, null, "asc");
+    }
+
+    public List filter(String filter, String sortFields, String sortDirection) throws ModelException {
         // This method uses a filter string with the specified format:
         //    key=value;key=value;key=value
+        if (! (sortDirection.equals("asc") || sortDirection.equals("desc"))) {
+            throw new ModelException("Value for sortDirection is not valid.  Required: one of 'asc' or 'desc'.");
+        }
+
         Session session = openSession();
         try {
             Map<String, String> filterMap = filterToMap(filter);
@@ -75,6 +84,16 @@ public class BaseService extends SeerObject {
                     criteria.add(Restrictions.like(key, value));
                 } else {
                     criteria.add(Restrictions.eq(key, value));
+                }
+            }
+            if (sortFields != null) {
+                String[] tokens = sortFields.split(",");
+                for (String next : tokens) {
+                    if (sortDirection.equals("asc")) {
+                        criteria.addOrder(Order.asc(next.trim()));
+                    } else {
+                        criteria.addOrder(Order.desc(next.trim()));
+                    }
                 }
             }
             List result = criteria.list();

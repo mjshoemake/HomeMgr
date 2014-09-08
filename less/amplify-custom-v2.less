@@ -33,7 +33,6 @@
 @portlet-font-color: #666666;
 @panel-font-color: #666666;
 
-
 /* TABLES */
 th {
 	background: white url(file:///Users/mshoemake/IdeaProjects/bootstrapTest/themeOurs/images/ui-bg_glass_60_eeeeee_1x400.png) 50% 50% repeat-x;
@@ -79,7 +78,7 @@ tr.highlight {
 
 tbody {
 	overflow-y: scroll;
-	height: 70;
+	height: 100px;
 	//display: block; 
 }
 
@@ -92,10 +91,6 @@ table {
 	width: 100%;
 }
 
-/*
-.header-fixed {
-    width: 100%;
-}
 
 .header-fixed > thead,
 .header-fixed > tbody,
@@ -104,6 +99,7 @@ table {
 .header-fixed > thead > tr > th,
 .header-fixed > tbody > tr > td {
     //display: inline;
+    display: block;
 }
 
 .header-fixed > tbody > tr:after,
@@ -115,8 +111,8 @@ table {
 }
 
 .header-fixed > tbody {
-    overflow-y: scroll;
-    height: 120px;
+    //overflow-y: scroll;
+    //height: 120px;
 }
 
 .header-fixed > tbody > tr > td,
@@ -125,10 +121,14 @@ table {
     float: left;
 }
 
-*/
+.header-fixed > thead > tr > th {
+    padding-left: 0px;
+    padding-right: 0px;
+}
 
 
-/* NAV TABS */
+/*
+// NAV TABS
 // Not Selected Tab
 .nav-tabs > li > a, 
 .nav-tabs > li > a:hover, 
@@ -157,7 +157,7 @@ nav > li > a:hover,
 	border-color: @tab-border;
 }
 
-/* ACCORDION */
+// ACCORDION
 .panel-group {
   border-color: red;
   background-color: @body-bg-color;
@@ -203,7 +203,7 @@ nav > li > a:hover,
   color: cccccc;
 }
 
-/* NAV PILLS */
+// NAV PILLS 
 .nav-pills > li.active > a,
 .nav-pills > li.active > a:hover,
 .nav-pills > li.active > a:focus {
@@ -256,7 +256,7 @@ nav > li > a:hover,
 	margin-right: 0px;  
 }
 
-/* HEADER FOR ACCORDION */
+// HEADER FOR ACCORDION
 .amplify-heading {	
 	font-weight: bold;
 	border: 1px solid #bbbbbb;
@@ -270,7 +270,7 @@ nav > li > a:hover,
 
 
 
-/* OTHER */
+// OTHER
 body {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 12px;
@@ -347,7 +347,7 @@ div.jumbotron {
 		background-color: @portlet-bg-color;
 		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 		font-size: 32px;
-		color: @portlet-font-color;  /* Seems to be ignored... */
+		color: @portlet-font-color;  // Seems to be ignored...
 	}
 	p.jumbotron {
 		padding-top: 0px;
@@ -505,7 +505,7 @@ fieldset[disabled] .btn-link:focus {
   text-decoration: none;
 }
 
-/* MJS Validated  */
+// MJS Validated 
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -527,7 +527,7 @@ fieldset[disabled] .btn-link:focus {
   background-clip: padding-box;
 }
 
-/* MJS Validated  */
+// MJS Validated 
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
   text-decoration: none;
@@ -547,7 +547,11 @@ fieldset[disabled] .btn-link:focus {
 .panel-primary {
   border-color: cyan;
 }
+*/
 
+
+
+// MJS: Keep this commented out for now.
 /*
 .panel-primary > .panel-heading {
   color: orange;
@@ -569,6 +573,7 @@ fieldset[disabled] .btn-link:focus {
 
 
 // To be processed:
+/*
 @media (max-width: 767px) {
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
     color: @hover-font-color;
@@ -625,7 +630,7 @@ fieldset[disabled] .btn-link:focus {
 .navbar-inverse .navbar-brand:focus {
   color: cyan;
   background-color: green;
-/*  background-color: transparent;  */
+//  background-color: transparent; 
 }
 .navbar-inverse .navbar-text {
   color: cyan;
@@ -753,8 +758,7 @@ fieldset[disabled] .btn-link:focus {
 
 
 
-
-/* MJS  ?????  */
+// MJS  ????? 
 hr {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -765,7 +769,8 @@ fieldset[disabled] .form-control {
   cursor: not-allowed;
   background-color: #ee0000;
 }
-/*
+
+// Not for use right now.....
 .input-group-addon {
   padding: 6px 12px;
   font-size: 14px;
@@ -777,7 +782,7 @@ fieldset[disabled] .form-control {
   border: 1px solid #cccccc;
   border-radius: 4px;
 }
-*/
+
 .nav .open > a,
 .nav .open > a:hover,
 .nav .open > a:focus {
@@ -803,4 +808,5 @@ html,body{height:100%;margin:0;padding:0;overflow:hidden}
 #vertical{height:100%;border-width:0;}
 #horizontal{width:100%;height:100%;}
 
+*/
 
