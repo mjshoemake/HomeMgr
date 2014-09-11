@@ -19,9 +19,4 @@ public class RecipesService extends BaseService {
         super("mjs.model.Recipe", "recipe", "name", "recipes_pk", "mjs.model.Recipe");
     }
 
-    public List getAll() throws ModelException {
-        log.debug("Service: getAll()  Type=" + tableName + "  Returning EMPTY LIST.  Overridden.");
-        return new ArrayList();
-    }
-
 }

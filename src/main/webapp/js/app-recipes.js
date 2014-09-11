@@ -21,6 +21,8 @@ recipes.factory('RecipesFactory', function($resource) {
 // Routes
 recipes.config(function($routeProvider) {
 	$routeProvider.when('/recipesByLetter/:filter', {templateUrl: urlPrefix + 'recipes-by-letter.html', controller: 'RecipeByLetterController'});
+    $routeProvider.when('/recipesAll', {templateUrl: urlPrefix + 'recipes-all.html', controller: 'AllRecipesController'});
+    $routeProvider.when('/recipesDetailed', {templateUrl: urlPrefix + 'recipes-details.html', controller: 'DetailedRecipesController'});
     $routeProvider.when('/recipesEdit/:id', {templateUrl: urlPrefix + 'recipes-edit.html', controller: 'RecipeEditController'});
     $routeProvider.when('/recipesNew', {templateUrl: urlPrefix + 'recipes-new.html', controller: 'RecipeAddController'});
 });
@@ -53,9 +55,50 @@ recipes.service('recipeService', function(RecipesFactory, $http) {
 			}
 		}
 	}
-    this.getAll = function() {
-        list = RecipesFactory.query();
-        return list;
+    this.getAll = function($scope) {
+        var result = RecipesFactory.query();
+
+        var numRowsCol1
+        if (result.length > 15) {
+            numRowsCol1 = 15
+        } else {
+            numRowsCol1 = result.length
+        }
+
+        var numRowsCol2
+        if (result.length > 30) {
+            numRowsCol2 = 15
+        } else {
+            numRowsCol2 = result.length - 15
+        }
+
+        var numRowsCol3
+        if (result.length > 45) {
+            numRowsCol3 = 15
+        } else {
+            numRowsCol3 = result.length - 30
+        }
+
+        var index = 0
+        var col1 = []
+        var col2 = []
+        var col3 = []
+
+        for (i=0; i <= numRowsCol1-1; i++) {
+            col1[i] = result[index]
+            index++
+        }
+        for (i=0; i <= numRowsCol2-1; i++) {
+            col2[i] = result[index]
+            index++
+        }
+        for (i=0; i <= numRowsCol3-1; i++) {
+            col3[i] = result[index]
+            index++
+        }
+        $scope.col1 = col1
+        $scope.col2 = col2
+        $scope.col3 = col3
     }
 
     this.filter = function(filterText, letter, $scope) {
@@ -67,10 +110,25 @@ recipes.service('recipeService', function(RecipesFactory, $http) {
             $scope.letter = letter;
             $scope.recipeList = result;
 
-            // Divide the result set into three columns.
-            var numRows = Math.ceil(result.length / 3)
-            if (numRows > 15) {
-                numRows = 15
+            var numRowsCol1
+            if (result.length > 15) {
+                numRowsCol1 = 15
+            } else {
+                numRowsCol1 = result.length
+            }
+
+            var numRowsCol2
+            if (result.length > 30) {
+                numRowsCol2 = 15
+            } else {
+                numRowsCol2 = result.length - 15
+            }
+
+            var numRowsCol3
+            if (result.length > 45) {
+                numRowsCol3 = 15
+            } else {
+                numRowsCol3 = result.length - 30
             }
 
             var index = 0
@@ -78,23 +136,17 @@ recipes.service('recipeService', function(RecipesFactory, $http) {
             var col2 = []
             var col3 = []
 
-            for (i=0; i <= numRows-1; i++) {
-                if (index < result.length) {
-                    col1[i] = result[index]
-                    index++
-                }
+            for (i=0; i <= numRowsCol1-1; i++) {
+                col1[i] = result[index]
+                index++
             }
-            for (i=0; i <= numRows-1; i++) {
-                if (index < result.length) {
-                    col2[i] = result[index]
-                    index++
-                }
+            for (i=0; i <= numRowsCol2-1; i++) {
+                col2[i] = result[index]
+                index++
             }
-            for (i=0; i <= numRows-1; i++) {
-                if (index < result.length) {
-                    col3[i] = result[index]
-                    index++
-                }
+            for (i=0; i <= numRowsCol3-1; i++) {
+                col3[i] = result[index]
+                index++
             }
             $scope.col1 = col1
             $scope.col2 = col2
@@ -126,9 +178,35 @@ recipes.controller('RecipeByLetterController', function ($scope, $rootScope, $ro
     };
 });
 
+recipes.controller('AllRecipesController', function ($scope, $rootScope, $routeParams, mainService, recipeService) {
+    $rootScope.headerDisplay = "display: block;";
+    $rootScope.bodyBackground = "";
+    $rootScope.lastPage = '/recipesAll';
+    //$scope.recipeList = recipeService.filter("name=" + $routeParams.filter + "*", $scope);
+    recipeService.getAll($scope);
+    $scope.edit = function (id) {
+        $rootScope.goto('/recipesEdit/' + id);
+    };
+});
+
+recipes.controller('DetailedRecipesController', function ($scope, $rootScope, $routeParams, mainService, recipeService) {
+    $rootScope.headerDisplay = "display: block;";
+    $rootScope.bodyBackground = "";
+    $rootScope.lastPage = '/recipesDetailed';
+    //$scope.recipeList = recipeService.filter("name=" + $routeParams.filter + "*", $scope);
+    //recipeService.filter("name=" + $routeParams.filter + "*", $routeParams.filter, $scope);
+    recipeService.getAll($scope);
+
+    $scope.allSelected = recipeService.isAllSelected();
+    $scope.edit = function (id) {
+        $rootScope.goto('/recipesEdit/' + id);
+    };
+});
+
 
 
 // Cookbook Controllers
+/*
 recipes.controller('RecipesController', function ($scope, $rootScope, recipeService, loginService) {
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
@@ -154,6 +232,7 @@ recipes.controller('RecipesController', function ($scope, $rootScope, recipeServ
 	};
 		
 });
+*/
 
 /*
 cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $routeParams, mainService, cookbookService) {
