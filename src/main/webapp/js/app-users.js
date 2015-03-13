@@ -5,8 +5,7 @@ var urlPrefix = '';
 
 users.factory('UsersFactory', function($resource) {
     return $resource('http://localhost:8080/homeMgr/users', {}, {
-        query: { method: 'GET', isArray: true },
-        create: { method: 'POST', params: {type: 'create'} }
+        query: { method: 'GET', isArray: true }
     })
 });
 
@@ -29,7 +28,7 @@ users.config(function($routeProvider) {
 users.service('userService', function(UsersFactory, $q) {
     var nextPk = 7;
     var allSelected = false;
-    var list = [];
+	var list = undefined;
 
     this.indexForPK = function(pk) {
         for (var i = 0; i < list.length; i++) {
@@ -53,8 +52,9 @@ users.service('userService', function(UsersFactory, $q) {
                 if (numSelected > 0) {
                     itemsToDelete = itemsToDelete + ","
                 }
-                itemsToDelete = itemsToDelete + list[i].user_pk
-                numSelected = numSelected + 1
+                itemsToDelete = itemsToDelete + list[i].user_pk;
+				list.splice(i, 1);
+                numSelected = numSelected + 1;
             }
         }
         var deferred = $q.defer();
@@ -63,6 +63,12 @@ users.service('userService', function(UsersFactory, $q) {
         return deferred.promise;
     }
     this.getAll = function() {
+        if (list === undefined) {
+            list = UsersFactory.query();
+        }
+        return list;
+    }
+    this.refreshAll = function() {
         list = UsersFactory.query();
         return list;
     }
@@ -71,13 +77,19 @@ users.service('userService', function(UsersFactory, $q) {
     }
     this.addItem = function(item) {
         var deferred = $q.defer();
-        UsersFactory.update(item);
+        var result = UsersFactory.save(item, function(pk) {
+            //data saved. do something here.
+            item.user_pk = pk.primaryKey;
+            list.push(item);
+        });
         deferred.resolve("done");
         return deferred.promise;
     }
     this.removeItem = function(pk) {
         var deferred = $q.defer();
         UsersFactory.delete({ id: pk });
+        var i = this.indexForPK(pk);
+        list.splice(i, 1);
         deferred.resolve("done");
         return deferred.promise;
     }
@@ -96,7 +108,7 @@ users.controller('UserListController', function ($scope, $rootScope, mainService
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminUsers';
-    $scope.userList = userService.getAll();
+    $scope.userList = userService.refreshAll();
     $scope.allSelected = userService.isAllSelected();
 
     $scope.edit = function (id) {
@@ -110,12 +122,10 @@ users.controller('UserListController', function ($scope, $rootScope, mainService
     $scope.removeSelected = function () {
         userService.removeSelected().then(
             function(result) {
-                $scope.userList = userService.getAll();
                 mainService.setStatusBarText('Successfully deleted the selected users.');
                 $rootScope.goto('/adminUsers');
             }, function(reason) {
                 mainService.setStatusBarText('Failed to delete the selected users. "' + reason + '".');
-                $scope.userList = userService.getAll();
             }
         );
     };
@@ -128,7 +138,6 @@ users.controller('UserEditController', function ($scope, $rootScope, $routeParam
     $scope.update = function () {
         userService.update($scope.userToEdit).then(
             function(result) {
-                $scope.userList = userService.getAll();
                 mainService.setStatusBarText('Successfully updated user "' + $scope.userToEdit.username + '".');
                 $rootScope.goto('/adminUsers');
             }, function(reason) {
@@ -162,7 +171,6 @@ users.controller('UserAddController', function ($scope, $rootScope, $routeParams
     $scope.addItem = function () {
         userService.addItem($scope.userToAdd).then(
             function(result) {
-                $scope.userList = userService.getAll();
                 mainService.setStatusBarText('Successfully added user "' + $scope.userToAdd.username + '".');
                 $rootScope.goto('/adminUsers');
             }, function(reason) {

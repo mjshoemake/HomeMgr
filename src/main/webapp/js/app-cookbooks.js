@@ -5,8 +5,7 @@ var urlPrefix = '';
 
 cookbooks.factory('CookbooksFactory', function($resource) {
     return $resource('http://localhost:8080/homeMgr/cookbooks', {}, {
-        query: { method: 'GET', isArray: true },
-        create: { method: 'POST', params: {type: 'create'} }
+        query: { method: 'GET', isArray: true }
     })
 });
 
@@ -33,11 +32,11 @@ cookbooks.config(function($routeProvider) {
 cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
 	var nextCookbookPk = 20;
 	var allSelected = false;
-	var cookbookList = [];
+	var list = undefined;
 
 	this.indexForPK = function(pk) {
-		for (var i = 0; i < cookbookList.length; i++) {
-			var next = cookbookList[i];
+		for (var i = 0; i < list.length; i++) {
+			var next = list[i];
 			if (next.cookbooks_pk == pk) {
 				return i;
 			}	
@@ -45,8 +44,8 @@ cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
 		return -1;
 	}
 	this.selectAll = function(value) { 
-		for (var i = 0; i < cookbookList.length; i++) {
-			cookbookList[i].selected = value;
+		for (var i = 0; i < list.length; i++) {
+			list[i].selected = value;
 		}
 	}
 	this.removeSelected = function() {
@@ -57,17 +56,31 @@ cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
                 if (numSelected > 0) {
                     itemsToDelete = itemsToDelete + ","
                 }
-                itemsToDelete = itemsToDelete + list[i].cookbooks_pk
-                numSelected = numSelected + 1
+                itemsToDelete = itemsToDelete + list[i].cookbooks_pk;
+				list.splice(i, 1);
+                numSelected = numSelected + 1;
             }
         }
         var deferred = $q.defer();
         CookbooksFactory.delete({ id: itemsToDelete });
+        console.log("Deleted cookbooks: " + itemsToDelete);
         deferred.resolve();
         return deferred.promise;
 	}
     this.getAll = function() {
-        list = CookbooksFactory.query();
+        if (list === undefined) {
+            list = CookbooksFactory.query(function(results) {
+                //data saved. do something here.
+                console.log("Cookbook list response: " + results.length);
+            });
+        }
+        return list;
+    }
+    this.refreshAll = function() {
+        list = CookbooksFactory.query(function(results) {
+            //data saved. do something here.
+            console.log("Cookbook list response: " + results.length);
+        });
         return list;
     }
     this.getItem = function(pk) {
@@ -75,22 +88,25 @@ cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
     }
     this.addItem = function(item) {
         var deferred = $q.defer();
-        CookbooksFactory.update(item);
-        deferred.resolve("done");
+        var result = CookbooksFactory.save(item, function(pk) {
+            deferred.resolve(pk.primaryKey);
+        });
         return deferred.promise;
     }
     this.removeItem = function(pk) {
         var deferred = $q.defer();
-        CookbooksFactory.delete({ id: pk });
-        deferred.resolve("done");
+        CookbooksFactory.delete({ id: pk }, function(pk) {
+            deferred.resolve(pk);
+        });
         return deferred.promise;
     }
-    this.size = function() { return cookbookList.length; }
-    this.isAllSelected = function() { return cookbookList.allSelected; }
+    this.size = function() { return list.length; }
+    this.isAllSelected = function() { return list.allSelected; }
     this.update = function(item) {
         var deferred = $q.defer();
-        CookbooksFactory.update(item);
-        deferred.resolve("done");
+        CookbooksFactory.update(item, function(pk) {
+            deferred.resolve(pk.primaryKey);
+        });
         return deferred.promise;
     }
 });
@@ -100,8 +116,7 @@ cookbooks.controller('CookbookListController', function ($scope, $rootScope, mai
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminCookbooks';
-	$scope.cookbookList = cookbookService.getAll();
-	$scope.allSelected = cookbookService.isAllSelected();
+	$scope.cookbookList = cookbookService.refreshAll();
 
 	$scope.edit = function (id) {
 		$rootScope.goto('/adminEditCookbook/' + id);
@@ -114,11 +129,10 @@ cookbooks.controller('CookbookListController', function ($scope, $rootScope, mai
 	$scope.removeSelected = function () {
 		cookbookService.removeSelected().then(
             function(result) {
-                $scope.cookbookList = cookbookService.getAll();
                 mainService.setStatusBarText('Successfully deleted the selected cookbooks.');
+                $rootScope.goto('/adminCookbooks');
             }, function(reason) {
                 mainService.setStatusBarText('Failed to delete the selected cookbooks. "' + reason + '".');
-                $scope.cookbookList = cookbookService.getAll();
             }
         );
 	};
@@ -130,8 +144,8 @@ cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $ro
 
 	$scope.update = function () {
 		cookbookService.update($scope.cookbookToEdit).then(
-            function(result) {
-                $scope.cookbookList = cookbookService.getAll();
+            function(pk) {
+                console.log("Updated cookbook: " + $scope.cookbookToEdit.name);
                 mainService.setStatusBarText('Successfully updated cookbook "' + $scope.cookbookToEdit.name + '".');
                 $rootScope.goto('/adminCookbooks');
             }, function(reason) {
@@ -147,8 +161,8 @@ cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $ro
 	
 	$scope.delete = function () {
 		cookbookService.removeItem($scope.cookbookToEdit.cookbooks_pk).then(
-            function(result) {
-                $scope.cookbookList = cookbookService.getAll();
+            function(pk) {
+                console.log("Removed cookbook: '" + $scope.cookbookToEdit.name + "'.");
                 mainService.setStatusBarText('Successfully deleted cookbook "' + $scope.cookbookToEdit.name + '".');
                 $rootScope.goto('/adminCookbooks');
             }, function(reason) {
@@ -158,13 +172,13 @@ cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $ro
 	};
 });
 
-cookbooks.controller('CookbookAddController', function ($scope, $rootScope, $routeParams, cookbookService) {
+cookbooks.controller('CookbookAddController', function ($scope, $rootScope, $routeParams, mainService, cookbookService) {
 	$scope.cookbookToAdd = {'cookbooks_pk': '', 'name': ''};
 
 	$scope.addItem = function () {
 		cookbookService.addItem($scope.cookbookToAdd).then(
-            function(result) {
-                $scope.cookbookList = cookbookService.getAll();
+            function(pk) {
+                console.log("Added cookbook: " + pk + " - " + $scope.cookbookToAdd.name);
                 mainService.setStatusBarText('Successfully added cookbook "' + $scope.cookbookToAdd.name + '".');
                 $rootScope.goto('/adminCookbooks');
             }, function(reason) {

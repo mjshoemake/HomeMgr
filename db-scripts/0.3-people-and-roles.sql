@@ -20,4 +20,4 @@ ALTER TABLE `mshoemake`.`family_members` CHANGE COLUMN `family_member_pk` `famil
 INSERT INTO `mshoemake`.`family_members` (`fname`, `lname`, `description`, `dob`) VALUES ('Mike', 'Shoemake', 'Dad', '1972-09-09');
 
 -- Change to family_member_quotes table.
-ALTER TABLE `mshoemake`.`user_quotes` CHANGE COLUMN `user_quotes_pk` `family_member_quotes_pk` INT(11) NOT NULL  , CHANGE COLUMN `user_pk` `family_member_pk` INT(11) NOT NULL  , RENAME TO  `test`.`family_member_quotes` ;
+ALTER TABLE `mshoemake`.`user_quotes` CHANGE COLUMN `user_quotes_pk` `family_member_quotes_pk` INT(11) NOT NULL  , CHANGE COLUMN `user_pk` `family_member_pk` INT(11) NOT NULL  , RENAME TO  `mshoemake`.`family_member_quotes` ;

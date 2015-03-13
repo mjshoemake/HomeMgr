@@ -29,7 +29,7 @@
         <!--		<meta name="viewport" content="width=device-width, initial-scale=1.0">  -->
 	</head>
 <!--	<body ng-controllers="CookbookListController"> -->
-	<body background={{bodyBackground}} ng-controller="AppController">
+	<body class="{{bodyClass}}" ng-controller="AppController">
         <div id="main">
             <div id="header" class="container header" style={{headerDisplay}}>
                 <div class="row-liquid">
@@ -60,7 +60,7 @@
 	    				<!-- Breadcrumbs -->
 		    			<p/>
                         <ol class="breadcrumb">
-                            <li>Last page: {{lastPage}}  Background:  {{bodyBackground}}</li>
+                            <li>Last page: {{lastPage}}  Body class: {{bodyClass}}</li>
                         </ol>
                         <p>
                         &nbsp;

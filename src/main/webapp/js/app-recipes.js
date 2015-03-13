@@ -2,6 +2,7 @@
 var recipes = angular.module('recipes', ['ngRoute', 'ngSanitize', 'ngResource']);
  
 var urlPrefix = '';
+var lastPage = '';
 
 recipes.factory('RecipesFactory', function($resource) {
     return $resource('http://localhost:8080/homeMgr/recipes', {}, {
@@ -47,13 +48,24 @@ recipes.service('recipeService', function(RecipesFactory, $http) {
 			recipeList[i].selected = value;
 		}
 	}
-	this.removeSelected = function() { 
-		for (var i = recipeList.length - 1; i >= 0; i--) {
-			if (recipeList[i].selected) {
-                RecipesFactory.delete({ id: list[i].recipes_pk });
-				recipeList.splice(i, 1)
-			}
-		}
+	this.removeSelected = function() {
+	    numSelected = 0
+        var itemsToDelete = ""
+        for (var i = recipeList.length - 1; i >= 0; i--) {
+            if (recipeList[i].selected) {
+                if (numSelected > 0) {
+                    itemsToDelete = itemsToDelete + ","
+                }
+                itemsToDelete = itemsToDelete + recipeList[i].recipes_pk
+    	        recipeList.splice(i, 1)
+                numSelected = numSelected + 1
+            }
+        }
+
+        var deferred = $q.defer();
+        RecipesFactory.delete({ id: itemsToDelete });
+        deferred.resolve("done");
+        return deferred.promise;
 	}
     this.getAll = function($scope) {
         var result = RecipesFactory.query();
@@ -101,7 +113,7 @@ recipes.service('recipeService', function(RecipesFactory, $http) {
         $scope.col3 = col3
     }
 
-    this.filter = function(filterText, letter, $scope) {
+    this.filter = function(filterText, letter, $scope, mainService) {
 //        list = RecipesFactory.show(filterText);
         $http({
             method: 'GET',
@@ -159,19 +171,34 @@ recipes.service('recipeService', function(RecipesFactory, $http) {
     this.getItem = function(pk) {
         return RecipesFactory.show({ id: pk });
     }
-	this.addItem = function(item) { item.recipes_pk = nextRecipePk++; recipeList.push(item); }
-	this.removeItem = function(pk) { recipeList.splice(this.indexForPK(pk), 1) }
-	this.size = function() { return recipeList.length; }
-	this.isAllSelected = function() { return recipeList.allSelected; }
-	this.update = function(item) { }
+    this.addItem = function(item) {
+        var deferred = $q.defer();
+        RecipesFactory.update(item);
+        deferred.resolve("done");
+        return deferred.promise;
+    }
+    this.removeItem = function(pk) {
+        var deferred = $q.defer();
+        RecipesFactory.delete({ id: pk });
+        deferred.resolve("done");
+        return deferred.promise;
+    }
+    this.size = function() { return recipeList.length; }
+    this.isAllSelected = function() { return recipeList.allSelected; }
+    this.update = function(item) {
+        var deferred = $q.defer();
+        RecipesFactory.update(item);
+        deferred.resolve("done");
+        return deferred.promise;
+    }
 });
 
 recipes.controller('RecipeByLetterController', function ($scope, $rootScope, $routeParams, mainService, recipeService) {
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
-    $rootScope.lastPage = '/recipesByLetter';
-    //$scope.recipeList = recipeService.filter("name=" + $routeParams.filter + "*", $scope);
-    recipeService.filter("name=" + $routeParams.filter + "*", $routeParams.filter, $scope);
+    $rootScope.lastPage = '/recipesByLetter/' + $routeParams.filter;
+    $rootScope.recipesPage = $rootScope.lastPage;
+    recipeService.filter("name=" + $routeParams.filter + "*", $routeParams.filter, $scope, mainService);
     $scope.allSelected = recipeService.isAllSelected();
     $scope.edit = function (id) {
         $rootScope.goto('/recipesEdit/' + id);
@@ -182,7 +209,7 @@ recipes.controller('AllRecipesController', function ($scope, $rootScope, $routeP
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/recipesAll';
-    //$scope.recipeList = recipeService.filter("name=" + $routeParams.filter + "*", $scope);
+    $rootScope.recipesPage = $rootScope.lastPage;
     recipeService.getAll($scope);
     $scope.edit = function (id) {
         $rootScope.goto('/recipesEdit/' + id);
@@ -193,6 +220,7 @@ recipes.controller('DetailedRecipesController', function ($scope, $rootScope, $r
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/recipesDetailed';
+    $rootScope.recipesPage = $rootScope.lastPage;
     //$scope.recipeList = recipeService.filter("name=" + $routeParams.filter + "*", $scope);
     //recipeService.filter("name=" + $routeParams.filter + "*", $routeParams.filter, $scope);
     recipeService.getAll($scope);
@@ -201,6 +229,22 @@ recipes.controller('DetailedRecipesController', function ($scope, $rootScope, $r
     $scope.edit = function (id) {
         $rootScope.goto('/recipesEdit/' + id);
     };
+});
+
+recipes.controller('RecipeAddController', function ($scope, $rootScope, $routeParams, recipeService, mealService, foodCategoryService, cookbookService) {
+	$scope.recipeToAdd = {'recipes_pk': '', 'name': '', 'directions': '', 'ingredients': '', 'nutrition': ''};
+	$scope.cookbookList = cookbookService.getAll();
+	$scope.foodCategoryList = foodCategoryService.getAll();
+	$scope.mealList = mealService.getAll();	
+
+	$scope.addItem = function () {
+		recipeService.addItem($scope.recipeToAdd);
+		$rootScope.goto($scope.recipesPage);
+	};
+	
+	$scope.cancel = function () {
+		$rootScope.goto($scope.recipesPage);
+	};
 });
 
 
@@ -257,18 +301,6 @@ cookbooks.controller('CookbookEditController', function ($scope, $rootScope, $ro
 	};
 });
 
-cookbooks.controller('CookbookAddController', function ($scope, $rootScope, $routeParams, cookbookService) {
-	$scope.cookbookToAdd = {'cookbooks_pk': '', 'name': ''};
-
-	$scope.addItem = function () {
-		cookbookService.addItem($scope.cookbookToAdd);
-		$rootScope.goto('/adminCookbooks');
-	};
-	
-	$scope.cancel = function () {
-		$rootScope.goto('/adminCookbooks');
-	};
-});
 */
 
 angular.element(document).ready(function() { 

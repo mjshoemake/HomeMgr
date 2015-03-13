@@ -5,8 +5,7 @@ var urlPrefix = '';
 
 foodCategories.factory('FoodCategoriesFactory', function($resource) {
     return $resource('http://localhost:8080/homeMgr/foodCategories', {}, {
-        query: { method: 'GET', isArray: true },
-        create: { method: 'POST', params: {type: 'create'} }
+        query: { method: 'GET', isArray: true }
     })
 });
 
@@ -29,7 +28,7 @@ foodCategories.config(function($routeProvider) {
 foodCategories.service('foodCategoryService', function(FoodCategoriesFactory, $q) {
 	var nextPk = 15;
 	var allSelected = false;
-	var list = [];
+	var list = undefined;
 
 	this.indexForPK = function(pk) {
 		for (var i = 0; i < list.length; i++) {
@@ -46,15 +45,16 @@ foodCategories.service('foodCategoryService', function(FoodCategoriesFactory, $q
 		}
 	}
 	this.removeSelected = function() {
-        numSelected = 0
-        var itemsToDelete = ""
+        numSelected = 0;
+        var itemsToDelete = "";
 		for (var i = list.length - 1; i >= 0; i--) {
 			if (list[i].selected) {
                 if (numSelected > 0) {
-                    itemsToDelete = itemsToDelete + ","
+                    itemsToDelete = itemsToDelete + ",";
                 }
-                itemsToDelete = itemsToDelete + list[i].meal_categories_pk
-                numSelected = numSelected + 1
+                itemsToDelete = itemsToDelete + list[i].meal_categories_pk;
+				list.splice(i, 1);
+                numSelected = numSelected + 1;
 			}
 		}
         var deferred = $q.defer();
@@ -63,6 +63,12 @@ foodCategories.service('foodCategoryService', function(FoodCategoriesFactory, $q
         return deferred.promise;
 	}
     this.getAll = function() {
+        if (list === undefined) {
+           list = FoodCategoriesFactory.query();
+        }
+        return list;
+    }
+    this.refreshAll = function() {
         list = FoodCategoriesFactory.query();
         return list;
     }
@@ -71,13 +77,19 @@ foodCategories.service('foodCategoryService', function(FoodCategoriesFactory, $q
     }
     this.addItem = function(item) {
         var deferred = $q.defer();
-        FoodCategoriesFactory.update(item);
+        var result = FoodCategoriesFactory.save(item, function(pk) {
+            //data saved. do something here.
+            item.meal_categories_pk = pk.primaryKey;
+            list.push(item);
+        });
         deferred.resolve();
         return deferred.promise;
     }
     this.removeItem = function(pk) {
         var deferred = $q.defer();
         FoodCategoriesFactory.delete({ id: pk });
+        var i = this.indexForPK(pk);
+        list.splice(i, 1);
         deferred.resolve();
         return deferred.promise;
     }
@@ -96,7 +108,7 @@ foodCategories.controller('FoodCategoryListController', function ($scope, $rootS
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminFoodCategories';
-	$scope.foodCategoryList = foodCategoryService.getAll();
+	$scope.foodCategoryList = foodCategoryService.refreshAll();
 	$scope.allSelected = foodCategoryService.isAllSelected();
 
 	$scope.edit = function (id) {
@@ -110,10 +122,9 @@ foodCategories.controller('FoodCategoryListController', function ($scope, $rootS
 	$scope.removeSelected = function () {
 		foodCategoryService.removeSelected().then(function(data) {
             mainService.setStatusBarText('Successfully deleted the selected food categories.');
-            $scope.foodCategoryList = foodCategoryService.getAll();
+            $rootScope.goto('/adminFoodCategories');
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to delete the selected food categories. ' + error);
-            $scope.foodCategoryList = foodCategoryService.getAll();
         });
 	};
 });
@@ -125,11 +136,9 @@ foodCategories.controller('FoodCategoryEditController', function ($scope, $rootS
 	$scope.update = function () {
         $scope.foodCategoryList = foodCategoryService.update($scope.foodCategoryToEdit).then(function(data) {
             mainService.setStatusBarText('Successfully updated food category "' + $scope.foodCategoryToEdit.name + '".');
-            $scope.foodCategoryList = foodCategoryService.getAll();
             $rootScope.goto('/adminFoodCategories');
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to update food category "' + $scope.foodCategoryToEdit.name + '".');
-            $scope.foodCategoryList = foodCategoryService.getAll();
             $rootScope.goto('/adminFoodCategories');
         });
 	};
@@ -146,7 +155,6 @@ foodCategories.controller('FoodCategoryEditController', function ($scope, $rootS
             $rootScope.goto('/adminFoodCategories');
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to delete food category "' + $scope.foodCategoryToEdit.name + '".');
-            $scope.foodCategoryList = foodCategoryService.getAll();
             $rootScope.goto('/adminFoodCategories');
         });
     };
@@ -158,11 +166,9 @@ foodCategories.controller('FoodCategoryAddController', function ($scope, $rootSc
 	$scope.addItem = function () {
         foodCategoryService.addItem($scope.foodCategoryToAdd).then(function(data) {
             mainService.setStatusBarText('Successfully added food category "' + $scope.foodCategoryToAdd.name + '".');
-            $scope.foodCategoryList = foodCategoryService.getAll();
             $rootScope.goto('/adminFoodCategories');
         }, function(error) {
             mainService.setStatusBarText('An error occurred trying to add food category "' + $scope.foodCategoryToAdd.name + '".');
-            $scope.foodCategoryList = foodCategoryService.getAll();
             $rootScope.goto('/adminFoodCategories');
         });
 	};

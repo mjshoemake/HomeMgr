@@ -46,12 +46,12 @@ main.controller('AppController', function ($scope, $rootScope, $route, $location
 	$scope.$route = $route;
     $rootScope.statusBarText = mainService.getStatusBarText();
     $rootScope.headerDisplay = "display: blocked;";
-    $rootScope.bodyBackground = "images/background.jpg";
+    $rootScope.bodyClass = "login";
     $rootScope.lastPage = '/adminCookbooks';
 
     $scope.showLogin = function() {
         $rootScope.headerDisplay = "display: none;";
-        $rootScope.bodyBackground = "images/background.jpg";
+        $rootScope.bodyClass = "login";
         $scope.password = '';
         $location.path('/login');
     }
@@ -77,14 +77,14 @@ main.controller('AppController', function ($scope, $rootScope, $route, $location
             $scope.showLogin();
         } else {
             $rootScope.headerDisplay = "display: blocked;";
-            $rootScope.bodyBackground = "";
+            $rootScope.bodyClass = "main";
             $location.path(path);
         }
 	};
 
     $rootScope.gotoLast = function() {
         $rootScope.headerDisplay = "display: blocked;";
-        $rootScope.bodyBackground = "";
+        $rootScope.bodyClass = "main";
         //$('#alertHome').alert('close');
         $location.path($rootScope.lastPage);
     };

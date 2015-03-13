@@ -10,7 +10,7 @@ login.factory('LoginFactory', function($resource) {
 });
 
 // Routes
-main.config(function($routeProvider) {
+login.config(function($routeProvider) {
     $routeProvider.when('/adminCookbooks', {templateUrl: urlPrefix + 'admin-cookbooks.html', controller: 'CookbookListController'});
     $routeProvider.when('/login', {templateUrl: urlPrefix + 'login.html', controller: 'LoginController'});
     $routeProvider.otherwise({redirectTo: '/adminCookbooks'});

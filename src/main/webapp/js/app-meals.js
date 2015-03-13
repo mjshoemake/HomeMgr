@@ -5,8 +5,7 @@ var urlPrefix = '';
 
 meals.factory('MealsFactory', function($resource) {
     return $resource('http://localhost:8080/homeMgr/meals', {}, {
-        query: { method: 'GET', isArray: true },
-        create: { method: 'POST', params: {type: 'create'} }
+        query: { method: 'GET', isArray: true }
     })
 });
 
@@ -29,7 +28,7 @@ meals.config(function($routeProvider) {
 meals.service('mealService', function(MealsFactory, $q) {
 	var nextPk = 7;
 	var allSelected = false;
-	var list = [];
+	var list = undefined;
 
 	this.indexForPK = function(pk) {
 		for (var i = 0; i < list.length; i++) {
@@ -46,23 +45,31 @@ meals.service('mealService', function(MealsFactory, $q) {
 		}
 	}
     this.removeSelected = function() {
-        numSelected = 0
-        var itemsToDelete = ""
+        numSelected = 0;
+        var itemsToDelete = "";
         for (var i = list.length - 1; i >= 0; i--) {
             if (list[i].selected) {
                 if (numSelected > 0) {
-                    itemsToDelete = itemsToDelete + ","
+                    itemsToDelete = itemsToDelete + ",";
                 }
-                itemsToDelete = itemsToDelete + list[i].meals_pk
-                numSelected = numSelected + 1
+                itemsToDelete = itemsToDelete + list[i].meals_pk;
+				list.splice(i, 1);
+                numSelected = numSelected + 1;
             }
         }
+
         var deferred = $q.defer();
         MealsFactory.delete({ id: itemsToDelete });
-        deferred.resolve();
+        deferred.resolve("done");
         return deferred.promise;
     }
     this.getAll = function() {
+        if (list === undefined) {
+            list = MealsFactory.query();
+        }
+        return list;
+    }
+    this.refreshAll = function() {
         list = MealsFactory.query();
         return list;
     }
@@ -71,13 +78,19 @@ meals.service('mealService', function(MealsFactory, $q) {
     }
     this.addItem = function(item) {
         var deferred = $q.defer();
-        MealsFactory.update(item);
+        var result = MealsFactory.save(item, function(pk) {
+            //data saved. do something here.
+            item.meals_pk = pk.primaryKey;
+            list.push(item);
+        });
         deferred.resolve("done");
         return deferred.promise;
     }
     this.removeItem = function(pk) {
         var deferred = $q.defer();
         MealsFactory.delete({ id: pk });
+        var i = this.indexForPK(pk);
+        list.splice(i, 1);
         deferred.resolve("done");
         return deferred.promise;
     }
@@ -96,7 +109,7 @@ meals.controller('MealListController', function ($scope, $rootScope, mainService
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminMeals';
-	$scope.mealList = mealService.getAll();
+	$scope.mealList = mealService.refreshAll();
 	$scope.allSelected = mealService.isAllSelected();
 
 	$scope.edit = function (id) {
@@ -115,7 +128,6 @@ meals.controller('MealListController', function ($scope, $rootScope, mainService
                 $rootScope.goto('/adminMeals');
             }, function(reason) {
                 mainService.setStatusBarText('Failed to delete the selected meals. "' + reason + '".');
-                $scope.mealList = mealService.getAll();
             }
         );
 	};
@@ -128,7 +140,6 @@ meals.controller('MealEditController', function ($scope, $rootScope, $routeParam
 	$scope.update = function () {
 		mealService.update($scope.mealToEdit).then(
             function(result) {
-                $scope.mealList = mealService.getAll();
                 mainService.setStatusBarText('Successfully updated meal "' + $scope.mealToEdit.name + '".');
                 $rootScope.goto('/adminMeals');
             }, function(reason) {
@@ -162,7 +173,6 @@ meals.controller('MealAddController', function ($scope, $rootScope, $routeParams
 	$scope.addItem = function () {
 		mealService.addItem($scope.mealToAdd).then(
             function(result) {
-                $scope.mealList = mealService.getAll();
                 mainService.setStatusBarText('Successfully added meal "' + $scope.mealToAdd.name + '".');
                 $rootScope.goto('/adminMeals');
             }, function(reason) {

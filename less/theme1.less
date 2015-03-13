@@ -9,22 +9,25 @@
 @hover-bg-color: #c19dda;
 @hover-font-color: #111111;  
 @table-highlight-color: #e1bdfa;
-@body-bg-color: #f2e1fb;
+//@body-bg-color: #f2e1fb;
+@body-bg-color: #dbcadb;
 @body-font-color: #111111; 
 @tab-bg-color: #d5b6e7;
 // @tab-bg-color: #c9aadb;
 // @tab-bg-color: #be9fd0;
 // @tab-bg-color: #ffffff;
-@tab-hover-bg-color: #dfc9eb;
-@portlet-bg-color: #dfc9eb;
+@tab-hover-bg-color: #c19dda;
+@portlet-bg-color: #d2b4e4;
 @portlet-font-color: #111111;
 /* @navbar-bg-color: #9367b9; */
 @navbar-bg-color: white;
 @dropdown-selected-bg-color: #dedede;
 @dropdown-selected-caret: #111111;
-@panel-bg-color: #dfc9eb;
+@panel-bg-color: #c19dda;
 @panel-font-color: #111111;  
-@footer-bg-color: #dfc9eb;
+@footer-bg-color: #c19dda;
+
+// d9c0e7
 
 /* MJS Validated  */
 .navbar {
@@ -38,7 +41,18 @@
 }
 
 /* MJS Validated  */
-body {
+body.login {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 1.028571429;
+	color: @body-font-color;
+	background-color: @body-bg-color;
+    background-image: url(../images/background.jpg);
+    overflow: hidden;
+    height: auto;
+}
+
+body.main {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 14px;
 	line-height: 1.028571429;
@@ -47,6 +61,7 @@ body {
     overflow: hidden;
     height: auto;
 }
+
 
       /* Wrapper for page content to push down footer */
       #wrap {

@@ -199,9 +199,12 @@ public class BaseService extends SeerObject {
         Session session = openSession();
         Transaction tx = null;
         try {
+            Object name = getPropertyValue(entity, entityNameProperty);
+            log.debug("Saving " + entityType + " " + name + "...");
             tx = session.beginTransaction();
             session.saveOrUpdate(entity);
             tx.commit();
+            log.debug("   Save successful.");
         } catch (Exception e) {
             if (tx != null) {
                 tx.rollback();
@@ -282,9 +285,12 @@ public class BaseService extends SeerObject {
                 Session session = openSession();
                 Transaction tx = null;
                 try {
+                    Object name = getPropertyValue(entity, entityNameProperty);
+                    log.debug("Deleting " + entityType + " " + name + "...");
                     tx = session.beginTransaction();
                     session.delete(entity);
                     tx.commit();
+                    log.debug("   Delete successful.");
                 } catch (Exception e) {
                     if (tx != null) {
                         tx.rollback();
