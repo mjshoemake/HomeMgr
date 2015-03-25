@@ -60,7 +60,8 @@ meals.service('mealService', function(MealsFactory, $q) {
 
         var deferred = $q.defer();
         MealsFactory.delete({ id: itemsToDelete });
-        deferred.resolve("done");
+        console.log("Deleted meals: " + itemsToDelete);
+        deferred.resolve();
         return deferred.promise;
     }
     this.getAll = function() {
@@ -68,10 +69,21 @@ meals.service('mealService', function(MealsFactory, $q) {
             list = MealsFactory.query();
         }
         return list;
+        if (list === undefined) {
+            list = MealsFactory.query(function(results) {
+                //data saved. do something here.
+                console.log("Meal list count: " + results.length);
+            });
+        }
+        return list;
     }
     this.refreshAll = function() {
-        list = MealsFactory.query();
+        list = MealsFactory.query(function(results) {
+            //data saved. do something here.
+            console.log("Meal list count: " + results.length);
+        });
         return list;
+
     }
     this.getItem = function(pk) {
         return MealsFactory.show({ id: pk });
@@ -79,29 +91,27 @@ meals.service('mealService', function(MealsFactory, $q) {
     this.addItem = function(item) {
         var deferred = $q.defer();
         var result = MealsFactory.save(item, function(pk) {
-            //data saved. do something here.
-            item.meals_pk = pk.primaryKey;
-            list.push(item);
+            deferred.resolve(pk.primaryKey);
         });
-        deferred.resolve("done");
         return deferred.promise;
     }
     this.removeItem = function(pk) {
         var deferred = $q.defer();
-        MealsFactory.delete({ id: pk });
-        var i = this.indexForPK(pk);
-        list.splice(i, 1);
-        deferred.resolve("done");
+
+        MealsFactory.delete({ id: pk }, function(pk) {
+            deferred.resolve(pk);
+        });
+        return deferred.promise;
+    }
+    this.update = function(item) {
+        var deferred = $q.defer();
+        MealsFactory.update(item, function(msg) {
+            deferred.resolve(msg);
+        });
         return deferred.promise;
     }
     this.size = function() { return list.length; }
     this.isAllSelected = function() { return list.allSelected; }
-    this.update = function(item) {
-        var deferred = $q.defer();
-        MealsFactory.update(item);
-        deferred.resolve("done");
-        return deferred.promise;
-    }
 });
 
 // Cookbook Controllers
@@ -123,7 +133,6 @@ meals.controller('MealListController', function ($scope, $rootScope, mainService
 	$scope.removeSelected = function () {
 		mealService.removeSelected().then(
             function(result) {
-                $scope.mealList = mealService.getAll();
                 mainService.setStatusBarText('Successfully deleted the selected meals.');
                 $rootScope.goto('/adminMeals');
             }, function(reason) {
@@ -139,16 +148,16 @@ meals.controller('MealEditController', function ($scope, $rootScope, $routeParam
 
 	$scope.update = function () {
 		mealService.update($scope.mealToEdit).then(
-            function(result) {
+            function(pk) {
+                console.log("Updated meal: " + $scope.mealToEdit.name);
                 mainService.setStatusBarText('Successfully updated meal "' + $scope.mealToEdit.name + '".');
                 $rootScope.goto('/adminMeals');
             }, function(reason) {
                 mainService.setStatusBarText('Failed to update meal. "' + reason + '".');
+        		$rootScope.goto('/adminMeals');
             }
         );
-		$rootScope.goto('/adminMeals');
 	};
-	
 	$scope.cancel = function () {
 		$scope.mealToEdit.name = $scope.backup.name;
 		$rootScope.goto('/adminMeals');
@@ -156,8 +165,8 @@ meals.controller('MealEditController', function ($scope, $rootScope, $routeParam
 	
 	$scope.delete = function () {
 		mealService.removeItem($scope.mealToEdit.meals_pk).then(
-            function(result) {
-                $scope.mealList = mealService.getAll();
+            function(pk) {
+                console.log("Removed meal: '" + $scope.mealToEdit.name + "'.");
                 mainService.setStatusBarText('Successfully deleted meal "' + $scope.mealToEdit.name + '".');
                 $rootScope.goto('/adminMeals');
             }, function(reason) {
@@ -172,7 +181,8 @@ meals.controller('MealAddController', function ($scope, $rootScope, $routeParams
 
 	$scope.addItem = function () {
 		mealService.addItem($scope.mealToAdd).then(
-            function(result) {
+            function(pk) {
+                console.log("Added meal: " + pk + " - " + $scope.mealToAdd.name);
                 mainService.setStatusBarText('Successfully added meal "' + $scope.mealToAdd.name + '".');
                 $rootScope.goto('/adminMeals');
             }, function(reason) {

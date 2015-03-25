@@ -59,17 +59,24 @@ users.service('userService', function(UsersFactory, $q) {
         }
         var deferred = $q.defer();
         UsersFactory.delete({ id: itemsToDelete });
+        console.log("Deleted users: " + itemsToDelete);
         deferred.resolve();
         return deferred.promise;
     }
     this.getAll = function() {
         if (list === undefined) {
-            list = UsersFactory.query();
+            list = UsersFactory.query(function(results) {
+                //data saved. do something here.
+                console.log("User list response: " + results.length);
+            });
         }
         return list;
     }
     this.refreshAll = function() {
-        list = UsersFactory.query();
+        list = UsersFactory.query(function(results) {
+            //data saved. do something here.
+            console.log("User list response: " + results.length);
+        });
         return list;
     }
     this.getItem = function(pk) {
@@ -78,29 +85,26 @@ users.service('userService', function(UsersFactory, $q) {
     this.addItem = function(item) {
         var deferred = $q.defer();
         var result = UsersFactory.save(item, function(pk) {
-            //data saved. do something here.
-            item.user_pk = pk.primaryKey;
-            list.push(item);
+            deferred.resolve(pk.primaryKey);
         });
-        deferred.resolve("done");
         return deferred.promise;
     }
     this.removeItem = function(pk) {
         var deferred = $q.defer();
-        UsersFactory.delete({ id: pk });
-        var i = this.indexForPK(pk);
-        list.splice(i, 1);
-        deferred.resolve("done");
+        UsersFactory.delete({ id: pk }, function(pk) {
+            deferred.resolve(pk);
+        });
+        return deferred.promise;
+    }
+    this.update = function(item) {
+        var deferred = $q.defer();
+        UsersFactory.update(item, function(pk) {
+            deferred.resolve(pk.primaryKey);
+        });
         return deferred.promise;
     }
     this.size = function() { return list.length; }
     this.isAllSelected = function() { return list.allSelected; }
-    this.update = function(item) {
-        var deferred = $q.defer();
-        UsersFactory.update(item);
-        deferred.resolve("done");
-        return deferred.promise;
-    }
 });
 
 // Cookbook Controllers
@@ -137,7 +141,8 @@ users.controller('UserEditController', function ($scope, $rootScope, $routeParam
 
     $scope.update = function () {
         userService.update($scope.userToEdit).then(
-            function(result) {
+            function(pk) {
+                console.log("Updated user: " + $scope.userToEdit.name);
                 mainService.setStatusBarText('Successfully updated user "' + $scope.userToEdit.username + '".');
                 $rootScope.goto('/adminUsers');
             }, function(reason) {
@@ -153,8 +158,8 @@ users.controller('UserEditController', function ($scope, $rootScope, $routeParam
 
     $scope.delete = function () {
         userService.removeItem($scope.userToEdit.user_pk).then(
-            function(result) {
-                $scope.userList = userService.getAll();
+            function(pk) {
+                console.log("Removed user: '" + $scope.userToEdit.username + "'.");
                 mainService.setStatusBarText('Successfully deleted user "' + $scope.userToEdit.username + '".');
                 $rootScope.goto('/adminUsers');
             }, function(reason) {
@@ -170,7 +175,8 @@ users.controller('UserAddController', function ($scope, $rootScope, $routeParams
 
     $scope.addItem = function () {
         userService.addItem($scope.userToAdd).then(
-            function(result) {
+            function(pk) {
+                console.log("Added user: " + pk + " - " + $scope.userToAdd.username);
                 mainService.setStatusBarText('Successfully added user "' + $scope.userToAdd.username + '".');
                 $rootScope.goto('/adminUsers');
             }, function(reason) {

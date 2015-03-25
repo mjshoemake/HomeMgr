@@ -100,8 +100,6 @@ cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
         });
         return deferred.promise;
     }
-    this.size = function() { return list.length; }
-    this.isAllSelected = function() { return list.allSelected; }
     this.update = function(item) {
         var deferred = $q.defer();
         CookbooksFactory.update(item, function(pk) {
@@ -109,6 +107,8 @@ cookbooks.service('cookbookService', function(CookbooksFactory, $q) {
         });
         return deferred.promise;
     }
+    this.size = function() { return list.length; }
+    this.isAllSelected = function() { return list.allSelected; }
 });
 
 // Cookbook Controllers
@@ -117,6 +117,7 @@ cookbooks.controller('CookbookListController', function ($scope, $rootScope, mai
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminCookbooks';
 	$scope.cookbookList = cookbookService.refreshAll();
+    $scope.allSelected = cookbookService.isAllSelected();
 
 	$scope.edit = function (id) {
 		$rootScope.goto('/adminEditCookbook/' + id);
