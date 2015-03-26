@@ -65,19 +65,6 @@ meals.service('mealService', function(MealsFactory, $q) {
         return deferred.promise;
     }
     this.getAll = function() {
-        if (list === undefined) {
-            list = MealsFactory.query();
-        }
-        return list;
-        if (list === undefined) {
-            list = MealsFactory.query(function(results) {
-                //data saved. do something here.
-                console.log("Meal list count: " + results.length);
-            });
-        }
-        return list;
-    }
-    this.refreshAll = function() {
         list = MealsFactory.query(function(results) {
             //data saved. do something here.
             console.log("Meal list count: " + results.length);
@@ -119,7 +106,7 @@ meals.controller('MealListController', function ($scope, $rootScope, mainService
     $rootScope.headerDisplay = "display: block;";
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/adminMeals';
-	$scope.mealList = mealService.refreshAll();
+	$scope.mealList = mealService.getAll();
 	$scope.allSelected = mealService.isAllSelected();
 
 	$scope.edit = function (id) {
