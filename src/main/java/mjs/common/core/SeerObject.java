@@ -94,4 +94,36 @@ public class SeerObject {
         }
     }
 
+    /**
+     * Uses reflection to get the value of the specified property from the
+     * specified bean.
+     * @param bean
+     * @param propertyName
+     * @return Object
+     * @throws mjs.common.exceptions.ModelException
+     */
+    public String getPropertyType(String propertyName) throws ModelException {
+        // Get the property type.
+        String[] tokens = propertyName.split("\\+");
+        StringBuilder builder = new StringBuilder();
+        if (tokens.length > 0) {
+            int i = 0;
+            log.debug("Processing bean properties:");
+            for (String next : tokens) {
+                Object[] args = new Object[0];
+                log.debug("   " + next);
+                PropertyDescriptor pd = propertyMap.get(next);
+                Class type = pd.getPropertyType();
+                if (i > 0) {
+                    builder.append(" ");
+                }
+                builder.append(type.getSimpleName());
+                i++;
+            }
+            return builder.toString();
+        } else {
+            return "entity";
+        }
+    }
+
 }

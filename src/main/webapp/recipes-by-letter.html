@@ -1,6 +1,6 @@
 			<div id="recipesByLetter" class="row-liquid">
 				<div class="row" ng-controller="RecipeByLetterController">
-					<div class="col-md-12 scrollable">
+					<div class="col-md-12">
 						<p>
 						<!-- Page Title -->
 						<div class="page-header">Recipes</div>
@@ -19,7 +19,7 @@
 						&nbsp;&nbsp;
 						<button type="button" class="btn btn-default" ng-click="goto('/recipesNew')">New Recipe</button>
 						&nbsp;&nbsp;
-						<button type="button" class="btn btn-default" ng-click="goto('/recipesNew')">New Recipe To Try</button>
+						<button type="button" class="btn btn-default" ng-click="goto('/recipesNewTest')">New Recipe To Try</button>
 
 						<p/>&nbsp;<p/>
 						<div class="letterlinks">	
@@ -55,17 +55,17 @@
 						<p/>&nbsp;<p/>
 						<div class="col-md-4">
                             <li ng-repeat="recipe in col1|orderBy:'name'">
-                                <a href="#">{{recipe.name}}</a>
+                                <a ng-click="edit(recipe.recipes_pk)">{{recipe.name}}</a>
                             </li>
 						</div>
 						<div class="col-md-4">
                             <li ng-repeat="recipe in col2|orderBy:'name'">
-                                <a href="#">{{recipe.name}}</a>
+                                <a ng-click="edit(recipe.recipes_pk)">{{recipe.name}}</a>
                             </li>
 						</div>
 						<div class="col-md-4">
                             <li ng-repeat="recipe in col3|orderBy:'name'">
-                                <a href="#">{{recipe.name}}</a>
+                                <a ng-click="edit(recipe.recipes_pk)">{{recipe.name}}</a>
                             </li>
 						</div>
 					</div>

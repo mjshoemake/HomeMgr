@@ -22,21 +22,21 @@
                         <button type="button" class="btn btn-default" ng-click="goto('/recipesNew')">New Recipe To Try</button>
 
 						<p/>&nbsp;<p/>
-						<div class="col-md-4">
+                        <div class="col-md-4">
                             <li ng-repeat="recipe in col1|orderBy:'name'">
-                                <a href="#">{{recipe.name}}</a>
+                                <a ng-click="edit(recipe.recipes_pk)">{{recipe.name}}</a>
                             </li>
-						</div>
-						<div class="col-md-4">
+                        </div>
+                        <div class="col-md-4">
                             <li ng-repeat="recipe in col2|orderBy:'name'">
-                                <a href="#">{{recipe.name}}</a>
+                                <a ng-click="edit(recipe.recipes_pk)">{{recipe.name}}</a>
                             </li>
-						</div>
-						<div class="col-md-4">
+                        </div>
+                        <div class="col-md-4">
                             <li ng-repeat="recipe in col3|orderBy:'name'">
-                                <a href="#">{{recipe.name}}</a>
+                                <a ng-click="edit(recipe.recipes_pk)">{{recipe.name}}</a>
                             </li>
-						</div>
+                        </div>
 					</div>
 				</div>
                 <script src="js/app-recipes.js"></script>

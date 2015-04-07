@@ -68,6 +68,7 @@ public class BaseService extends SeerObject {
     public List filter(String filter, String sortFields, String sortDirection) throws ModelException {
         // This method uses a filter string with the specified format:
         //    key=value;key=value;key=value
+        //    Example:  http://localhost:8080/homeMgr/recipes/filter/recipes_pk=11
         if (! (sortDirection.equals("asc") || sortDirection.equals("desc"))) {
             throw new ModelException("Value for sortDirection is not valid.  Required: one of 'asc' or 'desc'.");
         }
@@ -79,11 +80,24 @@ public class BaseService extends SeerObject {
             Criteria criteria = session.createCriteria(entityClass);
             while (keys.hasNext()) {
                 String key = keys.next();
-                String value = filterMap.get(key).replace('*', '%');
-                if (value.contains("%")) {
-                    criteria.add(Restrictions.like(key, value));
+                String type = getPropertyType(key);
+                log.debug("   key" + key + "  Type: " + type);
+
+                if (type.equals("int")) {
+                    String value = filterMap.get(key);
+                    try {
+                        int intValue = Integer.parseInt(value);
+                        criteria.add(Restrictions.eq(key, intValue));
+                    } catch(Exception e) {
+                        // Skipping this restriction.  Not a valid integer.
+                    }
                 } else {
-                    criteria.add(Restrictions.eq(key, value));
+                    String value = filterMap.get(key).replace('*', '%');
+                    if (value.contains("%")) {
+                        criteria.add(Restrictions.like(key, value));
+                    } else {
+                        criteria.add(Restrictions.eq(key, value));
+                    }
                 }
             }
             if (sortFields != null) {
@@ -103,7 +117,7 @@ public class BaseService extends SeerObject {
             return result;
         } catch (Exception e) {
             log.error("Unable to filter the " + entityType + " data (" + filter + ").", e);
-            throw new ModelException("Unable to filter the " + entityType + " (" + filter + "). " + e.getMessage());
+            throw new ModelException("Unable to filter the " + entityType + " (" + filter + "). " + e.getMessage(), e);
         } finally {
             session.close();
         }

@@ -1,14 +1,8 @@
 package mjs.home.controllers;
 
 import mjs.common.core.BaseController;
-import mjs.common.exceptions.ModelException;
-import mjs.home.services.MealsService;
 import mjs.home.services.RecipesService;
-import mjs.model.Meal;
-import mjs.model.PrimaryKey;
-import mjs.model.ServiceResponse;
 import mjs.model.Recipe;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,7 +24,12 @@ public class RecipeController extends BaseController {
         return super.getList(model, service);
     }
 
-    @RequestMapping(value = "/recipes/{filter}", method = RequestMethod.GET)
+    @RequestMapping(value = "/recipes/{pk}", method = RequestMethod.GET)
+    @ResponseBody public ResponseEntity getByPK(Model model, @PathVariable int pk) {
+        return super.getByPK(model, pk, service);
+    }
+
+    @RequestMapping(value = "/recipes/filter/{filter}", method = RequestMethod.GET)
     @ResponseBody public ResponseEntity filterList(Model model, @PathVariable String filter) {
         return super.filterList(model, filter, service);
     }
@@ -49,12 +48,12 @@ public class RecipeController extends BaseController {
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.POST)
-    @ResponseBody public ResponseEntity save(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity save(Model model, @RequestBody Recipe entity) {
         return super.update(model, entity, service);
     }
 
     @RequestMapping(value = "/recipes", method = RequestMethod.PUT)
-    @ResponseBody public ResponseEntity update(Model model, @RequestBody Meal entity) {
+    @ResponseBody public ResponseEntity update(Model model, @RequestBody Recipe entity) {
         return super.update(model, entity, service);
     }
 
