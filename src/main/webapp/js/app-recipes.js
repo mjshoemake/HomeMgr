@@ -25,7 +25,7 @@ recipes.config(function($routeProvider) {
     $routeProvider.when('/recipesDetailed', {templateUrl: urlPrefix + 'recipes-details.html', controller: 'DetailedRecipesController'});
     $routeProvider.when('/recipesEdit/:id', {templateUrl: urlPrefix + 'recipes-edit.html', controller: 'RecipeEditController'});
     $routeProvider.when('/recipesNew', {templateUrl: urlPrefix + 'recipes-new.html', controller: 'RecipeAddController'});
-    $routeProvider.when('/recipesNewTest', {templateUrl: urlPrefix + 'recipes-new-test.html', controller: 'RecipeAddController'});
+    $routeProvider.when('/recipesNewTest', {templateUrl: urlPrefix + 'recipes-new-test.html', controller: 'RecipeAddTestController'});
 });
 
 // Services
@@ -220,7 +220,7 @@ recipes.controller('DetailedRecipesController', function ($scope, $rootScope, $r
 });
 
 recipes.controller('RecipeAddController', function ($scope, $rootScope, $routeParams, mainService, recipeService, mealService, foodCategoryService, cookbookService) {
-	$scope.recipeToAdd = {'recipes_pk': '', 'name': '', 'directions': '', 'ingredients': '', 'nutrition': ''};
+	$scope.recipeToAdd = {'recipes_pk': '', 'name': '', 'directions': '', 'ingredients': '', 'nutrition': '', 'favorite': 'Yes'};
 	$scope.cookbookList = cookbookService.getAll();
 	$scope.foodCategoryList = foodCategoryService.getAll();
 	$scope.mealList = mealService.getAll();	
@@ -242,6 +242,29 @@ recipes.controller('RecipeAddController', function ($scope, $rootScope, $routePa
 	};
 });
 
+recipes.controller('RecipeAddTestController', function ($scope, $rootScope, $routeParams, mainService, recipeService, mealService, foodCategoryService, cookbookService) {
+	$scope.recipeToAdd = {'recipes_pk': '', 'name': '', 'directions': '', 'ingredients': '', 'nutrition': '', 'favorite': 'No'};
+	$scope.cookbookList = cookbookService.getAll();
+	$scope.foodCategoryList = foodCategoryService.getAll();
+	$scope.mealList = mealService.getAll();
+
+	$scope.addItem = function () {
+		recipeService.addItem($scope.recipeToAdd).then(
+            function(pk) {
+                console.log("Added test recipe: " + pk + " - " + $scope.recipeToAdd.name);
+                mainService.setStatusBarText('Successfully added test recipe "' + $scope.recipeToAdd.name + '".');
+		        $rootScope.goto($scope.recipesPage);
+            }, function(reason) {
+                mainService.setStatusBarText('Failed to add test recipe. "' + reason + '".');
+            }
+        );
+	};
+
+	$scope.cancel = function () {
+		$rootScope.goto($scope.recipesPage);
+	};
+});
+
 meals.controller('RecipeEditController', function ($scope, $rootScope, $routeParams, mainService, recipeService, mealService, foodCategoryService, cookbookService) {
 	$scope.recipeToEdit = recipeService.getItem($routeParams.id);
 	//recipeService.getItem($routeParams.id).then(
@@ -258,6 +281,13 @@ meals.controller('RecipeEditController', function ($scope, $rootScope, $routePar
 	$scope.mealList = mealService.getAll();
 	$scope.backup = angular.copy($scope.recipeToEdit);
 
+	$scope.favorite = function () {
+	    if ($scope.recipeToEdit.favorite == "Yes") {
+	       $scope.recipeToEdit.favorite = "No";
+	    } else {
+	       $scope.recipeToEdit.favorite = "Yes";
+	    }
+	};
 	$scope.update = function () {
 		recipeService.update($scope.recipeToEdit).then(
             function(pk) {

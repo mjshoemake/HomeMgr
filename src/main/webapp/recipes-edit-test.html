@@ -1,9 +1,9 @@
-			<div id="recipes" class="row-liquid">
+			<div id="foodCategories" class="row-liquid">
 				<div class="row">
 					<div class="col-md-12 scrollable" height="100%">
 						<p>
 						<!-- Page Title -->
-						<div class="page-header">New Recipe</div>
+						<div class="page-header">Recipe To Try</div>
 						<p/>&nbsp;<p/>
 
 						<div class="panel panel-primary">
@@ -21,26 +21,6 @@
 									<td>Recipe Name:</td>
 									<td><input name="name" type="textbox" size="60" ng-model="recipeToEdit.name" /></td>
 								</tr>
-                                <tr ng-if="recipeToEdit.favorite == 'Yes'">
-                                    <td>&nbsp;</td>
-                                    <td>Ingredients:</td>
-                                    <td><textarea name="ingredients" cols="50" rows="7" ng-model="recipeToEdit.ingredients"></textarea></td>
-                                </tr>
-                                <tr ng-if="recipeToEdit.favorite == 'Yes'">
-                                    <td>&nbsp;</td>
-                                    <td>Directions:</td>
-                                    <td><textarea name="directions" cols="50" rows="7" ng-model="recipeToEdit.directions"></textarea></td>
-                                </tr>
-                                <tr ng-if="recipeToEdit.favorite == 'Yes'">
-                                    <td>&nbsp;</td>
-                                    <td>Nutrition:</td>
-                                    <td><textarea name="directions" cols="50" rows="3" ng-model="recipeToEdit.nutrition"></textarea></td>
-                                </tr>
-                                <tr ng-if="recipeToEdit.favorite == 'Yes'">
-                                    <td>&nbsp;</td>
-                                    <td>Servings:</td>
-                                    <td><input name="servings" type="textbox" size="30" maxlength="30" ng-model="recipeToEdit.servings" /></td>
-                                </tr>
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>Cookbook:</td>
@@ -68,11 +48,6 @@
                                         </select>
                                     </td>
                                 </tr>
-                                <tr ng-if="recipeToEdit.favorite == 'Yes'">
-                                    <td>&nbsp;</td>
-                                    <td>Servings Size:</td>
-                                    <td><input name="serving_size" type="textbox" size="20" maxlength="20" ng-model="recipeToEdit.serving_size" /></td>
-                                </tr>
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>Notes:</td>
@@ -84,17 +59,15 @@
 									<td>&nbsp;</td> 
 								</tr>
 								<tr>
-									<td>&nbsp;</td> 
-									<td colspan="2">
-									    <button type="button" class="btn btn-default" ng-click="update()">Save</button>
-									    &nbsp;&nbsp;
-									    <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
+									<td>&nbsp;</td>
+                                    <td colspan="2">
+                                        <button type="button" class="btn btn-default" ng-click="update()">Save</button>
+                                        &nbsp;&nbsp;
+                                        <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
                                         &nbsp;&nbsp;
                                         <button type="button" class="btn btn-default" ng-click="delete()">Delete</button>
-                                        &nbsp;&nbsp;
-                                        <button type="button" class="btn btn-default" ng-click="favorite()">Favorite</button>
-                                        &nbsp;&nbsp;
-									</td>
+                                    </td>
+									<td>&nbsp;</td> 
 								</tr>
 							</table>					
 						</div>					

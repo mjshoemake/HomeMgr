@@ -1,5 +1,5 @@
 			<div id="recipesByLetter" class="row-liquid">
-				<div class="row" ng-controller="RecipesController">
+				<div class="row" ng-controller="AllRecipesController">
 					<div class="col-md-12 scrollable">
 						<p>
 						<!-- Page Title -->
@@ -15,11 +15,13 @@
 
                         <button type="button" class="btn btn-default" ng-click="goto('/recipesByLetter/A')">By Letter</button>
 						&nbsp;&nbsp;
+<!--
                         <button type="button" class="btn btn-default" ng-click="goto('/recipesDetailed')">Show Details</button>
 						&nbsp;&nbsp;
+-->
                         <button type="button" class="btn btn-default" ng-click="goto('/recipesNew')">New Recipe</button>
                         &nbsp;&nbsp;
-                        <button type="button" class="btn btn-default" ng-click="goto('/recipesNew')">New Recipe To Try</button>
+                        <button type="button" class="btn btn-default" ng-click="goto('/recipesNewTest')">New Recipe To Try</button>
 
 						<p/>&nbsp;<p/>
                         <div class="col-md-4">
