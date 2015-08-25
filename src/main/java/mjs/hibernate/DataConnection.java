@@ -61,6 +61,10 @@ public class DataConnection {
         InputStream stream = FileUtils.getFileAsStream(filename, true);
         Document xml = parseXml(stream);
         Configuration config = new Configuration().configure(xml);
+        String url = System.getenv("JDBC_CONNECTION_STRING");
+        if (url != null && ! url.isEmpty()) {
+            config.setProperty("hibernate.connection.url", url);
+        }
         sessionFactory = config.buildSessionFactory();
     }
     

@@ -4,13 +4,13 @@ var foodCategories = angular.module('foodCategories', ['ngRoute', 'ngSanitize', 
 var urlPrefix = '';
 
 foodCategories.factory('FoodCategoriesFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/foodCategories', {}, {
+    return $resource('/foodCategories', {}, {
         query: { method: 'GET', isArray: true }
     })
 });
 
 foodCategories.factory('FoodCategoriesFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/foodCategories/:id', {}, {
+    return $resource('/foodCategories/:id', {}, {
         show: { method: 'GET' , params: {id: '@id'} },
         update: { method: 'PUT' , params: {id: '@id'} },
         delete: { method: 'DELETE' , params: {id: '@id'} }

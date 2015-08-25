@@ -4,13 +4,13 @@ var meals = angular.module('meals', ['ngRoute', 'ngSanitize', 'ngResource']);
 var urlPrefix = '';
 
 meals.factory('MealsFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/meals', {}, {
+    return $resource('/meals', {}, {
         query: { method: 'GET', isArray: true }
     })
 });
 
 meals.factory('MealsFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/meals/:id', {}, {
+    return $resource('/meals/:id', {}, {
         show: { method: 'GET' , params: {id: '@id'} },
         update: { method: 'PUT' , params: {id: '@id'} },
         delete: { method: 'DELETE' , params: {id: '@id'} }

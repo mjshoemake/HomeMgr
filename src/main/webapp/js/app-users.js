@@ -4,13 +4,13 @@ var users = angular.module('users', ['ngRoute', 'ngSanitize', 'ngResource']);
 var urlPrefix = '';
 
 users.factory('UsersFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/users', {}, {
+    return $resource('/users', {}, {
         query: { method: 'GET', isArray: true }
     })
 });
 
 users.factory('UsersFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/users/:id', {}, {
+    return $resource('/users/:id', {}, {
         show: { method: 'GET' , params: {id: '@id'} },
         update: { method: 'PUT' , params: {id: '@id'} },
         delete: { method: 'DELETE' , params: {id: '@id'} }

@@ -4,13 +4,13 @@ var cookbooks = angular.module('cookbooks', ['ngRoute', 'ngSanitize', 'ngResourc
 var urlPrefix = '';
 
 cookbooks.factory('CookbooksFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/cookbooks', {}, {
+    return $resource('/cookbooks', {}, {
         query: { method: 'GET', isArray: true }
     })
 });
 
 cookbooks.factory('CookbooksFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/cookbooks/:id', {}, {
+    return $resource('/cookbooks/:id', {}, {
         show: { method: 'GET' , params: {id: '@id'} },
         update: { method: 'PUT' , params: {id: '@id'} },
         delete: { method: 'DELETE' , params: {id: '@id'} }

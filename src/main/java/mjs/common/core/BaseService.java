@@ -162,7 +162,8 @@ public class BaseService extends SeerObject {
             LogUtils.debug(logResultSet, result, "   ", true);
             return result;
         } catch (Exception e) {
-            log.error("Unable to retrieve the " + entityType + " list.", e);
+            log.error("Service: getAll()  Type=" + tableName + "  Unable to retrieve the " + entityType + " list.", e);
+
             throw new ModelException("Unable to retrieve the " + entityType + " list. " + e.getMessage());
         } finally {
             session.close();

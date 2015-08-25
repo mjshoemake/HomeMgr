@@ -4,7 +4,7 @@ var login = angular.module('login', ['ngRoute', 'ngSanitize', 'ngResource']);
 var urlPrefix = '';
 
 login.factory('LoginFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/login', {}, {
+    return $resource('/login', {}, {
         create: { method: 'POST', params: {type: 'create'} }
     })
 });

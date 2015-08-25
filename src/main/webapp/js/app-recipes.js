@@ -5,13 +5,13 @@ var urlPrefix = '';
 var lastPage = '';
 
 recipes.factory('RecipesFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/recipes', {}, {
+    return $resource('/recipes', {}, {
         query: { method: 'GET', isArray: true }
     })
 });
 
 recipes.factory('RecipesFactory', function($resource) {
-    return $resource('http://localhost:8080/homeMgr/recipes/:id', {}, {
+    return $resource('/recipes/:id', {}, {
         show: { method: 'GET' , params: {id: '@id'} },
         update: { method: 'PUT' , params: {id: '@id'} },
         delete: { method: 'DELETE' , params: {id: '@id'} }
@@ -126,7 +126,7 @@ recipes.service('recipeService', function(RecipesFactory, $http, $q) {
 //        list = RecipesFactory.show(filterText);
         $http({
             method: 'GET',
-            url: 'http://localhost:8080/homeMgr/recipes/filter/' + filterText
+            url: '/recipes/filter/' + filterText
         }).success(function(result) {
             callback(result);
         }).error(function(reason) {
