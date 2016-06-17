@@ -56,7 +56,9 @@ public class BaseService extends SeerObject {
     }
 
     public Session openSession() {
+        log.debug("Requesting Hibernate session... sessionFactory: " + sessionFactory.toString());
         Session session = sessionFactory.openSession();
+        log.debug("Requesting Hibernate session...  Done.  " + session.toString());
         session.setCacheMode(CacheMode.IGNORE);
         return session;
     }
@@ -73,6 +75,7 @@ public class BaseService extends SeerObject {
             throw new ModelException("Value for sortDirection is not valid.  Required: one of 'asc' or 'desc'.");
         }
 
+        log.debug("Opening session...");
         Session session = openSession();
         try {
             Map<String, String> filterMap = filterToMap(filter);
@@ -154,6 +157,7 @@ public class BaseService extends SeerObject {
     }
 
     public List getAll() throws ModelException {
+        log.debug("Service: getAll()  START");
         Session session = openSession();
         try {
             List result = session.createQuery("from " + tableName).list();
@@ -167,6 +171,7 @@ public class BaseService extends SeerObject {
             throw new ModelException("Unable to retrieve the " + entityType + " list. " + e.getMessage());
         } finally {
             session.close();
+            log.debug("Service: getAll()  END");
         }
     }
 

@@ -2,13 +2,10 @@ package mjs.home.controllers;
 
 import mjs.common.core.BaseController;
 import mjs.common.exceptions.LoginException;
-import mjs.home.services.MealsService;
 import mjs.home.services.UsersService;
-import mjs.model.Meal;
 import mjs.model.PrimaryKey;
 import mjs.model.ServiceResponse;
 import mjs.model.User;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

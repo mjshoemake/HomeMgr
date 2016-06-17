@@ -123,6 +123,9 @@ recipes.service('recipeService', function(RecipesFactory, $http, $q) {
 
 
     this.filter = function(filterText, mainService, callback) {
+        if (typeof filterText == "obect") {
+
+        }
 //        list = RecipesFactory.show(filterText);
         $http({
             method: 'GET',
@@ -208,12 +211,12 @@ recipes.controller('DetailedRecipesController', function ($scope, $rootScope, $r
     $rootScope.bodyBackground = "";
     $rootScope.lastPage = '/recipesDetailed';
     $rootScope.recipesPage = $rootScope.lastPage;
-    //$scope.recipeList = recipeService.filter("name=" + $routeParams.filter + "*", $scope);
+    if (! $scope.recipeFilter) {
+  	    $scope.recipeFilter = {'name': '', 'cookbook': '', 'meal': '', 'category': '', 'favorite': '', 'calPerServing': ''};
+    }
+    $scope.recipeList = recipeService.filter("name=*" + $routeParams.filter + "*", $scope);
     //recipeService.filter("name=" + $routeParams.filter + "*", $routeParams.filter, $scope);
-    var result = recipeService.getAll();
-    recipeService.showThreeColumns(result, $scope);
 
-    $scope.allSelected = recipeService.isAllSelected();
     $scope.edit = function (id) {
         $rootScope.goto('/recipesEdit/' + id);
     };

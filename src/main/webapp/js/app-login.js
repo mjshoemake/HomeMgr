@@ -49,6 +49,8 @@ login.service('loginService', function(mainService) {
 
     this.login = function(pUsername, pPassword) {
         if ((pUsername == 'mjshoemake' && pPassword == 'qwe`123') ||
+            (pUsername == 'mjshoemake' && pPassword == 'Iwjptdm1') ||
+            (pUsername == 'mrshoemake' && pPassword == 'Iwjptdm1') ||
             (pUsername == 'mrshoemake' && pPassword == 'qwe`123')) {
             // Valid login.
             username = pUsername;

@@ -15,43 +15,61 @@
 
 						<button type="button" class="btn btn-default" onclick="goto('recipes-all.html')">All Recipes</button>
 						&nbsp;&nbsp;
-						<button type="button" class="btn btn-default" onclick="goto('/recipesByLetter/A')">By Letter</button>
+                        <button type="button" class="btn btn-default" ng-click="goto('/recipesAll')">All Recipes</button>
 						&nbsp;&nbsp;
                         <button type="button" class="btn btn-default" ng-click="goto('/recipesNew')">New Recipe</button>
                         &nbsp;&nbsp;
-                        <button type="button" class="btn btn-default" ng-click="goto('/recipesNew')">New Recipe To Try</button>
+                        <button type="button" class="btn btn-default" ng-click="goto('/recipesNewTest')">New Recipe To Try</button>
+						<p/>&nbsp;<p/>
 
-						<p/>&nbsp;<p/>
-						<div class="letterlinks">	
-							<a ng-click="goto('/recipesByLetter/A')">A</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/B')">B</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/C')">C</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/D')">D</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/E')">E</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/F')">F</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/G')">G</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/H')">H</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/I')">I</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/J')">J</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/K')">K</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/L')">L</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/M')">M</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/N')">N</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/O')">O</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/P')">P</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/Q')">Q</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/R')">R</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/S')">S</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/T')">T</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/U')">U</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/V')">V</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/W')">W</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/X')">X</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/Y')">Y</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <a ng-click="goto('/recipesByLetter/Z')">Z</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						</div>
-						<p/>&nbsp;<p/>
-						<div class="letterheader">{{letter}}</div>
+
+                        <table>
+                            <tr>
+                                <th align="left" style="width: 260px;">Name&nbsp;</th>
+                                <th align="left" style="width: 190px;">Cookbook&nbsp;</th>
+                                <th align="left" style="width: 75px;">Meal&nbsp;</th>
+                                <th align="left" style="width: 110px;">Food Category&nbsp;</th>
+                                <th align="left" style="width: 80px;">Favorite?&nbsp;</th>
+                                <th align="left" >Cal. p/ Serv. (Ex. '< 200')&nbsp;</th>
+                            </tr>
+                            <tr>
+                                <td><input name="name" type="textbox" size="30" maxlength="30" width="100%" ng-model="recipeFilter.name" /></td>
+                                <td><input name="cookbook" type="textbox" size="30" maxlength="30" width="100%" ng-model="recipeFilter.cookbook" /></td>
+                                <td><input name="meal" type="textbox" size="30" maxlength="30" width="100%" ng-model="recipeFilter.meal" /></td>
+                                <td><input name="category" type="textbox" size="30" maxlength="30" width="100%" ng-model="recipeFilter.category" /></td>
+                                <td><input name="favorite" type="textbox" size="30" maxlength="30" width="100%" ng-model="recipeFilter.favorite" /></td>
+                                <td><input name="calPerServing" type="textbox" size="30" maxlength="30" width="100%" ng-model="recipeFilter.calPerServing" /></td>
+                            </tr>
+                            <tr ng-repeat="next in recipes|orderBy:'name'">
+                                <td>1</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr class="highlight">
+                                <td>2</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                        </table>
+
+
+
+
 						<p/>&nbsp;<p/>
 						<div class="col-md-4">
                             <li ng-repeat="recipe in col1|orderBy:'name'">

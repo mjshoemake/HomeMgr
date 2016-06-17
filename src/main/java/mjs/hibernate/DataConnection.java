@@ -3,6 +3,7 @@ package mjs.hibernate;
 import java.io.InputStream;
 
 import mjs.common.utils.FileUtils;
+import mjs.common.utils.Loggable;
 import mjs.common.utils.XMLBuilder;
 
 import org.hibernate.SessionFactory;
@@ -13,7 +14,7 @@ import org.w3c.dom.Document;
  * The singleton connection to a Hibernate database.
  * @author mishoema
  */
-public class DataConnection {
+public class DataConnection extends Loggable {
 
     /**
      * The Hibernate SessionFactory used to create new database
@@ -30,6 +31,7 @@ public class DataConnection {
      * Private constructor.
      */
     private DataConnection() {
+        super("Hibernate");
     }
     
     /**
@@ -65,7 +67,9 @@ public class DataConnection {
         if (url != null && ! url.isEmpty()) {
             config.setProperty("hibernate.connection.url", url);
         }
+        log.debug("Hibernate conection URL: " + config.getProperty("hibernate.connection.url"));
         sessionFactory = config.buildSessionFactory();
+        log.debug("Created sessionFactory: " + sessionFactory.toString());
     }
     
     /**
