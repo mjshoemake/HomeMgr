@@ -4,6 +4,7 @@ package baseball.exec
 import baseball.domain.Batter
 import baseball.processing.FileTeamLoader
 import baseball.mongo.MongoManager
+import mjs.common.utils.LogUtils
 import org.bson.types.ObjectId
 
 //import org.junit.After
@@ -21,6 +22,8 @@ class FileTeamLoaderTest {
         long count = mongoDB.getCount("batter")
         println "Count: $count   ID: ${id.toString()}"
         def batterList = mongoDB.findAll("batter")
+        def newBatterList = mongoDB.find("batter", [position:"3B"])
+        LogUtils.println(newBatterList, "   ", true)
         FileTeamLoader loader = new FileTeamLoader(mongoDB)
         //loader.loadTeamFromFile("Phillies", 2003)
     }

@@ -10,6 +10,7 @@ import com.mongodb.MongoClientURI
 import com.mongodb.WriteResult
 import com.mongodb.client.MongoDatabase
 import groovy.json.*
+import mjs.common.utils.BsonConverter
 import mjs.common.utils.LogUtils
 import org.bson.Document
 import org.bson.conversions.Bson
@@ -71,22 +72,17 @@ class MongoManager {
         list
     }
 
-    Bson mapToBson(Map map) {
-        Bson target = new Bson
-
-    }
-
     List find(String collection, Map filterMap) {
-        Bson filter = mapToBson(filterMap)
+        Bson filter = new BsonConverter().objectToBson(filterMap)
+
         MongoCollection<Document> table = db.getCollection(collection)
-        MongoCursor<Document> iter = table.find(filter)
+        MongoCursor<Document> iter = table.find(filter).iterator()
         def list = []
         JsonSlurper jsonSlurper = new JsonSlurper()
         while (iter.hasNext()) {
             Document nextDoc = iter.next()
             list << jsonSlurper.parseText(nextDoc.toJson())
         }
-        LogUtils.println(list, "   ", true)
         list
     }
 

@@ -23,6 +23,10 @@ class Batter
     int caughtStealing = 0
     SimBatter simBatter
 
+    Batter() {
+        _id = new ObjectId()
+    }
+
     public def getBattingAvg() {
         BigDecimal.valueOf(hits / atBats)
     }

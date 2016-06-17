@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.bson.*;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -39,17 +40,13 @@ public class BsonConverter {
      *            Object
      * @return String[]
      */
-    public static Bson objectToBson(Object bean) throws CoreException {
+    public static BsonValue objectToBson(Object bean) throws CoreException {
         try {
             return processBean(bean, 0);
         } catch (Exception e) {
             CoreException ex = new CoreException("Error converting bean (" + bean.getClass().getName() + ") to Bson.", e);
             throw ex;
         }
-    }
-
-    public static BsonValue valueToBson(Object val) throws CoreException {
-
     }
 
     private static BsonValue processBean(Object bean, int level) throws CoreException {
@@ -63,11 +60,9 @@ public class BsonConverter {
             String fieldName = null;
             PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(bean.getClass());
 
-            if (pds == null || pds.length == 0) {
-                return new BsonDocument();
-            }
-
-            if (bean instanceof Integer) {
+            if (bean == null) {
+                return null;
+            } else if (bean instanceof Integer) {
                 return new BsonInt32(((Integer)bean).intValue());
             } else if (bean instanceof Long) {
                 return new BsonInt64(((Long)bean).longValue());
@@ -95,201 +90,108 @@ public class BsonConverter {
 
                     if (val instanceof Integer ||
                         val instanceof Long ||
+                        val instanceof Float ||
                         val instanceof Double ||
                         val instanceof Boolean ||
                         val instanceof Date ||
                         val instanceof String ||
-                        val instanceof Double) {
+                        val instanceof BigDecimal ||
+                        val instanceof BigInteger ||
+                        val instanceof Collection ||
+                        val instanceof Map) {
                         BsonValue value = processBean(val, level + 1);
                         result.put(key, value);
                     }
                 }
+                return result;
             } else if (bean instanceof Collection) {
                 // Process the collection.
                 Collection coll = (Collection) bean;
                 Object[] list = coll.toArray();
-                //log.debug(indent(level) + "Bean is a collection...   count=" + list.length);
-
-                if (list.length == 0)
-                   lines.add(indent(level) + "List is empty.");
+                BsonArray result = new BsonArray();
 
                 for (int k = 0; k < list.length; k++) {
-                    StringBuffer nextItem = new StringBuffer();
-
-                    // Add indentation to simulate object hierarchy.
-                    nextItem.append(indent(level));
-                    if (list[k] instanceof String)
-                        nextItem.append("Item #" + k + ": " + list[k]);
-                    else if (showTypes)
-                        nextItem.append("Item #" + k + ": " + list[k].getClass().getName());
-                    else
-                        nextItem.append("Item #" + k + ": ");
-
-                    lines.add(nextItem.toString());
-
-                    // Process the next bean.
-                    if (! (list[k] instanceof String))
-                        processBean(list[k], level + 1, lines, showTypes);
+                    Object val = list[k];
+                    if (val instanceof Integer ||
+                            val instanceof Long ||
+                            val instanceof Float ||
+                            val instanceof Double ||
+                            val instanceof Boolean ||
+                            val instanceof Date ||
+                            val instanceof String ||
+                            val instanceof BigDecimal ||
+                            val instanceof BigInteger ||
+                            val instanceof Collection ||
+                            val instanceof Map) {
+                        BsonValue value = processBean(val, level + 1);
+                        result.add(value);
+                    }
                 }
+                return result;
             } else {
                 // Loop through the properties of the bean.
                 //log.debug(indent(level) + "Extracting bean properties...   count=" + pds.length);
+                BsonDocument result = new BsonDocument();
+                if (pds == null || pds.length == 0) {
+                    return result;
+                }
+
                 for (int i = 0; i < pds.length; i++) {
                     fieldName = pds[i].getName();
 
-                    try {
-                        if (! (fieldName.equalsIgnoreCase("class") ||
-                               fieldName.equalsIgnoreCase("parent") ||
-                               fieldName.equalsIgnoreCase("declaringclass"))) {
-                            //log.debug(indent(level) + "   " + fieldName);
+                    if (! (fieldName.equalsIgnoreCase("class") ||
+                            fieldName.equalsIgnoreCase("parent") ||
+                            fieldName.equalsIgnoreCase("declaringclass"))) {
 
-                            // Get the getter method for this property.
-                            Method method = pds[i].getReadMethod();
+                        // Get the getter method for this property.
+                        Method method = pds[i].getReadMethod();
 
-                            if (method != null) {
-                                Object value = method.invoke(bean, args);
+                        if (method != null) {
+                            Object val = method.invoke(bean, args);
 
-                                if (value == null)
-                                    value = "null";
-
-                                // Add indentation to simulate object hierarchy.
-                                line = new StringBuffer();
-                                line.append(indent(level));
-                                line.append(fieldName);
-                                line.append(" = ");
-                                if (fieldName.endsWith("Class") || fieldName.endsWith("class")) {
-                                    line.append("SKIPPING");
-                                } else {
-                                    if (value instanceof Map) {
-                                        if (showTypes)
-                                            line.append(value.getClass().getName());
-                                        else
-                                            line.append("Map");
-
-                                        lines.add(line.toString());
-                                        //log.debug(indent(level) + "    Property is a map.  Calling processBean()...");
-                                        processBean(value, level + 1, lines, showTypes);
-                                    }
-                                    else if (value instanceof Collection) {
-                                        // Process the collection.
-                                        if (showTypes)
-                                            line.append(value.getClass().getName());
-                                        else
-                                            line.append("List");
-
-                                        lines.add(line.toString());
-                                        //log.debug(indent(level) + "    Property is a collection.  Calling processBean()...");
-                                        processBean(value, level + 1, lines, showTypes);
-                                    } else if (value instanceof Integer
-                                            || value instanceof Long
-                                            || value instanceof Double
-                                            || value instanceof Boolean
-                                            || value instanceof BigDecimal
-                                            || value instanceof BigInteger
-                                            || value instanceof Date
-                                            || value instanceof Float
-                                            || value instanceof String) {
-                                        // Append the actual property value converted to a String.
-                                        line.append(value.toString());
-                                        lines.add(line.toString());
-                                    } else {
-                                        // Append the actual property value converted to a String.
-                                        line.append(value.getClass().getName());
-                                        lines.add(line.toString());
-
-                                        // Process the next bean.
-                                        processBean(value, level + 1, lines, showTypes);
-                                    }
-                                }
-
+                            // Add indentation to simulate object hierarchy.
+                            if (fieldName.endsWith("Class") || fieldName.endsWith("class")) {
+                                // Skipping
                             } else {
-                                line = new StringBuffer();
-                                line.append("   ");
-                                line.append(fieldName);
-                                line.append(" = NO GET METHOD FOUND.");
+                                String key = fieldName;
+                                if (val instanceof Integer ||
+                                    val instanceof Long ||
+                                    val instanceof Float ||
+                                    val instanceof Double ||
+                                    val instanceof Boolean ||
+                                    val instanceof Date ||
+                                    val instanceof String ||
+                                    val instanceof BigDecimal ||
+                                    val instanceof BigInteger ||
+                                    val instanceof Collection ||
+                                    val instanceof Map) {
+                                    BsonValue value = processBean(val, level + 1);
+                                    result.put(key, value);
+                                } else if (val == null) {
+                                    // Skip.  Bson can't handle null values.
+                                } else if (val instanceof ObjectId) {
+                                    BsonValue value = processBean(((ObjectId)val).toHexString(), level + 1);
+                                    result.put(key, value);
+                                } else {
+                                    throw new CoreException("Unrecognized data type: " + val.getClass().getName());
+                                }
                             }
+                        } else {
+                            // No get method found.  Skipping.
                         }
-                    } catch (Exception e) {
-                        line = new StringBuffer();
-                        line.append(indent(level));
-                        line.append(fieldName);
-                        line.append(" = ERROR: " + e.getMessage());
-                        lines.add(line.toString());
                     }
                 }
+                return result;
             }
-
-            return lines;
         } catch (Exception e) {
             String className = null;
             if (bean != null)
                 className = bean.getClass().getName();
-            throw new CoreException("Error processing bean to log data: "
+            throw new CoreException("Error converting bean to Bson: "
                                                + className + ".", e);
         }
     }
 
-    /**
-     * Indent to the desired level (3 spaces per level).
-     * @param level int
-     * @return String
-     */
-    public static String indent(int level) {
-        StringBuffer buffer = new StringBuffer();
-        for (int m = 0; m <= level-1; m++)
-            buffer.append("   ");
-        return buffer.toString();
-    }
-    
-    
-    /**
-     * Convert milliseconds to String representation of duration (HH:MM:SS).
-     * 
-     * @param value
-     *            long
-     * @return String
-     */
-    public static String longToDuration(long value) {
-        StringBuffer result = new StringBuffer();
-        String seconds = null;
-        String minutes = null;
-        String hours = null;
-
-        // Seconds
-        int milliseconds = (int)(value % 1000);
-        long newValue = value / 1000;
-        long remainder = newValue % 60;
-
-        if (remainder < 10)
-            seconds = "0" + remainder;
-        else
-            seconds = "" + remainder;
-
-        // Minutes
-        newValue = newValue / 60;
-        remainder = newValue % 60;
-        if (remainder < 10)
-            minutes = "0" + remainder;
-        else
-            minutes = "" + remainder;
-
-        // Hours
-        remainder = newValue / 60;
-        if (remainder < 10)
-            hours = "0" + remainder;
-        else
-            minutes = "" + remainder;
-
-        result.append(hours);
-        result.append(':');
-        result.append(minutes);
-        result.append(':');
-        result.append(seconds);
-        result.append('.');
-        result.append(StringUtils.leadingZeros(milliseconds, 3));
-        return result.toString();
-    }
-    
     /**
      * This method reads a specified number of lines from the bottom of a
      * log file.
@@ -327,56 +229,5 @@ public class BsonConverter {
         }
 
         return list;            
-    }
-    
-    
-    /**
-     * To write the user actions to the useredits.log in a standardised format
-     * @param username
-     * @param action
-     * @param status
-     * @throws CoreException
-     */
-    public static void userEditsLog(String username,String action,String status ) throws Exception { 
-    	
-    	String msg = "";
-   		msg = "USERNAME: "+username+" ACTION: "+action+" STATUS: "+status;
-    	userLog.info(msg);
-
-    }
-    
-	/**
-	 * Returns true if it appears that log4j have been previously configured.
-	 * This code checks to see if there are any appenders defined for log4j
-	 * which is the definitive way to tell if log4j is already initialized.
-	 *
-	 * NOTE:  This is used because in Ops-Tools, the dcc.properties file must
-	 * be loaded before log4j is configured.  Use of this method prevents
-	 * notifications to the console saying that log4j is not configured.
-	 */
-	public static boolean isLoggingConfigured() {
-		Enumeration appenders = Logger.getRoot().getAllAppenders();
-		if (appenders.hasMoreElements()) {
-			return true;
-		} else {
-			Enumeration loggers = LogManager.getCurrentLoggers();
-			while (loggers.hasMoreElements()) {
-				Logger c = (Logger) loggers.nextElement();
-				if (c.getAllAppenders().hasMoreElements())
-					return true;
-			}
-		}
-		return false;
-	}
-
-    public static void initializeLogging() {
-        try {
-            // Lookup the file name for log4j configuration
-            String fileName = LOG4J_PROP_FILE_LOCATION;
-            Properties props = FileUtils.getContents(fileName, true);
-            PropertyConfigurator.configure(props);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
