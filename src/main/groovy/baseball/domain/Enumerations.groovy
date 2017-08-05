@@ -47,6 +47,7 @@ enum SimType {
 enum SimStyle {
     BATTER_FOCUSED("BatterFocused"),
     PITCHER_FOCUSED("PitcherFocused"),
+    BATTER_HEAVY("BatterHeavy"),
     COMBINED("Combined")
 
     final String value

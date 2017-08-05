@@ -1,6 +1,7 @@
 
 package baseball
 
+import baseball.mongo.MongoManager
 import baseball.processing.FileTeamLoader
 import org.junit.After
 import org.junit.Before
@@ -10,13 +11,17 @@ class FileTeamLoaderTest {
 
     FileTeamLoader loader = null
 
+    MongoManager mongoDB = new MongoManager()
+
     @Before
     void setUp() {
-        loader = new FileTeamLoader()
+        mongoDB.open("ballsim")
+        loader = new FileTeamLoader(mongoDB)
     }
 
     @After
     void tearDown() {
+        mongoDB.close()
         loader = null
     }
 

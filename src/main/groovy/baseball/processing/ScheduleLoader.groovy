@@ -2,9 +2,15 @@ package baseball.processing
 
 class ScheduleLoader {
 
+
     def loadRoundRobinScheduleFromFile(def league) {
+        return loadRoundRobinScheduleFromFile(league, false)
+    }
+
+    def loadRoundRobinScheduleFromFile(def league, boolean oneGameOnly) {
         def schedule = []
         def teamList = []
+        int gameCount = 0
 
         def it = league.keySet().iterator()
         while (it.hasNext()) {
@@ -32,12 +38,14 @@ class ScheduleLoader {
                     game.gameNum = gameNum
                     game.homeTeamIndex = homeTeam
                     game.awayTeamIndex = awayTeam
-                    schedule << game
+                    gameCount++
+                    if (! oneGameOnly || gameCount == 1) {
+                        schedule << game
+                    }
                 }
             }
         }
         schedule
     }
-
 
 }

@@ -5,10 +5,8 @@ import baseball.mongo.MongoManager
 
 class FileTeamLoader extends AbstractTeamLoader {
 
-    MongoManager mongoDB = null
-
     FileTeamLoader(MongoManager mongoDB) {
-        this.mongoDB = mongoDB
+        super(mongoDB)
     }
 
     def loadTeamFromFile(def teamName, year) {
@@ -171,6 +169,7 @@ class FileTeamLoader extends AbstractTeamLoader {
         team["nextStarter"] = 0
         team["wins"] = 0
         team["losses"] = 0
+        team["winDiff"] = 0
         team["teamName"] = "$teamName $year"
         team["starterIndex"] = 0
         team

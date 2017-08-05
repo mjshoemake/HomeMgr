@@ -2,6 +2,7 @@ package baseball.domain
 
 class SimBatter {
 
+    String nameFirst, nameLast
     int battingPos = 0
     int atBats = 0
     int walks = 0
@@ -16,8 +17,16 @@ class SimBatter {
     int runs = 0
     int rbi = 0
     Batter batter
+    boolean maxedOut = false
 
-    public def getBattingAvg() {
+    void setAtBats(int value) {
+        atBats = value
+        if (atBats > batter.atBats) {
+            maxedOut = true
+        }
+    }
+
+    def getBattingAvg() {
         if (atBats == 0) {
             BigDecimal.valueOf(0)
         } else {

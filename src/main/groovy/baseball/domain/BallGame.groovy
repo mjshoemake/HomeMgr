@@ -1,15 +1,16 @@
 package baseball.domain
 
-//import org.apache.log4j.Logger
+import org.apache.log4j.Logger
+
 class BallGame {
 
-    //def gameLog = Logger.getLogger('gamelog')
-    //def highlightsLog = Logger.getLogger('highlights')
-    //def boxscoreLog = Logger.getLogger('boxscore')
+    def gameLog = Logger.getLogger('gamelog')
+    def highlightsLog = Logger.getLogger('highlights')
+    def boxscoreLog = Logger.getLogger('boxscore')
 
     def gameLogEnabled = true
     def highlightsLogEnabled = true
-    def boxscoreLogEnabled = false
+    def boxscoreLogEnabled = true
     def isGameOver = false
     def inning = 1
     def outs = 0
@@ -25,6 +26,8 @@ class BallGame {
     def homeHits = 0
     def awayErrors = 0
     def homeErrors = 0
+    def awayDoublePlays = 0
+    def homeDoublePlays = 0
 
     def simType = SimType.ACCURATE
     def homeTeam, awayTeam, starterIndex
@@ -32,23 +35,44 @@ class BallGame {
     def nextAwayBatter = 0, nextHomeBatter = 0
     def awayLineup = [], homeLineup = []
     GamePitcher awayStarter = null, homeStarter = null
-    def awayBullpen = [], homeBullpen = []
+    def awayBullpen = [], homeBullpen = [], tempAwayBullpen = [], tempHomeBullpen = []
     GamePitcher awayCurrentPitcher = null, homeCurrentPitcher = null
     GameBatter runnerFirst = null, runnerSecond = null, runnerThird = null
     def random = new Random()
     def homeTeamWon = false
 
+    // Managing pitching staff
+    int pitchCount3 = 0
+    int pitchCount4 = 0
+    int awayPitcherCount = 1
+    int homePitcherCount = 1
+
     def start() {
-        awayLineup = awayTeam["lineup"]
-        homeLineup = homeTeam["lineup"]
+        awayLineup = awayTeam["lineup"].clone()
+        homeLineup = homeTeam["lineup"].clone()
         awayTeamName = awayTeam["teamName"]
         homeTeamName = homeTeam["teamName"]
-        def awayRotation = awayTeam["rotation"]
-        def homeRotation = homeTeam["rotation"]
+        def awayRotation = awayTeam["rotation"].clone()
+        def homeRotation = homeTeam["rotation"].clone()
         def awayStarterIndex = awayTeam["starterIndex"]
         def homeStarterIndex = homeTeam["starterIndex"]
         awayStarter = awayRotation[awayStarterIndex]
         homeStarter = homeRotation[homeStarterIndex]
+
+        // Add starting pitcher to lineup
+        awayTeam["battingpitchers"].each {
+            def nextBatter = it.simBatter.batter
+            if (nextBatter.nameFirst == awayStarter.simPitcher.pitcher.nameFirst &&
+                nextBatter.nameLast == awayStarter.simPitcher.pitcher.nameLast)
+                awayLineup << it
+        }
+        homeTeam["battingpitchers"].each {
+            def nextBatter = it.simBatter.batter
+            if (nextBatter.nameFirst == homeStarter.simPitcher.pitcher.nameFirst &&
+                    nextBatter.nameLast == homeStarter.simPitcher.pitcher.nameLast)
+                homeLineup << it
+        }
+
         awayCurrentPitcher = awayStarter
         homeCurrentPitcher = homeStarter
         awayStarterIndex++
@@ -63,14 +87,16 @@ class BallGame {
         homeTeam["starterIndex"] = homeStarterIndex
 
         println "Away Bullpen:"
-        for (int i=5; i <= awayRotation.size()-1; i++) {
+        for (int i=0; i <= awayRotation.size()-1; i++) {
             awayBullpen << awayRotation[i]
-            println "${awayRotation[i].simPitcher.pitcher.name}"
+            tempAwayBullpen << awayRotation[i]
+            println "${awayRotation[i].simPitcher.pitcher.nameFirst} ${awayRotation[i].simPitcher.pitcher.nameLast}"
         }
         println "Home Bullpen:"
-        for (int i=5; i <= homeRotation.size()-1; i++) {
+        for (int i=0; i <= homeRotation.size()-1; i++) {
             homeBullpen << homeRotation[i]
-            println "${homeRotation[i].simPitcher.pitcher.name}"
+            tempHomeBullpen << homeRotation[i]
+            println "${homeRotation[i].simPitcher.pitcher.nameFirst} ${homeRotation[i].simPitcher.pitcher.nameLast}"
         }
 
         awayLineup.each {
@@ -89,13 +115,39 @@ class BallGame {
 
         while (! isGameOver) {
 //            playHalfInning(SimStyle.COMBINED)
-            playHalfInning(SimStyle.BATTER_FOCUSED)
+            int doublePlayCount
+            if (side == HalfInning.TOP) {
+                doublePlayCount = homeDoublePlays
+            } else {
+                doublePlayCount = awayDoublePlays
+            }
+
+            playHalfInning(SimStyle.BATTER_HEAVY, doublePlayCount)
             if (inning > 50) { isGameOver = true }
         }
     }
 
-    private def playHalfInning(SimStyle simStyle) {
+    private def getNewPitcher() {
+        if (side == HalfInning.TOP) {
+            // New home pitcher.
+            if (tempHomeBullpen.size() > 0) {
+                homeCurrentPitcher = tempHomeBullpen[0]
+                tempHomeBullpen.remove(0)
+                return homeCurrentPitcher
+            }
+        } else {
+            // New away pitcher.
+            if (tempAwayBullpen.size() > 0) {
+                awayCurrentPitcher = tempAwayBullpen[0]
+                tempAwayBullpen.remove(0)
+                return awayCurrentPitcher
+            }
+        }
+    }
+
+    private def playHalfInning(SimStyle simStyle, int doublePlayCount) {
         boolean readyToStart = isReadyToStart()
+        int pitcherCount
         def pitcher
         if (side == HalfInning.TOP) {
             pitcher = homeCurrentPitcher
@@ -108,9 +160,13 @@ class BallGame {
         runnerSecond = null
         runnerThird = null
         while (outs < 3) {
+            if (pitcher.pitcherExhausted()) {
+                pitcher = getNewPitcher()
+            }
+
             def batter = getNextBatter()
-            def atBatResult = pitchToBatter(batter, pitcher, simStyle)
-            ballInPlay(batter, pitcher, atBatResult)
+            def atBatResult = pitchToBatter(batter, pitcher, pitcherCount, simStyle)
+            ballInPlay(batter, pitcher, atBatResult, doublePlayCount)
         }
         inningOver()
     }
@@ -165,12 +221,18 @@ class BallGame {
                 isGameOver = true
             } else {
                 side = HalfInning.BOTTOM
+                gameLog.debug "${format("Pitcher", 20)}  ${format("W", 3)}  ${format("L", 3)}  ${format("IP", 5)}  ${format("R", 3)}  ${format("ERA", 5)}  ${format("H", 3)}  ${format("HR", 3)}  ${format("BB", 3)}  ${format("SO", 3)}"
+                gameLog.debug "${format(homeStarter.nameFirst + " " + homeStarter.nameLast, 20)}  ${format(homeStarter.simPitcher.wins, 3)}  ${format(homeStarter.simPitcher.losses, 3)}  ${format(homeStarter.battersRetired/3, 5)}  ${format(homeStarter.runs, 3)}  ${homeStarter.simPitcher.era}  ${format(homeStarter.hits, 3)}  ${format(homeStarter.homers, 3)}  ${format(homeStarter.walks, 3)}  ${format(homeStarter.strikeouts, 3)}"
+                printTeamHittingStats(awayLineup)
             }
         } else {
             if (inning >= 9 && awayScore != homeScore) {
                 isGameOver = true
             } else {
                 side = HalfInning.TOP
+                gameLog.debug "${format("Pitcher", 20)}  ${format("W", 3)}  ${format("L", 3)}  ${format("IP", 5)}  ${format("R", 3)}  ${format("ERA", 5)}  ${format("H", 3)}  ${format("HR", 3)}  ${format("BB", 3)}  ${format("SO", 3)}"
+                gameLog.debug "${format(awayStarter.nameFirst + " " + awayStarter.nameLast, 20)}  ${format(awayStarter.simPitcher.wins, 3)}  ${format(awayStarter.simPitcher.losses, 3)}  ${format(awayStarter.battersRetired/3, 5)}  ${format(awayStarter.runs, 3)}  ${awayStarter.simPitcher.era}  ${format(awayStarter.hits, 3)}  ${format(awayStarter.homers, 3)}  ${format(awayStarter.walks, 3)}  ${format(awayStarter.strikeouts, 3)}"
+                printTeamHittingStats(homeLineup)
                 inning++
                 awayInnings.add(0)
                 homeInnings.add(0)
@@ -181,11 +243,15 @@ class BallGame {
             if (homeScore > awayScore) {
                 homeTeam["wins"] = homeTeam["wins"] + 1
                 awayTeam["losses"] = awayTeam["losses"] + 1
+                homeTeam["winDiff"] = homeTeam["wins"] - homeTeam["losses"]
+                awayTeam["winDiff"] = awayTeam["wins"] - awayTeam["losses"]
                 homeStarter.simPitcher.wins += 1
                 awayStarter.simPitcher.losses += 1
             } else {
                 awayTeam["wins"] = awayTeam["wins"] + 1
                 homeTeam["losses"] = homeTeam["losses"] + 1
+                homeTeam["winDiff"] = homeTeam["wins"] - homeTeam["losses"]
+                awayTeam["winDiff"] = awayTeam["wins"] - awayTeam["losses"]
                 awayStarter.simPitcher.wins += 1
                 homeStarter.simPitcher.losses += 1
             }
@@ -199,9 +265,9 @@ class BallGame {
             }
             //println "Final score:  ${awayTeamName} ${awayScore}  ${homeTeamName} ${homeScore}"
             highlightsLog.debug ""
-            highlightsLog.debug "${format("Teams", 20)}  ${format("R", 3)}  ${format("H", 3)}  ${format("E", 3)}"
-            highlightsLog.debug "${format(awayTeamName, 20)}  ${format(awayScore, 3)}  ${format(awayHits, 3)}  ${format(awayErrors, 3)}"
-            highlightsLog.debug "${format(homeTeamName, 20)}  ${format(homeScore, 3)}  ${format(homeHits, 3)}  ${format(homeErrors, 3)}"
+            highlightsLog.debug "${format("Teams", 20)}  1  2  3  4  5  6  7  8  9   ${format("R", 3)}  ${format("H", 3)}  ${format("E", 3)}"
+            highlightsLog.debug "${format(awayTeamName, 20)}  ${format(awayInnings[0], 2)} ${format(awayInnings[1], 2)} ${format(awayInnings[2], 2)} ${format(awayInnings[3], 2)} ${format(awayInnings[4], 2)} ${format(awayInnings[5], 2)} ${format(awayInnings[6], 2)} ${format(awayInnings[7], 2)} ${format(awayInnings[8], 2)}  ${format(awayScore, 3)}  ${format(awayHits, 3)}  ${format(awayErrors, 3)}"
+            highlightsLog.debug "${format(homeTeamName, 20)}  ${format(homeInnings[0], 2)} ${format(homeInnings[1], 2)} ${format(homeInnings[2], 2)} ${format(homeInnings[3], 2)} ${format(homeInnings[4], 2)} ${format(homeInnings[5], 2)} ${format(homeInnings[6], 2)} ${format(homeInnings[7], 2)} ${format(homeInnings[8], 2)}  ${format(homeScore, 3)}  ${format(homeHits, 3)}  ${format(homeErrors, 3)}"
             logBoxScore()
         } else {
             if (gameLogEnabled) {
@@ -222,24 +288,44 @@ class BallGame {
             boxscoreLog.debug "$awayTeamName:"
             boxscoreLog.debug "${format("Batter", 20)}  ${format("AB", 3)}  ${format("R", 3)}  ${format("H", 3)}  ${format("2B", 3)}  ${format("3B", 3)}  ${format("HR", 3)}  ${format("RBI", 4)}  ${format("BB", 3)}  ${format("SO", 3)}  ${format("SB", 3)}  ${format("CS", 3)}  ${format("AVG", 5)} "
             awayLineup.each {
-                boxscoreLog.debug "${format(it.simBatter.batter.name, 20)}  ${format(it.atBats, 3)}  ${format(it.runs, 3)}  ${format(it.hits, 3)}  ${format(it.doubles, 3)}  ${format(it.triples, 3)}  ${format(it.homers, 3)}  ${format(it.rbi, 4)}  ${format(it.walks, 3)}  ${format(it.strikeouts, 3)}  ${format(it.stolenBases, 3)}  ${format(it.caughtStealing, 3)}  ${format(it.simBatter.battingAvg, 5)}"
+                boxscoreLog.debug "${format(it.nameFirst + " " + it.nameLast, 20)}  ${format(it.atBats, 3)}  ${format(it.runs, 3)}  ${format(it.hits, 3)}  ${format(it.doubles, 3)}  ${format(it.triples, 3)}  ${format(it.homers, 3)}  ${format(it.rbi, 4)}  ${format(it.walks, 3)}  ${format(it.strikeouts, 3)}  ${format(it.stolenBases, 3)}  ${format(it.caughtStealing, 3)}  ${format(it.simBatter.battingAvg + "0000", 5)}"
             }
             boxscoreLog.debug ""
             def era = awayStarter.runs / (awayStarter.battersRetired/27)
             boxscoreLog.debug "${format("Pitcher", 20)}  ${format("W", 3)}  ${format("L", 3)}  ${format("IP", 5)}  ${format("R", 3)}  ${format("ERA", 5)}  ${format("H", 3)}  ${format("HR", 3)}  ${format("BB", 3)}  ${format("SO", 3)}"
-            boxscoreLog.debug "${format(awayStarter.simPitcher.pitcher.name, 20)}  ${format(awayStarter.simPitcher.wins, 3)}  ${format(awayStarter.simPitcher.losses, 3)}  ${format(awayStarter.battersRetired/3, 5)}  ${format(awayStarter.runs, 3)}  ${awayStarter.simPitcher.era}  ${format(awayStarter.hits, 3)}  ${format(awayStarter.homers, 3)}  ${format(awayStarter.walks, 3)}  ${format(awayStarter.strikeouts, 3)}"
+            boxscoreLog.debug "${format(awayStarter.nameFirst + " " + awayStarter.nameLast, 20)}  ${format(awayStarter.simPitcher.wins, 3)}  ${format(awayStarter.simPitcher.losses, 3)}  ${format(awayStarter.battersRetired/3, 5)}  ${format(awayStarter.runs, 3)}  ${awayStarter.simPitcher.era}  ${format(awayStarter.hits, 3)}  ${format(awayStarter.homers, 3)}  ${format(awayStarter.walks, 3)}  ${format(awayStarter.strikeouts, 3)}"
             boxscoreLog.debug ""
             boxscoreLog.debug ""
             boxscoreLog.debug "$homeTeamName:"
             boxscoreLog.debug "${format("Batter", 20)}  ${format("AB", 3)}  ${format("R", 3)}  ${format("H", 3)}  ${format("2B", 3)}  ${format("3B", 3)}  ${format("HR", 3)}  ${format("RBI", 4)}  ${format("BB", 3)}  ${format("SO", 3)}  ${format("SB", 3)}  ${format("CS", 3)}  ${format("AVG", 5)} "
             homeLineup.each {
-                boxscoreLog.debug "${format(it.simBatter.batter.name, 20)}  ${format(it.atBats, 3)}  ${format(it.runs, 3)}  ${format(it.hits, 3)}  ${format(it.doubles, 3)}  ${format(it.triples, 3)}  ${format(it.homers, 3)}  ${format(it.rbi, 4)}  ${format(it.walks, 3)}  ${format(it.strikeouts, 3)}  ${format(it.stolenBases, 3)}  ${format(it.caughtStealing, 3)}  ${format(it.simBatter.battingAvg, 5)}"
+                boxscoreLog.debug "${format(it.nameFirst + " " + it.nameLast, 20)}  ${format(it.atBats, 3)}  ${format(it.runs, 3)}  ${format(it.hits, 3)}  ${format(it.doubles, 3)}  ${format(it.triples, 3)}  ${format(it.homers, 3)}  ${format(it.rbi, 4)}  ${format(it.walks, 3)}  ${format(it.strikeouts, 3)}  ${format(it.stolenBases, 3)}  ${format(it.caughtStealing, 3)}  ${format(it.simBatter.battingAvg + "0000", 5)}"
             }
             boxscoreLog.debug ""
             boxscoreLog.debug "${format("Pitcher", 20)}  ${format("W", 3)}  ${format("L", 3)}  ${format("IP", 5)}  ${format("R", 3)}  ${format("ERA", 5)}  ${format("H", 3)}  ${format("HR", 3)}  ${format("BB", 3)}  ${format("SO", 3)}"
-            boxscoreLog.debug "${format(homeStarter.simPitcher.pitcher.name, 20)}  ${format(homeStarter.simPitcher.wins, 3)}  ${format(homeStarter.simPitcher.losses, 3)}  ${format(homeStarter.battersRetired/3, 5)}  ${format(homeStarter.runs, 3)}  ${homeStarter.simPitcher.era}  ${format(homeStarter.hits, 3)}  ${format(homeStarter.homers, 3)}  ${format(homeStarter.walks, 3)}  ${format(homeStarter.strikeouts, 3)}"
+            boxscoreLog.debug "${format(homeStarter.nameFirst + " " + homeStarter.nameLast, 20)}  ${format(homeStarter.simPitcher.wins, 3)}  ${format(homeStarter.simPitcher.losses, 3)}  ${format(homeStarter.battersRetired/3, 5)}  ${format(homeStarter.runs, 3)}  ${homeStarter.simPitcher.era}  ${format(homeStarter.hits, 3)}  ${format(homeStarter.homers, 3)}  ${format(homeStarter.walks, 3)}  ${format(homeStarter.strikeouts, 3)}"
         }
     }
+
+    private void printTeamHittingStats(def lineup) {
+        int atBats = 0, runs = 0, hits = 0, doubles = 0, triples = 0, homers = 0, rbi = 0, bb = 0, so = 0, sb = 0, cs = 0
+        lineup.each {
+            atBats += it.atBats
+            runs += it.runs
+            hits += it.hits
+            doubles += it.doubles
+            triples += it.triples
+            homers += it.homers
+            rbi += it.rbi
+            bb += it.walks
+            so += it.strikeouts
+            sb += it.stolenBases
+            cs += it.caughtStealing
+        }
+        gameLog.debug "${format("AB", 3)}  ${format("R", 3)}  ${format("H", 3)}  ${format("2B", 3)}  ${format("3B", 3)}  ${format("HR", 3)}  ${format("RBI", 4)}  ${format("BB", 3)}  ${format("SO", 3)}  ${format("SB", 3)}  ${format("CS", 3)}  ${format("AVG", 5)} "
+        gameLog.debug "${format(atBats, 3)}  ${format(runs, 3)}  ${format(hits, 3)}  ${format(doubles, 3)}  ${format(triples, 3)}  ${format(homers, 3)}  ${format(rbi, 4)}  ${format(bb, 3)}  ${format(so, 3)}  ${format(sb, 3)}  ${format(cs, 3)}"
+    }
+
 
     private def format(def text, int length) {
         text = text + ''
@@ -251,16 +337,23 @@ class BallGame {
         }
     }
 
-    private def ballInPlay(def batter, pitcher, atBatResult) {
+    private def ballInPlay(def batter, pitcher, atBatResult, int doublePlayCount) {
         def runsScored = 0
         def hitOnPlay = 0
         def notes = ""
+        Random generator = new Random()
         if (atBatResult == AtBatResult.SINGLE) {
             if (bases == Bases.EMPTY) {
                 bases = Bases.FIRST
             } else if (bases == Bases.FIRST) {
-                bases = Bases.FIRST_AND_SECOND
-                runnerSecond = runnerFirst
+                int dieRoll = generator.nextInt(100) + 1
+                if (dieRoll <= 28) {
+                    bases = Bases.CORNERS
+                    runnerThird = runnerFirst
+                } else {
+                    bases = Bases.FIRST_AND_SECOND
+                    runnerSecond = runnerFirst
+                }
             } else if (bases == Bases.SECOND) {
                 bases = Bases.FIRST
                 runnerSecond.runs += 1
@@ -278,13 +371,20 @@ class BallGame {
                 batter.simBatter.rbi += 1
                 runsScored = 1
             } else if (bases == Bases.FIRST_AND_SECOND) {
-                bases = Bases.FIRST_AND_SECOND
                 runnerSecond.runs += 1
                 runnerSecond.simBatter.runs += 1
-                runnerSecond = runnerFirst
                 batter.rbi += 1
                 batter.simBatter.rbi += 1
                 runsScored = 1
+                int dieRoll = generator.nextInt(100) + 1
+                if (dieRoll <= 28) {
+                    bases = Bases.CORNERS
+                    runnerThird = runnerFirst
+                    runnerSecond = null
+                } else {
+                    bases = Bases.FIRST_AND_SECOND
+                    runnerSecond = runnerFirst
+                }
             } else if (bases == Bases.SECOND_AND_THIRD) {
                 bases = Bases.FIRST
                 runnerSecond.runs += 1
@@ -297,22 +397,37 @@ class BallGame {
                 batter.simBatter.rbi += 2
                 runsScored = 2
             } else if (bases == Bases.CORNERS) {
-                bases = Bases.FIRST_AND_SECOND
                 runnerThird.runs += 1
                 runnerThird.simBatter.runs += 1
-                runnerThird = null
-                runnerSecond = runnerFirst
                 batter.rbi += 1
                 batter.simBatter.rbi += 1
                 runsScored = 1
+                int dieRoll = generator.nextInt(100) + 1
+                if (dieRoll <= 28) {
+                    bases = Bases.CORNERS
+                    runnerThird = runnerFirst
+                    runnerSecond = null
+                } else {
+                    bases = Bases.FIRST_AND_SECOND
+                    runnerSecond = runnerFirst
+                    runnerThird = null
+                }
             } else if (bases == Bases.LOADED) {
                 bases = Bases.FIRST_AND_SECOND
                 runnerSecond.runs += 1
                 runnerSecond.simBatter.runs += 1
                 runnerThird.runs += 1
                 runnerThird.simBatter.runs += 1
-                runnerThird = null
-                runnerSecond = runnerFirst
+                int dieRoll = generator.nextInt(100) + 1
+                if (dieRoll <= 28) {
+                    bases = Bases.CORNERS
+                    runnerSecond = null
+                    runnerThird = runnerFirst
+                } else {
+                    bases = Bases.FIRST_AND_SECOND
+                    runnerSecond = runnerFirst
+                    runnerThird = null
+                }
                 batter.rbi += 2
                 batter.simBatter.rbi += 2
                 runsScored = 2
@@ -356,14 +471,26 @@ class BallGame {
                 outs++
             } else if (bases == Bases.FIRST) {
                 if (outs < 2) {
-                    outs += 2
-                    notes = "Double play."
-                    bases = Bases.EMPTY
-                    runnerFirst = null
+                    if (doublePlayCount <= 1) {
+                        outs += 2
+                        notes = "Double play."
+                        pitcher.battersRetired += 1
+                        pitcher.simPitcher.battersRetired += 1
+                        bases = Bases.EMPTY
+                        runnerFirst = null
+                        if (side == HalfInning.TOP) {
+                            homeDoublePlays++
+                        } else {
+                            awayDoublePlays++
+                        }
+                    } else {
+                        outs++
+                        runnerFirst = batter
+                    }
                 } else {
                     outs++
-                    bases = Bases.EMPTY
-                    runnerFirst = null
+                    bases = Bases.SECOND
+                    runnerSecond = runnerFirst
                 }
             } else if (bases == Bases.SECOND) {
                 runnerThird = runnerSecond
@@ -375,12 +502,31 @@ class BallGame {
                 runnerFirst = null
                 outs++
             } else if (bases == Bases.FIRST_AND_SECOND) {
-                outs += 2
-                notes = "Double play."
-                bases = Bases.THIRD
-                runnerThird = runnerSecond
-                runnerSecond = null
-                runnerFirst = null
+                if (outs < 2) {
+                    if (doublePlayCount <= 1) {
+                        outs += 2
+                        notes = "Double play."
+                        pitcher.battersRetired += 1
+                        pitcher.simPitcher.battersRetired += 1
+                        bases = Bases.THIRD
+                        runnerThird = runnerSecond
+                        runnerSecond = null
+                        runnerFirst = null
+                        if (side == HalfInning.TOP) {
+                            homeDoublePlays++
+                        } else {
+                            awayDoublePlays++
+                        }
+                    } else {
+                        outs++
+                        bases = Bases.SECOND_AND_THIRD
+                        runnerThird = runnerSecond
+                        runnerSecond = runnerFirst
+                        runnerFirst = null
+                    }
+                } else {
+                    outs++
+                }
             } else if (bases == Bases.SECOND_AND_THIRD) {
                 runnerFirst = null
                 outs++
@@ -397,8 +543,18 @@ class BallGame {
             if (bases == Bases.EMPTY) {
                 bases = Bases.SECOND
             } else if (bases == Bases.FIRST) {
-                bases = Bases.SECOND_AND_THIRD
-                runnerThird = runnerFirst
+                int dieRoll = generator.nextInt(100) + 1
+                if (dieRoll <= 28) {
+                    bases = Bases.SECOND
+                    runnerThird = null
+                    runnerFirst = null
+                    batter.rbi += 1
+                    batter.simBatter.rbi += 1
+                    runsScored = 1
+                } else {
+                    bases = Bases.SECOND_AND_THIRD
+                    runnerThird = runnerFirst
+                }
             } else if (bases == Bases.SECOND) {
                 bases = Bases.SECOND
                 runnerSecond.runs += 1
@@ -414,13 +570,25 @@ class BallGame {
                 batter.simBatter.rbi += 1
                 runsScored = 1
             } else if (bases == Bases.FIRST_AND_SECOND) {
-                bases = Bases.SECOND_AND_THIRD
-                runnerSecond.runs += 1
-                runnerSecond.simBatter.runs += 1
-                runnerThird = runnerFirst
-                batter.rbi += 1
-                batter.simBatter.rbi += 1
-                runsScored = 1
+                int dieRoll = generator.nextInt(100) + 1
+                if (dieRoll <= 28) {
+                    bases = Bases.SECOND
+                    runnerFirst.runs += 1
+                    runnerFirst.simBatter.runs += 1
+                    runnerSecond.runs += 1
+                    runnerSecond.simBatter.runs += 1
+                    batter.rbi += 2
+                    batter.simBatter.rbi += 2
+                    runsScored = 2
+                } else {
+                    bases = Bases.SECOND_AND_THIRD
+                    runnerSecond.runs += 1
+                    runnerSecond.simBatter.runs += 1
+                    runnerThird = runnerFirst
+                    batter.rbi += 1
+                    batter.simBatter.rbi += 1
+                    runsScored = 1
+                }
             } else if (bases == Bases.SECOND_AND_THIRD) {
                 bases = Bases.SECOND
                 runnerSecond.runs += 1
@@ -432,23 +600,48 @@ class BallGame {
                 batter.simBatter.rbi += 2
                 runsScored = 2
             } else if (bases == Bases.CORNERS) {
-                bases = Bases.SECOND_AND_THIRD
-                runnerThird.runs += 1
-                runnerThird.simBatter.runs += 1
-                runnerThird = runnerFirst
-                batter.rbi += 1
-                batter.simBatter.rbi += 1
-                runsScored = 1
+                int dieRoll = generator.nextInt(100) + 1
+                if (dieRoll <= 28) {
+                    bases = Bases.SECOND
+                    runnerFirst = null
+                    runnerThird = null
+                    batter.rbi += 2
+                    batter.simBatter.rbi += 2
+                    runsScored = 2
+                } else {
+                    bases = Bases.SECOND_AND_THIRD
+                    runnerThird.runs += 1
+                    runnerThird.simBatter.runs += 1
+                    runnerThird = runnerFirst
+                    runnerFirst = null
+                    batter.rbi += 1
+                    batter.simBatter.rbi += 1
+                    runsScored = 1
+                }
             } else if (bases == Bases.LOADED) {
-                bases = Bases.SECOND_AND_THIRD
+                int dieRoll = generator.nextInt(100) + 1
                 runnerSecond.runs += 1
                 runnerSecond.simBatter.runs += 1
                 runnerThird.runs += 1
                 runnerThird.simBatter.runs += 1
-                runnerThird = runnerFirst
-                batter.rbi += 2
-                batter.simBatter.rbi += 2
-                runsScored = 2
+                if (dieRoll <= 28) {
+                    bases = Bases.SECOND
+                    runnerFirst.runs += 1
+                    runnerFirst.simBatter.runs += 1
+                    runnerThird = null
+                    runnerFirst = null
+                    batter.rbi += 3
+                    batter.simBatter.rbi += 3
+                    runsScored = 3
+                } else {
+                    bases = Bases.SECOND_AND_THIRD
+                    runnerThird = runnerFirst
+                    runnerSecond = null
+                    runnerFirst = null
+                    batter.rbi += 2
+                    batter.simBatter.rbi += 2
+                    runsScored = 2
+                }
             }
             hitOnPlay = 1
             runnerSecond = batter
@@ -640,41 +833,37 @@ class BallGame {
         }
 
 
-        def msg = new StringBuilder("${batter.simBatter.batter.name}: ${atBatResult.value}.  ${textRunsScored}${bases.value}  $outs out.  ")
+        def msg = new StringBuilder("${batter.nameFirst} ${batter.nameLast}: ${atBatResult.value}.  ${textRunsScored}${bases.value}  $outs out.  ")
+        if (notes.trim() != "") {
+            msg += "$notes  "
+        }
         if (runnerFirst) {
-            msg << "${runnerFirst.simBatter.batter.name} at first.  "
+            msg << "${runnerFirst.nameFirst} ${runnerFirst.nameLast} at first.  "
         }
         if (runnerSecond) {
-            msg << "${runnerSecond.simBatter.batter.name} at second.  "
+            msg << "${runnerSecond.nameFirst} ${runnerSecond.nameLast} at second.  "
         }
         if (runnerThird) {
-            msg << "${runnerThird.simBatter.batter.name} at third.  "
+            msg << "${runnerThird.nameFirst} ${runnerThird.nameLast} at third.  "
         }
         if (gameLogEnabled) {
             gameLog.debug "${msg.toString()}"
         }
     }
 
-    private def pitchToBatter(GameBatter gameBatter, GamePitcher gamePitcher, SimStyle simStyle) {
+    private def pitchToBatter(GameBatter gameBatter, GamePitcher gamePitcher, int pitcherCount, SimStyle simStyle) {
          if (simType == SimType.ACCURATE && gameBatter.simBatter.atBats > 50 && gamePitcher.simPitcher.battersRetired > 50) {
-             pitchToBatterAccurate(gameBatter, gamePitcher, simStyle)
+             pitchToBatterAccurate(gameBatter, gamePitcher, pitcherCount, simStyle)
          } else {
-             pitchToBatterRandom(gameBatter, gamePitcher, simStyle)
+             pitchToBatterRandom(gameBatter, gamePitcher, pitcherCount, simStyle)
          }
     }
 
 
-    private def pitchToBatterRandom(GameBatter gameBatter, GamePitcher gamePitcher, SimStyle simStyle) {
+    private def pitchToBatterRandom(GameBatter gameBatter, GamePitcher gamePitcher, int pitcherCount, SimStyle simStyle) {
 
         def stealAttemptResult = tryStolenBase()
         if (stealAttemptResult == AtBatResult.NO_STEAL) {
-            // Increment pitch count
-            if (gamePitcher.battersFaced % 2 == 0) {
-                gamePitcher.pitches += 3
-            } else {
-                gamePitcher.pitches += 4
-            }
-
             // Batter Info
             SimBatter simBatter = gameBatter.simBatter
             SimPitcher simPitcher = gamePitcher.simPitcher
@@ -687,12 +876,13 @@ class BallGame {
             def batterDoubleRate = batter.getRate(batter.doubles, batter.hits)
             def batterTripleRate = batter.getRate(batter.triples, batter.hits)
 
+            def adjustment = BigDecimal.ZERO
             // Pitcher Info
-            def pitcherHitRate = pitcher.getRate(pitcher.hits)
-            def pitcherWalkRate = pitcher.getRate(pitcher.walks + pitcher.hitByPitch)
+            def pitcherHitRate = pitcher.getRate(pitcher.hits) + adjustment
+            def pitcherWalkRate = pitcher.getRate(pitcher.walks + pitcher.hitByPitch) + adjustment
             def pitcherBalkRate = pitcher.getRate(pitcher.balks)
             def pitcherStrikeoutRate = pitcher.getRate(pitcher.strikeouts)
-            def pitcherHomerRate = pitcher.getRate(pitcher.homers, pitcher.hits)
+            def pitcherHomerRate = pitcher.getRate(pitcher.homers, pitcher.hits) + adjustment
 
             def actualHitRate, actualWalkRate, actualStrikeoutRate, actualHomerRate
             if (simStyle == SimStyle.PITCHER_FOCUSED) {
@@ -705,6 +895,11 @@ class BallGame {
                 actualWalkRate = batterWalkRate
                 actualStrikeoutRate = batterStrikeoutRate
                 actualHomerRate = batterHomerRate
+            } else if (simStyle == SimStyle.BATTER_HEAVY) {
+                actualHitRate = ((batterHitRate + batterHitRate + pitcherHitRate) / 3)
+                actualWalkRate = ((batterWalkRate + batterWalkRate + pitcherWalkRate) / 3)
+                actualStrikeoutRate = ((batterStrikeoutRate + batterStrikeoutRate + pitcherStrikeoutRate) / 3)
+                actualHomerRate = ((batterHomerRate + batterHomerRate + pitcherHomerRate) / 3)
             } else {
                 // Combined Rates
                 actualHitRate = ((batterHitRate + pitcherHitRate) / 2)
@@ -777,7 +972,7 @@ class BallGame {
         }
     }
 
-    private def pitchToBatterAccurate(GameBatter gameBatter, GamePitcher gamePitcher, SimStyle simStyle) {
+    private def pitchToBatterAccurate(GameBatter gameBatter, GamePitcher gamePitcher, int pitcherCount, SimStyle simStyle) {
 
         def stealAttemptResult = tryStolenBase()
         if (stealAttemptResult == AtBatResult.NO_STEAL) {
@@ -793,12 +988,13 @@ class BallGame {
             def batterDoubleRate = batter.getRate(batter.doubles, batter.hits)
             def batterTripleRate = batter.getRate(batter.triples, batter.hits)
 
+            def adjustment = BigDecimal.ZERO
             // Pitcher Info
-            def pitcherHitRate = pitcher.getRate(pitcher.hits)
-            def pitcherWalkRate = pitcher.getRate(pitcher.walks + pitcher.hitByPitch, pitcher.walks + pitcher.hitByPitch + pitcher.battersRetired)
+            def pitcherHitRate = pitcher.getRate(pitcher.hits) + adjustment
+            def pitcherWalkRate = pitcher.getRate(pitcher.walks + pitcher.hitByPitch, pitcher.walks + pitcher.hitByPitch + pitcher.battersRetired) + adjustment
             def pitcherBalkRate = pitcher.getRate(pitcher.balks)
             def pitcherStrikeoutRate = pitcher.getRate(pitcher.strikeouts, pitcher.walks + pitcher.hitByPitch + pitcher.battersRetired)
-            def pitcherHomerRate = pitcher.getRate(pitcher.homers, pitcher.hits)
+            def pitcherHomerRate = pitcher.getRate(pitcher.homers, pitcher.hits) + adjustment
 
             def actualHitRate, actualWalkRate, actualStrikeoutRate, actualHomerRate
             if (simStyle == SimStyle.PITCHER_FOCUSED) {
@@ -811,6 +1007,11 @@ class BallGame {
                 actualWalkRate = batterWalkRate
                 actualStrikeoutRate = batterStrikeoutRate
                 actualHomerRate = batterHomerRate
+            } else if (simStyle == SimStyle.BATTER_HEAVY) {
+                actualHitRate = ((batterHitRate + batterHitRate + pitcherHitRate) / 3)
+                actualWalkRate = ((batterWalkRate + batterWalkRate + pitcherWalkRate) / 3)
+                actualStrikeoutRate = ((batterStrikeoutRate + batterStrikeoutRate + pitcherStrikeoutRate) / 3)
+                actualHomerRate = ((batterHomerRate + batterHomerRate + pitcherHomerRate) / 3)
             } else {
                 // Combined Rates
                 actualHitRate = ((batterHitRate + pitcherHitRate) / 2)

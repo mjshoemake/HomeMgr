@@ -1,9 +1,11 @@
 package baseball.domain
 
-class GameBatter {
+class GameBatter extends GameBatterComparable {
 
     def simBatter
 
+    String nameFirst, nameLast
+    String position
     int battingPos = 0
     int atBats = 0
     int walks = 0
@@ -17,6 +19,19 @@ class GameBatter {
     int hitByPitch = 0
     int stolenBases = 0
     int caughtStealing = 0
+
+    GameBatter() {
+        super()
+    }
+
+    def getPositions() {
+        Batter myBatter = simBatter.batter
+        List<String> result = []
+        myBatter.position.each() {
+            result << it.position
+        }
+        return result
+    }
 
     def getBattingAvg() {
         BigDecimal.valueOf(hits / atBats)

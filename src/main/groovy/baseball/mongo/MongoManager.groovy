@@ -9,6 +9,7 @@ import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.WriteResult
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.result.DeleteResult
 import groovy.json.*
 import mjs.common.utils.BsonConverter
 import mjs.common.utils.LogUtils
@@ -26,7 +27,7 @@ class MongoManager {
     MongoDatabase db = null
 
     void open(String database) {
-        client = open("localhost", 27017, database)
+        open("localhost", 27017, database)
     }
 
     void open(String host, int port, String database) {
@@ -37,26 +38,62 @@ class MongoManager {
         db = client.getDatabase(uri.getDatabase())
     }
 
+    void close() {
+        client.close()
+        client = null
+        db = null
+    }
+
     ObjectId generateObjectId() {
         return new ObjectId()
     }
 
     ObjectId addToCollection(String collection, Object obj) {
         obj._id = generateObjectId()
+        println "Adding new object to collection $collection."
         String json = new JsonBuilder(obj).toPrettyString()
-        addToCollection(collection, json)
+        privateAddToCollection(collection, json)
         return obj._id
     }
 
-    void addToCollection(String collection, String json) {
+    private void privateAddToCollection(String collection, String json) {
         MongoCollection<Document> table = db.getCollection(collection)
         Document doc = Document.parse(json)
         table.insertOne(doc)
     }
 
+    /*
+    ObjectId updateOne(String collection, Object obj) {
+        obj._id = generateObjectId()
+        println "Adding new object to collection $collection."
+        LogUtils.println(obj, "   ", true)
+        String json = new JsonBuilder(obj).toPrettyString()
+        privateAddToCollection(collection, json)
+        MongoCollection<Document> table = db.getCollection(collection)
+        Bson doc = Document.parse(json)
+        table.update(doc);
+    }
+    */
+
     long getCount(String collection) {
         MongoCollection<Document> table = db.getCollection(collection)
         return table.count()
+    }
+
+    long deleteOne(String collection, Map filterMap) {
+        MongoCollection<Document> table = db.getCollection(collection)
+        Bson filter = new BsonConverter().objectToBson(filterMap)
+        DeleteResult result = table.deleteOne(filter)
+        // Return the number of rows deleted.
+        result.deletedCount
+    }
+
+    long deleteMany(String collection, Map filterMap) {
+        MongoCollection<Document> table = db.getCollection(collection)
+        Bson filter = new BsonConverter().objectToBson(filterMap)
+        DeleteResult result = table.deleteMany(filter)
+        // Return the number of rows deleted.
+        result.deletedCount
     }
 
     List findAll(String collection) {
@@ -66,14 +103,15 @@ class MongoManager {
         JsonSlurper jsonSlurper = new JsonSlurper()
         while (iter.hasNext()) {
             Document nextDoc = iter.next()
-            list << jsonSlurper.parseText(nextDoc.toJson())
+            Object obj = jsonSlurper.parseText(nextDoc.toJson())
+            list << new BsonConverter().reconstructBean(obj);
         }
-        LogUtils.println(list, "   ", true)
         list
     }
 
     List find(String collection, Map filterMap) {
-        Bson filter = new BsonConverter().objectToBson(filterMap)
+        BsonConverter bsonConverter = new BsonConverter()
+        Bson filter = bsonConverter.objectToBson(filterMap)
 
         MongoCollection<Document> table = db.getCollection(collection)
         MongoCursor<Document> iter = table.find(filter).iterator()
@@ -81,12 +119,12 @@ class MongoManager {
         JsonSlurper jsonSlurper = new JsonSlurper()
         while (iter.hasNext()) {
             Document nextDoc = iter.next()
-            list << jsonSlurper.parseText(nextDoc.toJson())
+            Object obj = jsonSlurper.parseText(nextDoc.toJson())
+            list << bsonConverter.reconstructBean(obj);
         }
         list
     }
 
     List find(String key, Object value) {
-        iter
     }
 }
